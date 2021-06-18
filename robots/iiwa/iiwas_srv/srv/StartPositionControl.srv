@@ -1,0 +1,8 @@
+# Option:
+# 0: joint position control
+# 1: cartesian impedance control (TODO)
+# 2: joint impedance control
+int16 mode
+---
+bool success
+string msg

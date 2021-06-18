@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>iiwas_gazebo</name>
+  <version>0.0.0</version>
+  <description>The iiwas_gazebo package</description>
+
+  <maintainer email="davide@robot-learning.de">Davide Tateo</maintainer>
+
+  <license>MIT</license>
+
+  <url type="website">http://wiki.ros.org/iiwas_gazebo</url>
+
+
+  <author email="davide@robot-learning.de">Davide Tateo</author>
+  
+  <buildtool_depend>catkin</buildtool_depend>
+  <exec_depend>iiwas_description</exec_depend>
+  <exec_depend>gazebo_ros</exec_depend>
+</package>

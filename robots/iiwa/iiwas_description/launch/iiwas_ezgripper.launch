@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<launch>
+	<arg name="urdf_file" default="$(find iiwas_description)/robots/iiwas_ezgripper.urdf.xacro"/>
+
+	<param name="robot_description" command="$(find xacro)/xacro '$(arg urdf_file)'"/>
+
+	<node name="rviz" pkg="rviz" type="rviz" required="true" />
+
+	<node pkg="joint_state_publisher_gui" type="joint_state_publisher_gui" name="joint_state_publisher" output="screen">
+		
+	</node>
+
+	<node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher" output="screen">
+      <param name="publish_frequency" type="double" value="50.0"/>
+    </node>
+</launch>

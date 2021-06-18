@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<robot name="puck">
+    <material name="red_pastel">
+        <color rgba="0.92 0.46 0.43 1"/>
+    </material>
+
+    <link name="puck_link">
+        <inertial>
+            <origin xyz="0 1.01 1.01" rpy="0 0 0"/>
+            <mass value="2."/>
+            <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1"/>
+        </inertial>
+        <visual name="visual">
+            <origin xyz="0 1.01 1.01" rpy="0 0 0"/>
+            <geometry>
+                <cylinder radius="0.03165" length="0.02"/>
+            </geometry>
+            <material name="red_pastel"/>
+        </visual>
+        <collision name="collision">
+            <origin xyz="0 1.01 1.01" rpy="0 0 0"/>
+            <geometry>
+                <cylinder radius="0.03165" length="0.02"/>
+            </geometry>
+            <surface>
+                <bounce>
+                    <restitution_coefficient>1</restitution_coefficient>
+                    <threshold>0</threshold>
+                </bounce>
+                 <contact>
+                    <ode>
+                     <kp>1.0</kp>
+                     <kd>0.01</kd>
+                     <max_vel>0.0</max_vel>
+                     <min_depth>0.001</min_depth>
+                    </ode>
+                   </contact>
+                <friction>
+                    <ode>
+                        <mu>0.9</mu>
+                        <mu2>0.9</mu2>
+                    </ode>
+                </friction>
+            </surface>
+        </collision>
+        <contact>
+            <restitution value="0.9"/>
+            <lateral_friction value="0.405"/>
+            <rolling_friction value="0.0"/>
+            <spinning_friction value="0.0"/>
+        </contact>
+    </link>
+    <static>0</static>
+</robot>
+

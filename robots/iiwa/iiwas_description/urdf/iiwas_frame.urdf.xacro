@@ -1,0 +1,332 @@
+<?xml version="1.0"?>
+
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+    <!--       xmlns:sensor="http://playerstage.sourceforge.net/gazebo/xmlschema/#sensor"-->
+    <!--       xmlns:controller="http://playerstage.sourceforge.net/gazebo/xmlschema/#controller"-->
+    <!--       xmlns:interface="http://playerstage.sourceforge.net/gazebo/xmlschema/#interface">-->
+
+    <xacro:property name="horizontal_bar_outer_l" value="1.56"/>
+    <xacro:property name="horizontal_bar_outer_w" value="0.08"/>
+    <xacro:property name="horizontal_bar_outer_h" value="0.165"/>
+    <xacro:property name="horizontal_bar_inner_l" value="1.56"/>
+    <xacro:property name="horizontal_bar_inner_w" value="0.12"/>
+    <xacro:property name="horizontal_bar_inner_h" value="0.165"/>
+    <xacro:property name="vertical_bar_l" value="3.50"/>
+    <xacro:property name="vertical_bar_w" value="0.12"/>
+    <xacro:property name="vertical_bar_h" value="0.165"/>
+    <xacro:property name="base_l" value="0.35"/>
+    <xacro:property name="base_w" value="0.35"/>
+    <xacro:property name="base_h" value="0.03"/>
+    <xacro:property name="base_to_bar_y" value="0.61"/>
+    <xacro:property name="world_frame_origin_x" value="-0.048"/>
+    <xacro:property name="world_frame_origin_y" value="-0.076"/>
+
+    <xacro:macro name="iiwas_frame" params="name front_x front_y front_z back_x back_y back_z">
+
+        <link name="world"/>
+        <joint name="iiwa_frame_origin_joint" type="fixed">
+            <origin xyz="${world_frame_origin_x} ${world_frame_origin_y} 0.0"
+                    rpy="0.0 0.0 0.0"/>
+            <parent link="world"/>
+            <child link="iiwa_frame_origin"/>
+        </joint>
+
+        <link name="iiwa_frame_origin">
+        </link>
+
+        <joint name="front_in" type="fixed">
+            <origin xyz="${front_x - world_frame_origin_x}
+                    ${horizontal_bar_inner_l/2 + vertical_bar_w}
+                    -${vertical_bar_h/2}" rpy="0.0 0.0 0.0"/>
+
+            <parent link="iiwa_frame_origin"/>
+            <child link="h_bar_front_in"/>
+        </joint>
+
+        <link name="h_bar_front_in">
+            <inertial>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+                <mass value="5"/>
+                <inertia
+                        ixx="0.0175" ixy="0.0" ixz="0.0"
+                        iyy="1.025" iyz="0.0"
+                        izz="1.02"/>
+            </inertial>
+            <visual>
+                <origin xyz="0.0 0.0 0.0"
+                        rpy="0.0 0.0 0.0"/>
+                <geometry>
+                    <box size="${horizontal_bar_inner_w} ${horizontal_bar_inner_l} ${horizontal_bar_inner_h}"/>
+                </geometry>
+                <material name="LightGrey"/>
+            </visual>
+
+            <collision>
+                <origin xyz="0.0 0.0 0.0"
+                        rpy="0.0 0.0 0.0"/>
+                <geometry>
+                    <box size="${horizontal_bar_inner_w} ${horizontal_bar_inner_l} ${horizontal_bar_inner_h}"/>
+                </geometry>
+            </collision>
+            <selfCollide>0</selfCollide>
+        </link>
+
+        <joint name="front_base_joint" type="fixed">
+            <origin xyz="${front_x - world_frame_origin_x}
+                   ${front_y - world_frame_origin_y}
+                   ${base_h/2 + front_z}"
+                    rpy="0.0 0.0 0.0"/>
+            <parent link="iiwa_frame_origin"/>
+            <child link="front_base"/>
+        </joint>
+
+        <link name="front_base">
+            <inertial>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+                <mass value="3"/>
+                <inertia
+                        ixx="0.03" ixy="0.0" ixz="0.0"
+                        iyy="0.03" iyz="0.0"
+                        izz="0.06"/>
+            </inertial>
+            <visual>
+                <origin xyz="0.0 0.0 0.0"
+                        rpy="0.0 0.0 0.0"/>
+                <geometry>
+                    <box size="${base_l} ${base_w} ${base_h}"/>
+                </geometry>
+                <material name="Brown"/>
+            </visual>
+
+            <collision>
+                <origin xyz="0.0 0.0 0.0"
+                        rpy="0.0 0.0 0.0"/>
+                <geometry>
+                    <box size="${base_l} ${base_w} ${base_h}"/>
+                </geometry>
+            </collision>
+            <selfCollide>0</selfCollide>
+        </link>
+
+        <joint name="back_in" type="fixed">
+            <origin xyz="${back_x - world_frame_origin_x}
+                    ${horizontal_bar_inner_l/2 + vertical_bar_w}
+                    -${vertical_bar_h/2}" rpy="0.0 0.0 0.0"/>
+            <parent link="iiwa_frame_origin"/>
+            <child link="h_bar_back_in"/>
+        </joint>
+
+        <link name="h_bar_back_in">
+            <inertial>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+                <mass value="5"/>
+                <inertia
+                        ixx="0.0175" ixy="0.0" ixz="0.0"
+                        iyy="1.025" iyz="0.0"
+                        izz="1.02"/>
+            </inertial>
+            <visual>
+                <origin xyz="0.0 0.0 0.0"
+                        rpy="0.0 0.0 0.0"/>
+                <geometry>
+                    <box size="${horizontal_bar_inner_w} ${horizontal_bar_inner_l} ${horizontal_bar_inner_h}"/>
+                </geometry>
+                <material name="LightGrey"/>
+            </visual>
+
+            <collision>
+                <origin xyz="0.0 0.0 0.0"
+                        rpy="0.0 0.0 0.0"/>
+                <geometry>
+                    <box size="${horizontal_bar_inner_w} ${horizontal_bar_inner_l} ${horizontal_bar_inner_h}"/>
+                </geometry>
+            </collision>
+            <selfCollide>0</selfCollide>
+        </link>
+
+        <joint name="back_base_joint" type="fixed">
+            <origin xyz="${back_x - world_frame_origin_x}
+                     ${back_y - world_frame_origin_y}
+                     ${base_h/2 + back_z}"
+                    rpy="0.0 0.0 0.0"/>
+            <parent link="iiwa_frame_origin"/>
+            <child link="back_base"/>
+        </joint>
+
+        <link name="back_base">
+            <inertial>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+                <mass value="3"/>
+                <inertia
+                        ixx="0.03" ixy="0.0" ixz="0.0"
+                        iyy="0.03" iyz="0.0"
+                        izz="0.06"/>
+            </inertial>
+            <visual>
+                <origin xyz="0.0 0.0 0.0"
+                        rpy="0.0 0.0 0.0"/>
+                <geometry>
+                    <box size="${base_l} ${base_w} ${base_h}"/>
+                </geometry>
+                <material name="Brown"/>
+            </visual>
+
+            <collision>
+                <origin xyz="0.0 0.0 0.0"
+                        rpy="0.0 0.0 0.0"/>
+                <geometry>
+                    <box size="${base_l} ${base_w} ${base_h}"/>
+                </geometry>
+            </collision>
+            <selfCollide>0</selfCollide>
+        </link>
+
+        <joint name="front_out" type="fixed">
+            <origin xyz="${horizontal_bar_outer_w/2} ${horizontal_bar_outer_l/2 + vertical_bar_w} -${vertical_bar_h/2}"
+                    rpy="0.0 0.0 0"/>
+            <parent link="iiwa_frame_origin"/>
+            <child link="h_bar_front_out"/>
+        </joint>
+
+        <link name="h_bar_front_out">
+            <inertial>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+                <mass value="5"/>
+                <inertia
+                        ixx="0.014" ixy="0.0" ixz="0.0"
+                        iyy="1.025" iyz="0.0"
+                        izz="1.02"/>
+            </inertial>
+            <visual>
+                <origin xyz="0.0 0.0 0.0"
+                        rpy="0.0 0.0 0.0"/>
+                <geometry>
+                    <box size="${horizontal_bar_outer_w} ${horizontal_bar_outer_l} ${horizontal_bar_outer_h}"/>
+                </geometry>
+                <material name="LightGrey"/>
+            </visual>
+
+            <collision>
+                <origin xyz="0.0 0.0 0.0"
+                        rpy="0.0 0.0 0.0"/>
+                <geometry>
+                    <box size="${horizontal_bar_outer_w} ${horizontal_bar_outer_l} ${horizontal_bar_outer_h}"/>
+                </geometry>
+            </collision>
+            <selfCollide>0</selfCollide>
+        </link>
+
+        <joint name="left" type="fixed">
+            <origin xyz="${vertical_bar_l/2 - horizontal_bar_outer_w/2} ${horizontal_bar_outer_l/2 + vertical_bar_w/2} 0.0"
+                    rpy="0.0 0.0 ${M_PI}"/>
+            <parent link="h_bar_front_out"/>
+            <child link="v_bar_left"/>
+        </joint>
+
+        <link name="v_bar_left">
+            <inertial>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+                <mass value="8"/>
+                <inertia
+                        ixx="0.028" ixy="0.0" ixz="0.0"
+                        iyy="8.467" iyz="0.0"
+                        izz="8.459"/>
+            </inertial>
+            <visual>
+                <origin xyz="0.0 0.0 0.0"
+                        rpy="0.0 0.0 0.0"/>
+                <geometry>
+                    <box size="${vertical_bar_l} ${vertical_bar_w} ${vertical_bar_h}"/>
+                </geometry>
+                <material name="LightGrey"/>
+            </visual>
+
+            <collision>
+                <origin xyz="0.0 0.0 0.0"
+                        rpy="0.0 0.0 0.0"/>
+                <geometry>
+                    <box size="${vertical_bar_l} ${vertical_bar_w} ${vertical_bar_h}"/>
+                </geometry>
+            </collision>
+            <selfCollide>0</selfCollide>
+        </link>
+
+        <joint name="frame_right" type="fixed">
+            <origin xyz="${vertical_bar_l/2 - horizontal_bar_outer_w/2} -${horizontal_bar_outer_l/2 + vertical_bar_w/2} 0.0"
+                    rpy="0.0 0.0 0.0"/>
+            <parent link="h_bar_front_out"/>
+            <child link="v_bar_right"/>
+        </joint>
+
+        <link name="v_bar_right">
+            <inertial>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+                <mass value="8"/>
+                <inertia
+                        ixx="0.028" ixy="0.0" ixz="0.0"
+                        iyy="8.467" iyz="0.0"
+                        izz="8.459"/>
+            </inertial>
+            <visual>
+                <origin xyz="0.0 0.0 0.0"
+                        rpy="0.0 0.0 0.0"/>
+                <geometry>
+                    <box size="${vertical_bar_l} ${vertical_bar_w} ${vertical_bar_h}"/>
+                </geometry>
+                <material name="LightGrey"/>
+            </visual>
+
+            <collision>
+                <origin xyz="0.0 0.0 0.0"
+                        rpy="0.0 0.0 0.0"/>
+                <geometry>
+                    <box size="${vertical_bar_l} ${vertical_bar_w} ${vertical_bar_h}"/>
+                </geometry>
+            </collision>
+            <selfCollide>0</selfCollide>
+        </link>
+
+        <joint name="back_out" type="fixed">
+            <origin xyz="${vertical_bar_l/2 - horizontal_bar_outer_w/2} ${horizontal_bar_outer_l/2 + vertical_bar_w/2} 0.0"
+                    rpy="0.0 0.0 0.0"/>
+            <parent link="v_bar_right"/>
+            <child link="h_bar_back_out"/>
+        </joint>
+
+        <link name="h_bar_back_out">
+            <inertial>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+                <mass value="5"/>
+                <inertia
+                        ixx="0.014" ixy="0.0" ixz="0.0"
+                        iyy="1.025" iyz="0.0"
+                        izz="1.02"/>
+            </inertial>
+            <visual>
+                <origin xyz="0.0 0.0 0.0"
+                        rpy="0.0 0.0 0.0"/>
+                <geometry>
+                    <box size="${horizontal_bar_outer_w} ${horizontal_bar_outer_l} ${horizontal_bar_outer_h}"/>
+                </geometry>
+                <material name="LightGrey"/>
+            </visual>
+
+            <collision>
+                <origin xyz="0.0 0.0 0.0"
+                        rpy="0.0 0.0 0.0"/>
+                <geometry>
+                    <box size="${horizontal_bar_outer_w} ${horizontal_bar_outer_l} ${horizontal_bar_outer_h}"/>
+                </geometry>
+            </collision>
+            <selfCollide>0</selfCollide>
+        </link>
+
+        <gazebo reference="${name}">
+            <material value="Gazebo/Black"/>
+            <turnGravityOff>0
+            </turnGravityOff> <!-- use gravity for the base even if disabled for the arms in order to prevent iiwas from falling-->
+        </gazebo>
+
+    </xacro:macro>
+
+</robot>

@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<package>
+  <name>iiwas_description</name>
+  <version>1.0.0</version>
+  <description>The iiwas_description package</description>
+
+  <maintainer email="puze@robot-learning.de">Puze Liu</maintainer>
+
+  <license>MIT</license>
+
+  <author email="puze@robot-learning.de">Puze Liu</author>
+  <author email="davide@robot-learning.de">Davide tateo</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+</package>

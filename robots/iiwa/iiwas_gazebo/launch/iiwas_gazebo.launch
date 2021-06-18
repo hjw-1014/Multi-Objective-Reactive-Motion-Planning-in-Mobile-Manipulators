@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<launch>
+    <!-- Arguments -->
+    <arg name="world_name" default="$(find iiwas_gazebo)/worlds/iiwas_world.world"/>
+    <arg name="gui" default="true"/>
+    <arg name="paused" default="true"/>
+    
+    <arg name="hardware_interface" default="PositionJointInterface"/>
+    
+    <arg name="front_controllers" default="front_iiwa/joint_state_controller
+                                           front_iiwa/joint_trajectory_controller" />
+    
+    <arg name="back_controllers" default="back_iiwa/joint_state_controller
+                                          back_iiwa/joint_trajectory_controller"/>
+
+    <!-- Description -->
+    <include file="$(find iiwas_description)/launch/iiwas_rviz.launch">
+        <arg name="hardware_interface" value="$(arg hardware_interface)"/>
+    </include>
+    
+    <!-- Simulation -->
+    <include file="$(find gazebo_ros)/launch/empty_world.launch">
+        <arg name="world_name" value="$(arg world_name)"/>
+        <arg name="gui" value="$(arg gui)" />
+        <arg name="paused" value="$(arg paused)"/>
+        <arg name="use_sim_time" value="true"/>
+        <arg name="physics" value="bullet" />
+    </include>
+
+    <node name="iiwas_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
+              args="-urdf -model iiwas -param robot_description"/>
+
+    <!-- Controllers -->
+    <include file="$(find iiwas_control)/launch/iiwas_control.launch">
+        <arg name="use_front_iiwa" value="true" />
+        <arg name="use_back_iiwa" value="true" />
+        <arg name="front_controllers" value="$(arg front_controllers)"/>
+        <arg name="back_controllers" value="$(arg back_controllers)"/>
+    </include>
+    
+</launch>
+ 

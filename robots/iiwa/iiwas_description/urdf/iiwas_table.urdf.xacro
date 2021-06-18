@@ -1,0 +1,106 @@
+<?xml version="1.0"?>
+
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+    <!--       xmlns:sensor="http://playerstage.sourceforge.net/gazebo/xmlschema/#sensor"-->
+    <!--       xmlns:controller="http://playerstage.sourceforge.net/gazebo/xmlschema/#controller"-->
+    <!--       xmlns:interface="http://playerstage.sourceforge.net/gazebo/xmlschema/#interface">-->
+
+    <xacro:property name="horizontal_bar_outer_l" value="1.56"/>
+    <xacro:property name="horizontal_bar_outer_w" value="0.08"/>
+    <xacro:property name="horizontal_bar_outer_h" value="0.165"/>
+    <xacro:property name="horizontal_bar_inner_l" value="1.56"/>
+    <xacro:property name="horizontal_bar_inner_w" value="0.12"/>
+    <xacro:property name="horizontal_bar_inner_h" value="0.165"/>
+    <xacro:property name="vertical_bar_l" value="3.50"/>
+    <xacro:property name="vertical_bar_w" value="0.12"/>
+    <xacro:property name="vertical_bar_h" value="0.165"/>
+    <xacro:property name="base_l" value="0.35"/>
+    <xacro:property name="base_w" value="0.35"/>
+    <xacro:property name="base_h" value="0.03"/>
+    <xacro:property name="base_to_bar_y" value="0.61"/>
+    <xacro:property name="world_frame_origin_x" value="0.0"/>
+    <xacro:property name="world_frame_origin_y" value="0.0"/>
+    <xacro:property name="table_width" value="2.0"/>
+    <xacro:property name="table_height" value="1."/>
+    <xacro:property name="table_height_half" value="-0.5"/>
+    <xacro:property name="table_depth" value="3."/>
+    <xacro:property name="table_depth_2" value="1.2"/>
+
+
+
+    <xacro:macro name="iiwas_table" params="name front_x front_y front_z back_x back_y back_z">
+
+        <link name="world"/>
+        <joint name="table_origin" type="fixed">
+            <origin xyz="$0.0 0.0 ${table_height}"
+                    rpy="0.0 0.0 0.0"/>
+            <parent link="world"/>
+            <child link="table_origin"/>
+        </joint>
+
+        <link name="table_origin">
+            <inertial>
+                <origin xyz="0 0 0" 
+                        rpy="0 0 0"/>
+                <mass value="20000"/>
+                <inertia
+                        ixx="1.0175" ixy="0.0" ixz="0.0"
+                        iyy="1.025" iyz="0.0"
+                        izz="1.02"/>
+            </inertial>
+            <visual>
+                <origin xyz="0.0 ${table_depth_2} ${table_height_half}"
+                        rpy="0.0 0.0 0.0"/>
+                <geometry>
+                    <box size="${table_width} ${table_depth} ${table_height}"/>
+                </geometry>
+                <material name="White"/>
+            </visual>
+
+            <collision>
+                <origin xyz="0.0 ${table_depth_2} ${table_height_half}"
+                        rpy="0.0 0.0 0.0"/>
+                <geometry>
+                    <box size="${table_width} ${table_depth} ${table_height}"/>
+                </geometry>
+
+                <surface>
+                    <contact>
+                        <ode>
+                         <kp>1.0</kp>
+                         <kd>0.01</kd>
+                         <max_vel>0.0</max_vel>
+                         <min_depth>0.001</min_depth>
+                        </ode>
+                    </contact>
+                    <friction>
+                        <ode>
+                            <mu>0.1</mu>
+                            <mu2>0.005</mu2>
+                        </ode>
+                    </friction>
+                </surface>
+            </collision>
+            <selfCollide>0</selfCollide>
+        </link>
+
+        <joint name="iiwa_frame_origin_joint" type="fixed">
+            <origin xyz="0.0 0.0 0.0"
+                    rpy="0.0 0.0 1.57075"/>
+            <parent link="table_origin"/>
+            <child link="iiwa_frame_origin"/>
+        </joint>
+
+
+        <link name="iiwa_frame_origin">
+        </link>
+
+        <gazebo reference="${name}">
+            <material value="Gazebo/Black"/>
+            <turnGravityOff>0
+            </turnGravityOff> <!-- use gravity for the base even if disabled for the arms in order to prevent iiwas from falling-->
+        </gazebo>
+
+    </xacro:macro>
+
+</robot>

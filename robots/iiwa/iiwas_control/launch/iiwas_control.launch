@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<launch>
+    <arg name="use_front_iiwa" default="false"/>
+    <arg name="use_back_iiwa" default="false"/>
+    <arg name="front_controllers" default="joint_state_controller
+                                           joint_trajectory_controller"/>
+<!--                                           joint_position_controller"/>-->
+    <arg name="back_controllers" default="joint_state_controller
+                                           joint_trajectory_controller"/>
+<!--                                          joint_position_controller"/>-->
+
+    <!-- Load joint controller configurations from YAML file to parameter server -->
+    <rosparam file="$(find iiwas_control)/config/iiwas_control.yaml" command="load"/>
+
+    <group if="$(arg use_front_iiwa)" ns="iiwa_front">
+        <!-- load the controllers -->
+        <node name="iiwas_front_controller" pkg="controller_manager" type="spawner" respawn="false"
+              output="screen" args="$(arg front_controllers)"/>
+
+    </group>
+
+    <group if="$(arg use_back_iiwa)" ns="iiwa_back">
+        <!-- load the controllers -->
+        <node name="iiwas_back_controller" pkg="controller_manager" type="spawner" respawn="false"
+              output="screen" args="$(arg back_controllers)"/>    
+    </group>
+    
+  	<node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher" output="screen" ns="iiwa_front">
+        <param name="publish_frequency" type="double" value="50.0"/>
+	</node>
+	
+	<node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher" output="screen" ns="iiwa_back">
+    	<param name="publish_frequency" type="double" value="50.0"/>
+    </node>
+
+
+
+</launch>

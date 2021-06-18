@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<robot name="table_obstacle">
+    <material name="red_pastel">
+        <color rgba="0.81 0.23 0.18 0.3"/>
+    </material>
+
+    <link name="table_origin">
+        <inertial>
+          <origin rpy="0 0 0" xyz="0 0 0"/>
+          <mass value="0."/>
+          <inertia ixx="1.0175" ixy="0.0" ixz="0.0" iyy="1.025" iyz="0.0" izz="1.02"/>
+        </inertial>
+        <visual>
+          <origin rpy="0.0 0.0 0.0" xyz="0.5 0.0 0.0"/>
+          <geometry>
+            <box size="2.4 4.0 0.02"/>
+          </geometry>
+          <material name="red_pastel"/>
+        </visual>
+    </link>
+    <static>1</static>
+</robot>
+

@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>iiwas_srv</name>
+  <version>0.0.0</version>
+  <description>The iiwas_srv package</description>
+
+  <maintainer email="puze@robot-learning.de">Puze Liu</maintainer>
+
+  <license>MIT</license>
+
+  <url type="website">http://wiki.ros.org/iiwas_srv</url>
+
+  <author email="puze@robot-learning.de">Puze Liu</author>
+  <author email="davide@robot-learning.de">Davide Tateo</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <depend>std_msgs</depend>
+  <build_depend>message_generation</build_depend>
+  <build_export_depend>message_runtime</build_export_depend>
+  <exec_depend>message_runtime</exec_depend>
+
+</package>

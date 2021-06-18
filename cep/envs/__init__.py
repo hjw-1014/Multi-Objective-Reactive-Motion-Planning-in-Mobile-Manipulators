@@ -1,0 +1,2 @@
+from .darias_and_hand_simple_env import DariasHandSimple
+from .tiago_only_hand_simple_env import TiagoOneParallelHand

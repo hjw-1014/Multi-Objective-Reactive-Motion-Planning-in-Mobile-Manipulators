@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>iiwas_core</name>
+  <version>0.0.0</version>
+  <description>The iiwas_core package</description>
+
+  <maintainer email="puze@robot-learning.de">Puze Liu</maintainer>
+
+  <license>MIT</license>
+
+  <author email="puze@robot-learning.de">Puze Liu</author>
+  <author email="davide@robot-learning.de">Davide tateo</author>
+
+  <url type="website">http://wiki.ros.org/iiwas_core</url>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  
+  <exec_depend>iiwas_srv</exec_depend>
+  <exec_depend>iiwas_description</exec_depend>
+  <exec_depend>iiwas_driver</exec_depend>
+  <exec_depend>iiwas_control</exec_depend>
+  <exec_depend>iiwas_bringup</exec_depend>
+
+  <export>
+    <metapackage/>
+  </export>
+</package>

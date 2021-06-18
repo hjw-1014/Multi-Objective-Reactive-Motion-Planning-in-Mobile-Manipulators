@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<launch>
+    <!-- <arg name="world_iiwas_f_x" default="-1.61538391e-02"/>
+    <arg name="world_iiwas_f_y" default="8.18335731e-01"/>
+    <arg name="world_iiwas_f_z" default="-3.05871465e-02"/> -->
+    <!-- <arg name="world_iiwas_f_roll" default="0.00084844"/>
+    <arg name="world_iiwas_f_pitch" default="-0.00264906"/>
+    <arg name="world_iiwas_f_yaw" default="0.01872297"/> -->
+    <arg name="world_iiwas_f_x" default="0.190"/>
+    <arg name="world_iiwas_f_y" default="0.813"/>
+    <arg name="world_iiwas_f_z" default="0.0"/>
+    <arg name="world_iiwas_f_roll" default="0.0"/>
+    <arg name="world_iiwas_f_pitch" default="0.0"/>
+    <arg name="world_iiwas_f_yaw" default="0.0"/>
+
+    <arg name="world_iiwas_b_x" default="3.198"/>
+    <arg name="world_iiwas_b_y" default="0.813"/>
+    <arg name="world_iiwas_b_z" default="0.000"/>
+    <arg name="world_iiwas_b_roll" default="0.0"/>
+    <arg name="world_iiwas_b_pitch" default="0.0"/>
+    <arg name="world_iiwas_b_yaw" default="0.0"/>
+
+    <arg name="hardware_interface" default="PositionJointInterface"/>
+    <arg name="urdf_file" default="$(find iiwas_description)/robots/iiwas_new_frame.urdf.xacro"/>
+
+    <param name="robot_description"
+           command="$(find xacro)/xacro '$(arg urdf_file)'
+           world_to_iiwas_f_x:=$(arg world_iiwas_f_x) world_to_iiwas_f_y:=$(arg world_iiwas_f_y) world_to_iiwas_f_z:=$(arg world_iiwas_f_z)
+           world_to_iiwas_f_roll:=$(arg world_iiwas_f_roll) world_to_iiwas_f_pitch:=$(arg world_iiwas_f_pitch) world_to_iiwas_f_yaw:=$(arg world_iiwas_f_yaw)
+           world_to_iiwas_b_x:=$(arg world_iiwas_b_x) world_to_iiwas_b_y:=$(arg world_iiwas_b_y) world_to_iiwas_b_z:=$(arg world_iiwas_b_z)
+           world_to_iiwas_b_roll:=$(arg world_iiwas_b_roll) world_to_iiwas_b_pitch:=$(arg world_iiwas_b_pitch) world_to_iiwas_b_yaw:=$(arg world_iiwas_b_yaw)
+           hardware_interface:=$(arg hardware_interface)"/>
+
+    <node name="rviz" pkg="rviz" type="rviz"
+          args="-d $(find iiwas_description)/config/iiwas_frame.rviz"/>
+
+</launch>

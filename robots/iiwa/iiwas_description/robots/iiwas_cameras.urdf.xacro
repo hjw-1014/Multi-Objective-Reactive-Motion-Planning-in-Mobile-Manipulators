@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+<robot name="iiwas" xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <xacro:include filename="$(find iiwas_description)/urdf/materials.xacro" />
+  <xacro:include filename="$(find iiwas_description)/urdf/base_iiwas.urdf.xacro"/>
+  <xacro:include filename="$(find iiwas_description)/urdf/iiwa14.xacro"/>
+  <xacro:include filename="$(find iiwas_description)/urdf/util_defs.xml"/>
+  <!-- Include Cameras -->
+  <xacro:include filename="$(find iiwas_description)/urdf/camera_d435.urdf.xacro" />
+
+  <!-- the mass values and inertia may not be completly correct as the moment so this model should just be used as a kinematic one now-->
+
+  <property name="M_PI" value="3.1415926535897931"/>
+  <!-- offset values for left and right arm, triangle forms 60 degree, offset over tabel: offset from base top: -->
+  <property name="cal_base_to_left_arm_x" value="-0.68"/>
+  <property name="cal_base_to_left_arm_y" value="0.255"/> <!-- 0.255 -->
+  <property name="cal_base_to_left_arm_z" value="0.03"/> <!-- not used now need to measure offset-->
+  <property name="cal_base_to_left_arm_roll" value="0"/>
+  <property name="cal_base_to_left_arm_pitch" value="0"/>
+  <property name="cal_base_to_left_arm_yaw" value="0"/>
+  <property name="cal_base_to_right_arm_x" value="0.68"/>
+  <property name="cal_base_to_right_arm_y" value="0.255"/> <!-- 0.255 -->
+  <property name="cal_base_to_right_arm_z" value="0.03"/> <!-- not used now-->
+  <property name="cal_base_to_right_arm_roll" value="0"/>
+  <property name="cal_base_to_right_arm_pitch" value="0"/>
+  <property name="cal_base_to_right_arm_yaw" value="${M_PI}"/>
+
+  <!-- iiwas base (basically just a box on which the arms are mounted on) -->
+  <iiwas_base name="iiwas">
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </iiwas_base>
+  <!--TODO: ADD HARDWARE INTERFACE-->
+  <!-- iiwas right arm -->
+  <iiwa14 parent="world" robot_name="L" hardware_interface="PositionJointInterface">
+    <origin xyz="${cal_base_to_left_arm_x} ${cal_base_to_left_arm_y} ${cal_base_to_right_arm_z}"
+            rpy="${cal_base_to_left_arm_roll} ${cal_base_to_left_arm_pitch} ${cal_base_to_left_arm_yaw}"/>
+  </iiwa14>
+
+  <sensor_r430 parent="L_link_ee" robot_name="L">
+  <origin xyz="-0.028 -0.02 0.03" rpy="-1.57 -1.57 3.14"/>
+  </sensor_r430>
+
+  <!-- iiwas left arm -->
+  <iiwa14 parent="world" robot_name="R" hardware_interface="PositionJointInterface">
+    <origin xyz="${cal_base_to_right_arm_x} ${cal_base_to_right_arm_y} ${cal_base_to_left_arm_z}"
+            rpy="${cal_base_to_right_arm_roll} ${cal_base_to_right_arm_pitch} ${cal_base_to_right_arm_yaw}"/>
+  </iiwa14>
+
+  <sensor_r430 parent="R_link_ee" robot_name="R">
+  <origin xyz="-0.028 -0.02 0.03" rpy="-1.57 -1.57 3.14"/>
+  </sensor_r430>
+
+ <!-- gazebo plugin for ros control -->
+ <gazebo>
+   <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
+     <robotNamespace>/iiwas</robotNamespace>
+   </plugin>
+ </gazebo>
+
+</robot>

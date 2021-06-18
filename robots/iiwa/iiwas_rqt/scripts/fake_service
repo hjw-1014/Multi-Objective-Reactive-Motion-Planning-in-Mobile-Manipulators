@@ -1,0 +1,57 @@
+#!/usr/bin/env python
+
+from __future__ import print_function
+
+from iiwas_srv.srv import *
+import rospy
+
+motion_started = False
+
+def handle_ptp(req):
+    print('PTP', req.goal)
+
+    return PTPResponse(msg='OK PTP ' + str(req.goal), success=not motion_started)
+
+
+def handle_cancel(req):
+    global motion_started
+    print('CANCEL_MOTION')
+    res = CancelMotionResponse(msg='OK CANCEL_MOTION', success=motion_started)
+    motion_started = False
+
+    return res
+
+
+def handle_handguiding(req):
+    global motion_started
+    print('HANDGUIDING')
+
+    res = StartHandguidingResponse(msg='OK HANDGUIDING', success=not motion_started)
+    motion_started = True
+    return res
+
+
+def handle_light(req):
+    print('TURN_BLUE to ', req.on)
+
+    return SetBlueLightResponse(msg='OK TURN_BLUE', success=True)
+
+
+def handle_position(req):
+    global motion_started
+    print('POSITION_CONTROL ', req.mode)
+
+    res = StartPositionControlResponse(msg='OK POSITION_CONTROL', success=not motion_started)
+    motion_started = True
+    return res
+
+
+if __name__ == "__main__":
+    rospy.init_node('fake_service')
+    s_cancel = rospy.Service('cancel_motion', CancelMotion, handle_cancel)
+    s_ptp = rospy.Service('ptp', PTP, handle_ptp)
+    s_handguiding = rospy.Service('start_handguiding', StartHandguiding, handle_handguiding)
+    s_ptp = rospy.Service('start_position_control', StartPositionControl, handle_position)
+    s_led = rospy.Service('set_blue_light', SetBlueLight, handle_light)
+
+    rospy.spin()

@@ -1,0 +1,52 @@
+<?xml version="1.0"?>
+<robot name="iiwas" xmlns:xacro="http://www.ros.org/wiki/xacro">
+    <xacro:include filename="$(find iiwas_description)/urdf/materials.xacro" />
+    <xacro:include filename="$(find iiwas_description)/urdf/iiwas_table.urdf.xacro"/>
+    <xacro:include filename="$(find iiwas_description)/urdf/iiwa14.xacro"/>
+    <xacro:include filename="$(find iiwas_description)/urdf/util_defs.xml"/>
+    <xacro:include filename="$(find ezgripper_driver)/urdf/ezgripper_dual_gen2_articulated.urdf.xacro"/>
+
+    <!-- the mass values and inertia may not be completly correct as the moment so this model should just be used as a kinematic one now-->
+
+    <xacro:property name="M_PI" value="3.1415926535897931"/>
+    <xacro:property name="base_height" default="0.03"/>
+    <!-- offset values from world to robot base frame.  0.165+0.015 m is the height of the frame + half height of the plate -->
+    <xacro:arg name="world_to_iiwas_f_x" default="0.190"/>
+    <xacro:arg name="world_to_iiwas_f_y" default="0.813"/>
+    <xacro:arg name="world_to_iiwas_f_z" default="0.0"/>
+    <xacro:arg name="world_to_iiwas_f_roll" default="0.0"/>
+    <xacro:arg name="world_to_iiwas_f_pitch" default="0.0"/>
+    <xacro:arg name="world_to_iiwas_f_yaw" default="0.0"/>
+    <xacro:arg name="world_to_iiwas_b_x" default="3.198"/>
+    <xacro:arg name="world_to_iiwas_b_y" default="0.813"/>
+    <xacro:arg name="world_to_iiwas_b_z" default="0.0"/>
+    <xacro:arg name="world_to_iiwas_b_roll" default="0.0"/>
+    <xacro:arg name="world_to_iiwas_b_pitch" default="0.0"/>
+    <xacro:arg name="world_to_iiwas_b_yaw" default="0.0"/>
+    <xacro:arg name="hardware_interface" default="PositionJointInterface"/>
+    <!-- construct the iiwas frame, all link is based on the front_base -->
+    <xacro:iiwas_table name="iiwas_table" front_x="$(arg world_to_iiwas_f_x)" front_y="$(arg world_to_iiwas_f_y)"
+                       front_z ="$(arg world_to_iiwas_f_z)" back_x="$(arg world_to_iiwas_b_x)"
+                       back_y="$(arg world_to_iiwas_b_y)" back_z ="$(arg world_to_iiwas_b_z)"/>
+
+    <!-- spawn the robot on each of the base-->
+    <!-- iiwas front arm -->
+    <xacro:iiwa14 parent="iiwa_frame_origin" hardware_interface="hardware_interface/$(arg hardware_interface)" robot_name="F">
+        <origin xyz="0.0 0.0 0.0"
+                rpy="0.0 0.0 0.0"/>
+    </xacro:iiwa14>
+
+    <xacro:ezgripper_dual parent_link="F_link_ee" prefix="F">
+        <origin xyz="0.0 0.0 0.0"
+                rpy="${M_PI/2} -${M_PI/2} 0.0"/>
+    </xacro:ezgripper_dual>
+
+
+    <!-- Load Gazebo lib and set the robot namespace -->
+    <gazebo>
+      <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
+        <!--<robotNamespace>/${robot_name}</robotNamespace>-->
+      </plugin>
+    </gazebo>
+
+</robot>

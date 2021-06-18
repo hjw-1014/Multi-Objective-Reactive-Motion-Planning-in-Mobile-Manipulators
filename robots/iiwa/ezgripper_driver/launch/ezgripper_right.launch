@@ -1,0 +1,14 @@
+<launch>
+  <node pkg="ezgripper_driver" type="ezgripperIAS.py" name="ezgripper" output="screen">
+    <param name="~port" value="ignored"/>
+    <param name="~baud" value="57600"/>
+    <param name="~use_left_gripper" value="False"/>
+    <param name="~use_right_gripper" value="True"/>
+    <rosparam param="grippers">{main:[0]}</rosparam>
+  </node>
+  
+  <node pkg="ezgripper_driver" type="client.py" name="ezgripper_client_right" output="screen">
+    <rosparam param="grippers">['ezgripper/ezgripper_right']</rosparam>
+  </node>
+
+</launch>

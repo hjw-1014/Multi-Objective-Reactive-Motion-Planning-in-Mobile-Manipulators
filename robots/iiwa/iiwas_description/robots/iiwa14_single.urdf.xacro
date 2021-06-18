@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<robot name="iiwa14" xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <xacro:include filename="$(find iiwas_description)/urdf/materials.xacro" />
+  <xacro:include filename="$(find iiwas_description)/urdf/iiwa14.xacro"/>
+  <xacro:include filename="$(find iiwas_description)/urdf/util_defs.xml"/>
+  
+  <xacro:arg name="robot_name" default="iiwa"/>
+
+  <!-- the mass values and inertia may not be completly correct as the moment so this model should just be used as a kinematic one now-->
+
+  <property name="M_PI" value="3.1415926535897931"/>
+  <!-- offset values for right and right arm, triangle forms 60 degree, offset over tabel: offset from base top: -->
+  <property name="cal_base_to_right_arm_x" value="-1.61538391e-02"/>
+  <property name="cal_base_to_right_arm_y" value="8.18335731e-01"/> <!-- 0.255 -->
+  <property name="cal_base_to_right_arm_z" value="1.25871465e-02"/> <!-- not used now-->
+  <property name="cal_base_to_right_arm_roll" value="0"/>
+  <property name="cal_base_to_right_arm_pitch" value="0"/>
+  <property name="cal_base_to_right_arm_yaw" value="0"/>
+
+  <!-- world link -->
+  <link name="world"/>
+
+  <!-- iiwas arm -->
+  <iiwa14 parent="world" robot_name="$(arg robot_name)" hardware_interface="PositionJointInterface">
+    <origin xyz="${cal_base_to_right_arm_x} ${cal_base_to_right_arm_y} ${cal_base_to_right_arm_z}"
+            rpy="${cal_base_to_right_arm_roll} ${cal_base_to_right_arm_pitch} ${cal_base_to_right_arm_yaw}"/>
+  </iiwa14>
+
+ <!-- gazebo plugin for ros control -->
+ <gazebo>
+   <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
+     <robotNamespace>iiwa14</robotNamespace>
+   </plugin>
+ </gazebo>
+
+</robot>
