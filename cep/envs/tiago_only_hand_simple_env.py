@@ -86,7 +86,7 @@ class TiagoOneParallelHand(): # TODO: 06.12
         #print('====RESET=====')
         if q0 is None:
             for i, q_i in enumerate(self.q_home):
-                q_i = q_i + np.random.randn() * 0.5  # Reset initial joint positions
+                q_i = q_i + np.random.randn() * 0.8  # Reset initial joint positions
                 #print('## q_i ##', q_i)
                 p.resetJointState(self.robot, self.JOINT_ID[i], q_i)
             p.stepSimulation()
@@ -123,7 +123,7 @@ class TiagoOneParallelHand(): # TODO: 06.12
 
         self.q = np.array(
                 [[p.getJointState(self.robot, 31)[0], p.getJointState(self.robot, 32)[0],
-                  p.getJointState(self.robot, 32)[0], p.getJointState(self.robot, 34)[0],
+                  p.getJointState(self.robot, 33)[0], p.getJointState(self.robot, 34)[0],
                   p.getJointState(self.robot, 35)[0], p.getJointState(self.robot, 36)[0],
                   p.getJointState(self.robot, 37)[0]]])
 

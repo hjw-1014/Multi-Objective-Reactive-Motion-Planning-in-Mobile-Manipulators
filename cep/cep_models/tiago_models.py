@@ -38,5 +38,5 @@ def cep_simple_model_tiago(): # TODO: 06.12
     #########################
     q_branches = [ee_energy_tree]
     energy_tree = EnergyTree(branches=q_branches, map=fk_map).to(device)
-    policy = EBMControl(energy_tree=energy_tree, device=device, optimization_steps=5, dt=0.005, n_particles=20000)
+    policy = EBMControl(energy_tree=energy_tree, device=device, optimization_steps=5, dt=0.005, n_particles=10000)
     return policy
