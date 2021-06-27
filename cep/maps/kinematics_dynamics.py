@@ -26,7 +26,7 @@ class FK_ALL(Map):
 
         z = np.array(self.kinematics.links_fk(rotation=True))  # (7, 4, 4)
         J = np.array(self.kinematics.links_J())  # (7, 6, 7)
-        zd = np.einsum('jnm,m->jn', J, qd_np)  # (7, 6) #TODO: ???
+        zd = np.einsum('jnm,m->jn', J, qd_np)  # (7, 6) # TODO: ???
 
         self.J = numpy2torch(J)
         z = numpy2torch(z)  # torch.Size([7, 4, 4])

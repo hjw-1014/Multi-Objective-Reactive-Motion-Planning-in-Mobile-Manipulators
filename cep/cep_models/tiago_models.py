@@ -19,7 +19,7 @@ else:
     device = torch.device("cpu")
 
 
-def cep_simple_model_tiago(): # TODO: 06.12
+def cep_simple_model_tiago():  # TODO: 06.12 Done
     ##Get all the FK maps##
     tiago_kin = TiagoRobot()
     fk_map = maps.FK_ALL(tiago_kin)
@@ -33,10 +33,22 @@ def cep_simple_model_tiago(): # TODO: 06.12
 
     A = torch.eye(6)
     ee_goto_leaf = energies.TaskGoToLeaf(dim=6, b=b, A=A, R=H, var=torch.eye(6)*10.)
+    #ee_obj_avoid = energies.ObjAvoidLeaf()  # TODO: add branches here???
     pick_map = maps.SelectionMap(idx=6)
     ee_energy_tree = EnergyTree(branches=[ee_goto_leaf], map=pick_map)
     #########################
-    q_branches = [ee_energy_tree]
+    q_branches = [ee_energy_tree]   # TODO: add branches here???
     energy_tree = EnergyTree(branches=q_branches, map=fk_map).to(device)
     policy = EBMControl(energy_tree=energy_tree, device=device, optimization_steps=5, dt=0.005, n_particles=10000)
+    return policy
+
+
+def joint_cep_simple_model_tiago():  # TODO: 06.26
+
+    identity_map = maps.SimplePosVel(dim=7)
+    q_goto_leaf = energies.JointGoToLeaf()
+
+    q_branches = [q_goto_leaf]   # TODO: add branches here
+    energy_tree = EnergyTree(branches=q_branches, map=identity_map).to(device)
+    policy = EBMControl(energy_tree=energy_tree, device=device, optimization_steps=5, dt=0.005, n_particles=1000)
     return policy

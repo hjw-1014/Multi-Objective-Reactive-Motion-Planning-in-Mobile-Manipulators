@@ -22,7 +22,7 @@ def solve_euler(q, dq, dt):
 
 
 class EBMControl():
-    def __init__(self, energy_tree, device, dim=7, dt=0.005, optimization_steps=10, n_particles=100000, var_0=10., stochastic=False):
+    def __init__(self, energy_tree, device, dim=7, dt=0.005, optimization_steps=10, n_particles=1000, var_0=10., stochastic=False):
 
         self.device = device
         self.energy_tree = energy_tree
@@ -54,10 +54,13 @@ class EBMControl():
     def get_action(self, state, stochastic='False'):
         ## 1. Conditioning ##
         t0 = time.time()
+        # TODO: initialize/update Multivaritae Gaussian distribution , self.p_dx = tdist.MultivariateNormal(mu, self.var) in TaskgotoLeaf
         self.energy_tree.set_context(state)
+
         ## 2. Compute optimal Action ##
         t1 = time.time()
         a_opt = self.compute_optimal_action()
+
         t2 = time.time()
         #print('inter1:  {}, inter 2: {}'.format(t1-t0, t2-t1))
         return a_opt
@@ -70,16 +73,21 @@ class EBMControl():
         white_noise = torch.randn(self.n_particles, self.dim).to(self.device)
         for i in range(self.optimization_steps):
             t0 = time.time()
-            action = torch.matmul(std, white_noise.T).T + mu
-            t1 = time.time()
-            log_p_dq = self.energy_tree.log_prob(action)
-            t2 = time.time()
+            action = torch.matmul(std, white_noise.T).T + mu  # Random sample, torch.Size([1000, 7])
 
-            mu, var = self.optimizer.optimize(action, log_p_dq)
+            t1 = time.time()
+            log_p_dq = self.energy_tree.log_prob(action)  # Energy, torch.Size([1000])
+
+            t2 = time.time()
+            mu, var = self.optimizer.optimize(action, log_p_dq)  # Update mu and var based on sampled action and energy
+            # mu, var -> torch.Size([7])
+
             t3 = time.time()
             #print('int 1: {}, int 2: {}, int3: {}'.format(t1-t0,t2-t1,t3-t2))
-            std = torch.diag(torch.sqrt(var))
-        return self.optimizer.best_solution.x_optima
+
+            std = torch.diag(torch.sqrt(var))  # torch.Size([7, 7])
+
+        return self.optimizer.best_solution.x_optima  # torch.Size([7])
 
 
 class EnergyTree(nn.Module):
@@ -101,6 +109,7 @@ class EnergyTree(nn.Module):
         self.branches = nn.ModuleList(branches)
 
     def set_context(self, state):
+
         state_z = self.map.map_state(state)
 
         #processes = []
@@ -117,13 +126,13 @@ class EnergyTree(nn.Module):
     def set_context_i(self, energy, state):
         energy.set_context(state)
 
-    def log_prob(self, action):  # action -> torch.Size([1000, 7, 6])
-        action_z = self.map.map_action(action)   # action_z -> torch.Size([1000, 6])
+    def log_prob(self, action):  # action -> torch.Size([1000, 7])
+        action_z = self.map.map_action(action)   # FK_map, action_z -> torch.Size([1000, 7, 6]) | # Selection_map, action_z -> torch.Size([1000, 6])
         logp_a = torch.zeros(action.shape[0]).to(action)
         for idx, branch in enumerate(self.branches):
             logp_a += self.i_temperatures[idx]*branch.log_prob(action_z)
         return logp_a  # torch.Size([1000])
-        #
+
         # pool = Pool(processes=len(self.branches))
         # idx = 0
         # with Pool(processes=len(self.branches)) as p:

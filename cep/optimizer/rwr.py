@@ -19,7 +19,7 @@ class RWR():
 
         J -= J_max
         d = torch.exp(self.beta * J)
-        mu, std = weighted_mle(theta, d)
+        mu, std = weighted_mle(theta, d)  # Maximum Likelihood estimation
 
         # plt.clf()
         # plt.plot(theta, d, '*')

@@ -27,15 +27,15 @@ class TiagoOneParallelHand(): # TODO: 06.12
         self.name_base_link = "world"
         self.JOINT_ID = [31, 32, 33, 34, 35, 36, 37]
         self.link_names = ["arm_1_link", "arm_2_link", "arm_3_link", "arm_4_link", "arm_5_link", "arm_6_link", self.EE_link]
-        self.tiago_parallel_gripper_hand = {
-            "arm_1_link": [0],
-            "arm_2_link": [0, 1],
-            "arm_3_link": [0, 1, 2],
-            "arm_4_link": [0, 1, 2, 3],
-            "arm_5_link": [0, 1, 2, 3, 4],
-            "arm_6_link": [0, 1, 2, 3, 4, 5],
-            "arm_7_link": [0, 1, 2, 3, 4, 5, 6],
-        }
+        # self.tiago_parallel_gripper_hand = {
+        #     "arm_1_link": [0],
+        #     "arm_2_link": [0, 1],
+        #     "arm_3_link": [0, 1, 2],
+        #     "arm_4_link": [0, 1, 2, 3],
+        #     "arm_5_link": [0, 1, 2, 3, 4],
+        #     "arm_6_link": [0, 1, 2, 3, 4, 5],
+        #     "arm_7_link": [0, 1, 2, 3, 4, 5, 6],
+        # }
 
         p.setPhysicsEngineParameter(numSolverIterations=150)
         p.setTimeStep(time_step)
@@ -53,7 +53,7 @@ class TiagoOneParallelHand(): # TODO: 06.12
         ##############################################################
 
         ############## Robot Initial State #################
-        self.q_home = [1., 0., 0., 0., 1., 0., 0.]
+        self.q_home = [0.5, 0., 0., 0., 0., 0., 0.]
         self.qlimits = [[0.0, 2.74889357189],
                         [-1.57079632679, 1.0908307825],
                         [-3.53429173529, 1.57079632679],
@@ -86,7 +86,7 @@ class TiagoOneParallelHand(): # TODO: 06.12
         #print('====RESET=====')
         if q0 is None:
             for i, q_i in enumerate(self.q_home):
-                q_i = q_i + np.random.randn() * 0.8  # Reset initial joint positions
+                q_i = q_i + np.random.randn() * 0.2  # Reset initial joint positions
                 #print('## q_i ##', q_i)
                 p.resetJointState(self.robot, self.JOINT_ID[i], q_i)
             p.stepSimulation()
@@ -106,8 +106,8 @@ class TiagoOneParallelHand(): # TODO: 06.12
 
     def step(self, action):
         #print('===== start step =====')
-        a_p = action[0]  # Velocity
-        a_v = action[1]
+        a_p = action[0]  # Position
+        a_v = action[1]  # Velocity
 
         for i, q_i in enumerate(a_p):
             #print('======= Set joint motor contorl ========')
@@ -144,6 +144,8 @@ class TiagoOneParallelHand(): # TODO: 06.12
 
         success = self._check_success(r)
 
+        print('joint positions: ', self.getPosVelJoints())
+
         return obs, r, done, success
 
     # AL: make sure the initial configuration is not in self-collision
@@ -177,3 +179,11 @@ class TiagoOneParallelHand(): # TODO: 06.12
     def _check_success(self, r):
         success = False
         return success
+
+    def getPosVelJoints(self):  # Function to get the position/velocity of all joints from pybullet
+
+
+        jointStates = p.getJointStates(self.robot, self.JOINT_ID)  # State of all joints (position, velocity, reaction forces, appliedJointMotortoruqe)
+        joint_pos = np.vstack((np.array([[jointStates[i_joint][0] for i_joint in range(len(jointStates))]]).transpose()))
+
+        return joint_pos

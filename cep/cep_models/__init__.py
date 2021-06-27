@@ -1,2 +1,3 @@
 from .darias_models import cep_simple_model
 from .tiago_models import cep_simple_model_tiago
+from .tiago_models import joint_cep_simple_model_tiago

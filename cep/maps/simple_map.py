@@ -10,10 +10,10 @@ class SimplePosVel(Map):
         self.dim = dim
 
 
-    def map_state(self,x):
+    def map_state(self, x):
         q = x[0,:self.dim]
         qd = x[0, self.dim:]
         return [q, qd]
 
-    def map_action(self,a):
+    def map_action(self, a):
         return a

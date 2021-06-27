@@ -1,7 +1,7 @@
 import torch
 
 
-def weighted_mle(theta,weights):
+def weighted_mle(theta, weights):
     theta_dim = theta.shape[1]
     n_particles = theta.shape[0]
 
