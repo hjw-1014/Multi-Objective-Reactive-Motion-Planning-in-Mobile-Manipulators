@@ -54,7 +54,7 @@ def joint_cep_simple_model_tiago():  # TODO: 06.26 Done
     policy = EBMControl(energy_tree=energy_tree, device=device, optimization_steps=5, dt=0.005, n_particles=10000)
     return policy
 
-def jsc_and_goto_cep_simple_model():  # TODO: 06.28
+def jsc_and_goto_cep_simple_model():  # TODO: 06.28, 06.29
 
     # TODO: TaskGoToLeaf
     ##Get all the FK maps##
