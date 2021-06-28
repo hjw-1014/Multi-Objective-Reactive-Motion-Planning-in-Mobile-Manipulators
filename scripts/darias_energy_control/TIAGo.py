@@ -514,7 +514,7 @@ DISRANCE = 0.02
 # load Tiago from pybullet
 robotId, planeId, joint_indexes = start_pybullet()
 
-q_des = np.ones((robot.nq, )) * 0.  # joint control desired q
+# q_des = np.ones((robot.nq, )) * 0.  # joint control desired q
 
 # for jj in range(len(joint_indexes)):  # TODO: PYBULLET set joint positions
 #     p.resetJointState(robotId, joint_indexes[jj], q_des[jj])
@@ -697,11 +697,11 @@ if __name__ == '__main__':
                 number_iteration = ii+1
                 break
 
-        # # # TODO: Plot
-        # plot_mu(mu_values, number_iteration)
-        # plot_joints(joint_values, joint_pos_values, number_iteration)
-        # plot_error(error_values, number_iteration)
-        # plot_euclidiean_dist(dist_values, number_iteration)
-        # plot_xyz(x_values, y_values, z_values, number_iteration)
+        # # TODO: Plot
+        plot_mu(mu_values, number_iteration)
+        plot_joints(joint_values, joint_pos_values, number_iteration)
+        plot_error(error_values, number_iteration)
+        plot_euclidiean_dist(dist_values, number_iteration)
+        plot_xyz(x_values, y_values, z_values, number_iteration)
 
 

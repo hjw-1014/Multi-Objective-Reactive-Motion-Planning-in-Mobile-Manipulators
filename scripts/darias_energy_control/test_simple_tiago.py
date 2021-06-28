@@ -78,7 +78,8 @@ def experiment():
             if i == (horizon-1):
                 REWARD = reward
                 END_POSITION = env.check_endPosition()
-        print('Reward:',  REWARD)
+        print('Position state: ', state[0])
+        print('Distance:',  REWARD)
         print('End position: ', END_POSITION)
         print('Desired position', env.Target_pos)
     p.disconnect()

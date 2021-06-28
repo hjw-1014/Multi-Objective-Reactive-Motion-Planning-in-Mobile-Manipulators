@@ -4,7 +4,7 @@ import time
 
 
 from cep.envs import TiagoOneParallelHand
-from cep.cep_models import joint_cep_simple_model_tiago
+from cep.cep_models import jsc_and_goto_cep_simple_model
 
 import torch
 
@@ -20,7 +20,7 @@ class CEPPolicy():
         self.dt = dt
         self.dtype = dtype
 
-        self.controller = joint_cep_simple_model_tiago()
+        self.controller = jsc_and_goto_cep_simple_model()
 
     def policy(self, state):
         joint_poses = state[0, 0:7]
@@ -52,7 +52,7 @@ def experiment():
     ################
 
     n_trials = 100
-    horizon = 3000
+    horizon = 1500
     c = 0
     s = 0
     REWARD = 0

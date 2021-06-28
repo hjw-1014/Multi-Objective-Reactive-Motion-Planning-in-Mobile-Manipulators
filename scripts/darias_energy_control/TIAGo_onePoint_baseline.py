@@ -469,22 +469,12 @@ qua = pin.Quaternion(0., 0., 0., 1.)
 qua.normalize()
 
 end_point = np.array([0.8, 0., 0.8])
-
 start_point = np.array([0.1, -0.7, 0.7])
 
-# pos_1 = np.array([0.6, -0.2, 0.7]).T
-# pos_2 = np.array([0.7, -0.1, 0.7]).T
-# pos_3 = np.array([0.8, 0., 0.7]).T
 x_desired = pin.SE3(qua, end_point)  # TODO: set desired position and orientation
-# x_des_2 = pin.SE3(qua, pos_2)
-# x_des_3 = pin.SE3(qua, pos_3)
-# x_des.rotation = np.mat([[1, 0, 0],
-#                          [0, 0, -1],
-#                          [0, 1, 0]])
-# x_des_1.rotation = np.eye(3)
-# x_des_2.rotation = np.eye(3)
-# x_des_3.rotation = np.eye(3)
-
+x_desired.rotation = np.mat([[1, 0, 0],
+                         [0, 0, -1],
+                         [0, 1, 0]])
 
 # Get 7th arm joint index and end-effector index
 JOINT_INX = 7
@@ -502,7 +492,7 @@ robotId, planeId, joint_indexes = start_pybullet()
 
 q_des = np.ones((robot.nq,)) * 0.  # joint control desired q
 
-# for jj in range(len(joint_indexes)):  # TODO: PYBULLET set joint positions
+# for jj in range(len(joint_indexes)):  # TODO: PYBULLET set initial joint positions
 #     p.resetJointState(robotId, joint_indexes[jj], q_des[jj])
 
 if __name__ == '__main__':
@@ -556,22 +546,9 @@ if __name__ == '__main__':
         cur_dx = numpy2torch(cur_dx_vec)
         state = [cur_x, cur_dx]
 
-        # p.resetBasePositionAndOrientation(lego_x, X_w, p.getQuaternionFromEuler([0, 0, 0]))
-        # p.resetBasePositionAndOrientation(lego_y, Y_w, p.getQuaternionFromEuler([0, 0, 0]))
-        # p.resetBasePositionAndOrientation(lego_z, Z_w, p.getQuaternionFromEuler([0, 0, 0]))
-        #
-        # p.resetBasePositionAndOrientation(l1, X_w, p.getQuaternionFromEuler([0, 0, 0]))
-        # p.resetBasePositionAndOrientation(l2, Y_w, p.getQuaternionFromEuler([0, 0, 0]))
-        # p.resetBasePositionAndOrientation(l3, Z_w, p.getQuaternionFromEuler([0, 0, 0]))
-
-        # p.resetBasePositionAndOrientation(x_text, X_w, p.getQuaternionFromEuler([0, 0, 0]))
-        # p.resetBasePositionAndOrientation(y_text, Y_w, p.getQuaternionFromEuler([0, 0, 0]))
-        # p.resetBasePositionAndOrientation(z_text, Z_w, p.getQuaternionFromEuler([0, 0, 0]))
-
         v_ew = calculate_vtl(state=state, R=R)  # TODO: Velocity control
 
         mu = calculate_mu(state=state, R=R)  # TODO: Acceleration control
-        # print('mu: ', mu)
 
         # TODO: RECORD ddx in task space
         mu_values.append(mu)
@@ -586,7 +563,7 @@ if __name__ == '__main__':
         # print('Jacobian: ', J)
 
         # TODO: Velocity control
-        damp = 1e-6  # 0.1, 0.01, 0.001
+        damp = 1e-8  # 0.1, 0.01, 0.001
         Idt = numpy2torch(np.eye(6))
         JJ_vel = torch.matmul(J.T, torch.inverse(
             torch.matmul(J, J.T) + (damp ** 2 * Idt)))  # TODO: Add damped pseudoinverse
@@ -679,11 +656,11 @@ if __name__ == '__main__':
             number_iteration = ii + 1
             break
 
-    # # # TODO: Plot
-    # plot_mu(mu_values, number_iteration)
-    # plot_joints(joint_values, joint_pos_values, number_iteration)
-    # plot_error(error_values, number_iteration)
-    # plot_euclidiean_dist(dist_values, number_iteration)
-    # plot_xyz(x_values, y_values, z_values, number_iteration)
+    # # TODO: Plot
+    plot_mu(mu_values, number_iteration)
+    plot_joints(joint_values, joint_pos_values, number_iteration)
+    plot_error(error_values, number_iteration)
+    plot_euclidiean_dist(dist_values, number_iteration)
+    plot_xyz(x_values, y_values, z_values, number_iteration)
 
 

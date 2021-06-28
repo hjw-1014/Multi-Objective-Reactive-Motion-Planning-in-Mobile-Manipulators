@@ -80,9 +80,10 @@ class TaskGoToLeaf(EnergyLeaf):
 
 class JointGoToLeaf(EnergyLeaf):
     def __init__(self, dim=7, Kp = 1., Kv = 1.,
-                 q_des=torch.tensor([0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2]),
+                 q_des=torch.tensor([0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5]),
+                 # ([2.215, 0.088, 2.156, 1.060, 0.238, -1.023, 0.373]),
                  dq_des=torch.tensor([0., 0., 0., 0., 0., 0., 0.]),
-                 var=None):
+                 var=torch.eye(7).float() * 10.):
 
         super(JointGoToLeaf, self).__init__()
         self.dim = dim
@@ -99,7 +100,7 @@ class JointGoToLeaf(EnergyLeaf):
         self.dq_des = dq_des
         #self.register_buffer('dq_des', dq_des)
 
-        self.var = torch.eye(self.dim).float()
+        self.var = var
         ## Multivariate Gaussian distribution ##
         self.p_dx = None
 

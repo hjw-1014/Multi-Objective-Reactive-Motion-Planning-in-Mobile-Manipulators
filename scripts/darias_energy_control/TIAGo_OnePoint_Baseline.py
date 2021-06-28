@@ -6,18 +6,17 @@ import torch
 from torch import tensor
 from pinocchio.robot_wrapper import RobotWrapper
 import os
+from copy import deepcopy
 import matplotlib.pyplot as plt
 import time
-from copy import deepcopy
-
 from cep.utils import numpy2torch, torch2numpy
 from cep.liegroups.torch import SO3, SE3
 
-number_iteration = 500  # Define max iteration number
+
+number_iteration = 200  # Define max iteration number
 dt = 0.01  # Define time step
 
-q_limits = [[0., 0.35],
-            [0.0, 2.74889357189],
+q_limits = [[0.0, 2.74889357189],
             [-1.57079632679, 1.0908307825],
             [-3.53429173529, 1.57079632679],
             [-0.392699081699, 2.35619449019],
@@ -26,22 +25,19 @@ q_limits = [[0., 0.35],
             [-2.09439510239, 2.09439510239]]
 
 q_limit_min = [0.,
-               0.,
-              -1.57079632679,
-              -3.53429173529,
-              -0.392699081699,
-              -2.09439510239,
-              -1.57079632679,
-              -2.09439510239]
-q_limit_max = [0.35,
-               2.74889357189,
-               1.0908307825,
-               1.57079632679,
-               2.35619449019,
-               2.09439510239,
-               1.57079632679,
-               2.09439510239]
-
+            -1.57079632679,
+            -3.53429173529,
+            -0.392699081699,
+            -2.09439510239,
+            -1.57079632679,
+            -2.09439510239]
+q_limit_max = [2.74889357189,
+              1.0908307825,
+              1.57079632679,
+              2.35619449019,
+              2.09439510239,
+              1.57079632679,
+              2.09439510239]
 first_time = True
 
 global lego_x
@@ -61,37 +57,35 @@ global w2  # End-effector y frame visualization
 global w3  # End-effector z frame visualization
 
 
-def MoveIt_generate_traj():  # TODO: 06.14
+def MoveIt_generate_traj(): #TODO: 06.14
 
     return
 
+def getPosVelJoints(robotId, joint_indexes): # Function to get the position/velocity of all joints from pybullet
 
-def getPosVelJoints(robotId, joint_indexes):  # Function to get the position/velocity of all joints from pybullet
-
-    jointStates = p.getJointStates(robotId,
-                                   joint_indexes)  # State of all joints (position, velocity, reaction forces, appliedJointMotortoruqe)
+    jointStates = p.getJointStates(robotId, joint_indexes)  # State of all joints (position, velocity, reaction forces, appliedJointMotortoruqe)
     # print('np.shape(jointStates):', np.shape(jointStates))
     # print('len(jointStates): ', len(jointStates))
     # print('jointStates[0]: ', jointStates[0])
     # print('jointStates[0][0]: ', jointStates[0][0])
-    # baseState = p.getBasePositionAndOrientation(robotId)  # Position and orientation of the free flying base (Position, orientation)
-    # baseVel = p.getBaseVelocity(robotId)  # Velocity of the free flying base  (linear velocity, angular velocity)
+    #baseState = p.getBasePositionAndOrientation(robotId)  # Position and orientation of the free flying base (Position, orientation)
+    #baseVel = p.getBaseVelocity(robotId)  # Velocity of the free flying base  (linear velocity, angular velocity)
 
     # Reshaping data into q and qdot
     joint_pos = np.vstack((np.array([[jointStates[i_joint][0] for i_joint in range(len(jointStates))]]).transpose()))
     # q = np.vstack((np.array([baseState[0]]).transpose(), np.array([baseState[1]]).transpose(),
     #                np.array([[jointStates[i_joint][0] for i_joint in range(len(jointStates))]]).transpose()))
-    # print('q: ', q) # ([:3] -> base position,
+    #print('q: ', q) # ([:3] -> base position,
     #                 # [3:7] -> base orientation in Quatenion,
     #                 # [7:9] -> wheel right and left,
     #                 # [9:16] -> position of 7 joints,
     #                 # [16:] -> position of gripper right finger and left finger
-    # print('np.shape(q): ', np.shape(q)) # (18, 1), baseState[1] is orientation in Quatenion
+    #print('np.shape(q): ', np.shape(q)) # (18, 1), baseState[1] is orientation in Quatenion
 
     return joint_pos
 
-
 def add_debug_lines(X_w, Y_w, Z_w, XYZ_ee):
+
     global l1
     global l2
     global l3
@@ -127,8 +121,8 @@ def add_debug_lines(X_w, Y_w, Z_w, XYZ_ee):
 
     return l1, l2, l3, w1, w2, w3
 
-
 def add_xyz_text(X_w, Y_w, Z_w):
+
     global x_text
     global y_text
     global z_text
@@ -140,24 +134,24 @@ def add_xyz_text(X_w, Y_w, Z_w):
 
     return x_text, y_text, z_text
 
-
 def put_obj_in_world(X_w, Y_w, Z_w):
+
     global lego_x
     global lego_y
     global lego_z
 
     if first_time:
         lego_x = p.loadURDF('sphere_small.urdf', X_w, p.getQuaternionFromEuler([0, 0, 0]),
-                            useFixedBase=True, useMaximalCoordinates=True)
+                   useFixedBase=True, useMaximalCoordinates=True)
         lego_y = p.loadURDF('cube_small.urdf', Y_w, p.getQuaternionFromEuler([0, 0, 0]),
-                            useFixedBase=True, useMaximalCoordinates=True)
+                   useFixedBase=True, useMaximalCoordinates=True)
         lego_z = p.loadURDF('/lego/lego.urdf', Z_w, p.getQuaternionFromEuler([0, 0, 0]),
-                            useFixedBase=True, useMaximalCoordinates=True)
+                   useFixedBase=True, useMaximalCoordinates=True)
 
     return lego_x, lego_y, lego_z
 
-
 def calculate_xyz_world(T: tensor):
+
     vec_x_e = tensor([[.33, 0., 0., 1.]]).reshape(4, 1)
     vec_y_e = tensor([[0., .33, 0., 1.]]).reshape(4, 1)
     vec_z_e = tensor([[0., 0., .33, 1.]]).reshape(4, 1)
@@ -174,25 +168,24 @@ def calculate_xyz_world(T: tensor):
 
     return X_w, Y_w, Z_w
 
-
 def joint_control(robot, q, K: int, dt: float):
+
     q_des = np.ones((robot.nq, 1)) * 0.6
     dq = K * (q - q_des)
     ans_q = q + dq * dt
 
     return ans_q
 
+def start_pybullet(): # load Tiago in Pybullet
 
-def start_pybullet():  # load Tiago in Pybullet
-
-    physicsClient = p.connect(p.GUI)  # or p.DIRECT for non-graphical version
+    physicsClient = p.connect(p.GUI) #or p.DIRECT for non-graphical version
     p.setAdditionalSearchPath(pybullet_data.getDataPath())
     p.resetSimulation(p.RESET_USE_DEFORMABLE_WORLD)
     p.setGravity(0, 0, -9.81)
 
     base_dir = os.path.abspath(os.path.dirname(__file__) + '../../..')
     robot_dir = os.path.join(base_dir, 'robots/tiago/')
-    urdf_filename = os.path.join(robot_dir, 'tiago_single_with_torso.urdf')
+    urdf_filename = os.path.join(robot_dir, 'tiago_single_modified.urdf')
 
     planeId = p.loadURDF("plane.urdf")
     startPos = [0., 0., 0.]
@@ -201,16 +194,16 @@ def start_pybullet():  # load Tiago in Pybullet
     # p.loadURDF("cube_small.urdf", np.array([0.4, -0.5, 0.5]),
     #            p.getQuaternionFromEuler([0, 0, 0]),
     #            useFixedBase=True, useMaximalCoordinates=True)
-    p.loadURDF('sphere_1cm.urdf', np.array([0.8, 0., 1.1]),  # TODO: Put an object in target postion
+    p.loadURDF('sphere_1cm.urdf', np.array([0.8, 0., 0.8]), # TODO: Put an object in target postion
                p.getQuaternionFromEuler([0, 0, 0]),
                useFixedBase=True)
 
-    joint_indexes = [21, 31, 32, 33, 34, 35, 36, 37]
+    joint_indexes = [31, 32, 33, 34, 35, 36, 37]
 
     return robotId, planeId, joint_indexes
 
-
 def plot_mu(mu_values: list, num: int):
+
     fig, axs = plt.subplots(2, 3)
     t = np.arange(0, num, 1)
 
@@ -229,34 +222,34 @@ def plot_mu(mu_values: list, num: int):
         vy.append(mu_values[i][4].item())
         vz.append(mu_values[i][5].item())
 
-    axs[0, 0].plot(t, wx)
-    axs[0, 0].set_title('wx: task space')
-    axs[0, 0].set_ylim(min(wx) - 10, max(wx) + 10)
+    axs[0,0].plot(t, wx)
+    axs[0,0].set_title('wx: task space')
+    axs[0,0].set_ylim(min(wx)-10, max(wx)+10)
 
-    axs[0, 1].plot(t, wx)
-    axs[0, 1].set_title('wy: task space')
-    axs[0, 1].set_ylim(min(wy) - 10, max(wy) + 10)
+    axs[0,1].plot(t, wx)
+    axs[0,1].set_title('wy: task space')
+    axs[0,1].set_ylim(min(wy)-10, max(wy)+10)
 
-    axs[0, 2].plot(t, wx)
-    axs[0, 2].set_title('wz: task space')
-    axs[0, 2].set_ylim(min(wz) - 10, max(wz) + 10)
+    axs[0,2].plot(t, wx)
+    axs[0,2].set_title('wz: task space')
+    axs[0,2].set_ylim(min(wz)-10, max(wz)+10)
 
     axs[1, 0].plot(t, wx)
     axs[1, 0].set_title('vx: task space')
-    axs[1, 0].set_ylim(min(vx) - 10, max(vx) + 10)
+    axs[1, 0].set_ylim(min(vx)-10, max(vx)+10)
 
-    axs[1, 1].plot(t, wx)
-    axs[1, 1].set_title('vy: task space ')
-    axs[1, 1].set_ylim(min(vy) - 10, max(vy) + 10)
+    axs[1,1].plot(t, wx)
+    axs[1,1].set_title('vy: task space ')
+    axs[1,1].set_ylim(min(vy)-10, max(vy)+10)
 
-    axs[1, 2].plot(t, wx)
-    axs[1, 2].set_title('vz: task space')
-    axs[1, 2].set_ylim(min(vz) - 10, max(vz) + 10)
+    axs[1,2].plot(t, wx)
+    axs[1,2].set_title('vz: task space')
+    axs[1,2].set_ylim(min(vz)-10, max(vz)+10)
 
     plt.show()
 
-
 def plot_joints(joint_values: list, joint_pos_values: list, num: int):
+
     fig, axs = plt.subplots(2, 4)
     t = np.arange(0, num, 1)
 
@@ -267,15 +260,15 @@ def plot_joints(joint_values: list, joint_pos_values: list, num: int):
     j5 = []
     j6 = []
     j7 = []
-    j8 = []
 
-    # j1_pos = []
-    # j2_pos = []
-    # j3_pos = []
-    # j4_pos = []
-    # j5_pos = []
-    # j6_pos = []
-    # j7_pos = []
+    j1_pos = []
+    j2_pos = []
+    j3_pos = []
+    j4_pos = []
+    j5_pos = []
+    j6_pos = []
+    j7_pos = []
+
 
     for i in range(number_iteration):
         j1.append(joint_values[i][0])
@@ -285,69 +278,64 @@ def plot_joints(joint_values: list, joint_pos_values: list, num: int):
         j5.append(joint_values[i][4])
         j6.append(joint_values[i][5])
         j7.append(joint_values[i][6])
-        j8.append(joint_values[i][6])
-        # j1_pos.append(joint_pos_values[i][0])
-        # j2_pos.append(joint_pos_values[i][1])
-        # j3_pos.append(joint_pos_values[i][2])
-        # j4_pos.append(joint_pos_values[i][3])
-        # j5_pos.append(joint_pos_values[i][4])
-        # j6_pos.append(joint_pos_values[i][5])
-        # j7_pos.append(joint_pos_values[i][6])
 
-    # q1_des = np.ones((number_iteration, 1)) * np.pi/3
+        j1_pos.append(joint_pos_values[i][0])
+        j2_pos.append(joint_pos_values[i][1])
+        j3_pos.append(joint_pos_values[i][2])
+        j4_pos.append(joint_pos_values[i][3])
+        j5_pos.append(joint_pos_values[i][4])
+        j6_pos.append(joint_pos_values[i][5])
+        j7_pos.append(joint_pos_values[i][6])
+
+    #q1_des = np.ones((number_iteration, 1)) * np.pi/3
     axs[0, 0].plot(t, j1)
-    # axs[0, 0].plot(t, j1_pos, '+', linewidth=.02)
+    axs[0, 0].plot(t, j1_pos, '+', linewidth=.02)
     axs[0, 0].set_title('1st Joint')
     axs[0, 0].set_ylim(min(j1) - 1, max(j1) + 1)
-    # axs[0, 0].plot(t, q1_des, label='Desired q=pi/3')
+    #axs[0, 0].plot(t, q1_des, label='Desired q=pi/3')
 
     axs[0, 1].plot(t, j2)
-    # axs[0, 1].plot(t, j2_pos, '+', linewidth=.02)
+    axs[0, 1].plot(t, j2_pos, '+', linewidth=.02)
     axs[0, 1].set_title('2nd Joint')
     axs[0, 1].set_ylim(min(j2) - 1, max(j2) + 1)
 
     axs[0, 2].plot(t, j3)
-    # axs[0, 2].plot(t, j3_pos, '+', linewidth=.02)
+    axs[0, 2].plot(t, j3_pos, '+', linewidth=.02)
     axs[0, 2].set_title('3rd Joint')
     axs[0, 2].set_ylim(min(j3) - 1, max(j3) + 1)
 
     axs[0, 3].plot(t, j4)
-    # axs[0, 3].plot(t, j4_pos, '+', linewidth=.02)
+    axs[0, 3].plot(t, j4_pos, '+', linewidth=.02)
     axs[0, 3].set_title('4th Joint')
     axs[0, 3].set_ylim(min(j4) - 1, max(j4) + 1)
 
     axs[1, 0].plot(t, j5)
-    # axs[1, 0].plot(t, j5_pos, '+', linewidth=.02)
+    axs[1, 0].plot(t, j5_pos, '+', linewidth=.02)
     axs[1, 0].set_title('5th Joint')
     axs[1, 0].set_ylim(min(j5) - 1, max(j5) + 1)
 
     axs[1, 1].plot(t, j6)
-    # axs[1, 1].plot(t, j6_pos, '+', linewidth=.02)
+    axs[1, 1].plot(t, j6_pos, '+', linewidth=.02)
     axs[1, 1].set_title('6th Joint')
     axs[1, 1].set_ylim(min(j6) - 1, max(j6) + 1)
 
     axs[1, 2].plot(t, j7)
-    # axs[1, 2].plot(t, j7_pos, '+', linewidth=.02)
+    axs[1, 2].plot(t, j7_pos, '+', linewidth=.02)
     axs[1, 2].set_title('7th Joint')
     axs[1, 2].set_ylim(min(j7) - 1, max(j7) + 1)
 
-    axs[1, 3].plot(t, j8)
-    # axs[1, 2].plot(t, j7_pos, '+', linewidth=.02)
-    axs[1, 3].set_title('8th Joint')
-    axs[1, 3].set_ylim(min(j8) - 1, max(j8) + 1)
-
     plt.show()
 
-
 def plot_euclidiean_dist(dist_values, num):
+
     fig, axs = plt.subplots(1, 1)
     t = np.arange(0, num, 1)
     axs.plot(t, dist_values)
     axs.set_title('Euclidean distance')
     plt.show()
 
-
 def plot_error(error_values, num):
+
     fig, axs = plt.subplots(1, 1)
     t = np.arange(0, num, 1)
     axs.plot(t, error_values)
@@ -355,34 +343,34 @@ def plot_error(error_values, num):
     plt.savefig('Error')
     plt.show()
 
-
 def plot_xyz(x_values: list, y_values: list, z_values: list, num: int):
+
     fig, axs = plt.subplots(1, 3)
     t = np.arange(0, num, 1)
 
-    x_des = np.ones((num,)) * 0.8
+    x_des = np.ones((num, )) * 0.8
     axs[0].plot(t, x_values, label='Current x')
     axs[0].set_title('X')
     axs[0].plot(t, x_des, label='Desired x')
     axs[0].legend()
     axs[0].set_ylim(min(x_values) - 0.1, max(x_values) + 0.1)
 
-    y_des = np.ones((num,)) * 0.
+    y_des = np.ones((num, )) * 0.
     axs[1].plot(t, y_values, label='Current y')
     axs[1].set_title('Y')
     axs[1].plot(t, y_des, label='Desired y')
-    axs[1].set_ylim(min(y_values) - .3, max(y_values) + .3)
+    axs[1].set_ylim(min(y_values) -.3, max(y_values) +.3)
 
-    z_des = np.ones((num,)) * 1.1
+    z_des = np.ones((num, )) * 0.8
     axs[2].plot(t, z_values, label='Current z')
     axs[2].set_title('Z')
     axs[2].plot(t, z_des, label='Desired z')
-    axs[2].set_ylim(min(z_values) - .3, max(z_values) + .3)
+    axs[2].set_ylim(min(z_values) - .3, max(z_values) +.3)
 
     plt.show()
 
-
 def se3ToTransfrom(SE3):
+
     # Transform a SE3 to a  (4, 4) transformation matrix.
 
     r = numpy2torch(SE3.rotation)
@@ -393,18 +381,17 @@ def se3ToTransfrom(SE3):
 
     return Tf
 
-
-def load_tiago():  # TODO: Modify the urdf path
+def load_tiago(): # TODO: Modify the urdf path
 
     base_dir = os.path.abspath(os.path.dirname(__file__) + '../../..')
     robot_dir = os.path.join(base_dir, 'robots/tiago/')
-    urdf_filename = os.path.join(robot_dir, 'tiago_single_with_torso.urdf')
+    urdf_filename = os.path.join(robot_dir, 'tiago_single_modified.urdf')
     robot = RobotWrapper.BuildFromURDF(urdf_filename, [robot_dir])
     # robot.initViewer()
     return robot
 
-
 def set_context(state, R):
+
     x = state[0]  # Tensor(4, 4), end-effector rotation and position SE(3)
     v = state[1]  # Tensor (1, 6), end-effector spatial velocity V_b
     print('state:', state)
@@ -433,10 +420,9 @@ def set_context(state, R):
     mu = scale * ve_w - 1.2 * scale * v
 
     return mu
-    # print('mu: ', mu)  # Tensor(6, 1)
+    #print('mu: ', mu)  # Tensor(6, 1)
 
-
-def calculate_mu(state, R):  # TODO: Acceleration control
+def calculate_mu(state, R): # TODO: Acceleration control
     '''
     params:
         state: Tensor -> contains end-effector rotation and position s[0], spatial velocity s[1]
@@ -468,8 +454,7 @@ def calculate_mu(state, R):  # TODO: Acceleration control
 
     return mu
 
-
-def calculate_vtl(state, R):  # TODO: Velocity control
+def calculate_vew(state, R): # TODO: Velocity control
     '''
     params:
         state: Tensor -> contains end-effector rotation and position s[0], spatial velocity s[1]
@@ -479,7 +464,7 @@ def calculate_vtl(state, R):  # TODO: Velocity control
     '''
 
     x = state[0]  # Tensor(4, 4), end-effector rotation and position SE(3)
-    # v = state[1]  # Tensor (1, 6), end-effector spatial velocity V_b
+    #v = state[1]  # Tensor (1, 6), end-effector spatial velocity V_b
 
     R_inv = torch.inverse(R)
     Htl = torch.matmul(R_inv, x)  # R_inv * X
@@ -493,9 +478,9 @@ def calculate_vtl(state, R):  # TODO: Velocity control
 
     return ve_w
 
+
 def joint_value_clip(q: np.array):
     """
-    torso_lift_joint: [[0., 0.35]]
     arm_1_joint: [[0.0, 2.74889357189],
     arm_2_joint: [-1.57079632679, 1.0908307825],
     arm_3_joint: [-3.53429173529, 1.57079632679],
@@ -504,7 +489,9 @@ def joint_value_clip(q: np.array):
     arm_6_joint:[-1.57079632679, 1.57079632679],
     arm_7_joint:[-2.09439510239, 2.09439510239]]
     """
+
     np.clip(deepcopy(q), q_limit_min, q_limit_max, q)
+
 
 
 # Load tiago from pinocchio
@@ -513,26 +500,16 @@ print('robot.model: ', robot.model)
 
 # TODO: Set the desired points
 qua = pin.Quaternion(0., 0., 0., 1.)
-qua.normalize()
+start_point = np.array([0.1, -0.7, 0.7])  # 0.10805 -0.7345  0.7065
+end_point = np.array([0.8, 0., 0.8])
 
-end_point = np.array([0.8, 0., 1.1])
-
-start_point = np.array([0.1, -0.7, 0.7])
-
-# pos_1 = np.array([0.6, -0.2, 0.7]).T
-# pos_2 = np.array([0.7, -0.1, 0.7]).T
-# pos_3 = np.array([0.8, 0., 0.7]).T
 x_desired = pin.SE3(qua, end_point)  # TODO: set desired position and orientation
-# x_des_2 = pin.SE3(qua, pos_2)
-# x_des_3 = pin.SE3(qua, pos_3)
 x_desired.rotation = np.eye(3)
-# x_des_1.rotation = np.eye(3)
-# x_des_2.rotation = np.eye(3)
-# x_des_3.rotation = np.eye(3)
+
 
 
 # Get 7th arm joint index and end-effector index
-JOINT_INX = 8
+JOINT_INX = 7
 EE_idx = robot.model.getFrameId('arm_7_link')
 
 # Initialize q, dq, desired pose R and error threshold
@@ -540,22 +517,26 @@ q = pin.neutral(robot.model)
 dq = np.zeros(robot.nv)
 # R = se3ToTransfrom(x_des)
 ERROR = 1e-4
-DISRANCE = 0.02
+DISRANCE = 0.01
 
 # load Tiago from pybullet
 robotId, planeId, joint_indexes = start_pybullet()
 
-q_des = np.ones((robot.nq,)) * 0.  # joint control desired q
+q_des = np.ones((robot.nq, )) * 0.  # joint control desired q
 
 for jj in range(len(joint_indexes)):  # TODO: PYBULLET set joint positions
     p.resetJointState(robotId, joint_indexes[jj], q_des[jj])
 
 if __name__ == '__main__':
 
+    p.addUserDebugLine(start_point.tolist(),
+                       end_point.tolist(),
+                       [0.5, 0.4, 1],
+                       lineWidth=3)
+
     p.addUserDebugText('End point', end_point.tolist(), [0, 1, 1])
-
-
     print('==================')
+
     R = se3ToTransfrom(x_desired)
 
     # TODO: Store data of joints in pinocchio, positions, error, joints in pybullet, mu(ddx in task space)
@@ -601,22 +582,10 @@ if __name__ == '__main__':
         cur_dx = numpy2torch(cur_dx_vec)
         state = [cur_x, cur_dx]
 
-        # p.resetBasePositionAndOrientation(lego_x, X_w, p.getQuaternionFromEuler([0, 0, 0]))
-        # p.resetBasePositionAndOrientation(lego_y, Y_w, p.getQuaternionFromEuler([0, 0, 0]))
-        # p.resetBasePositionAndOrientation(lego_z, Z_w, p.getQuaternionFromEuler([0, 0, 0]))
-        #
-        # p.resetBasePositionAndOrientation(l1, X_w, p.getQuaternionFromEuler([0, 0, 0]))
-        # p.resetBasePositionAndOrientation(l2, Y_w, p.getQuaternionFromEuler([0, 0, 0]))
-        # p.resetBasePositionAndOrientation(l3, Z_w, p.getQuaternionFromEuler([0, 0, 0]))
+        v_ew = calculate_vew(state=state, R=R)  # TODO: Velocity control
 
-        # p.resetBasePositionAndOrientation(x_text, X_w, p.getQuaternionFromEuler([0, 0, 0]))
-        # p.resetBasePositionAndOrientation(y_text, Y_w, p.getQuaternionFromEuler([0, 0, 0]))
-        # p.resetBasePositionAndOrientation(z_text, Z_w, p.getQuaternionFromEuler([0, 0, 0]))
-
-        v_ew = calculate_vtl(state=state, R=R)  # TODO: Velocity control
-
-        mu = calculate_mu(state=state, R=R)  # TODO: Acceleration control
-        # print('mu: ', mu)
+        mu = calculate_mu(state=state, R=R)     # TODO: Acceleration control
+        #print('mu: ', mu)
 
         # TODO: RECORD ddx in task space
         mu_values.append(mu)
@@ -628,30 +597,28 @@ if __name__ == '__main__':
         pin.updateFramePlacements(robot.model, robot.data)
         J = pin.getFrameJacobian(robot.model, robot.data, EE_idx, pin.ReferenceFrame.WORLD)
         J = numpy2torch(J)
-        # print('Jacobian: ', J)
+        #print('Jacobian: ', J)
 
         # TODO: Velocity control
         damp = 1e-6  # 0.1, 0.01, 0.001
         Idt = numpy2torch(np.eye(6))
-        JJ_vel = torch.matmul(J.T, torch.inverse(
-            torch.matmul(J, J.T) + (damp ** 2 * Idt)))  # TODO: Add damped pseudoinverse
+        JJ_vel = torch.matmul(J.T, torch.inverse(torch.matmul(J, J.T) + (damp**2 * Idt))) # TODO: Add damped pseudoinverse
         dq = torch.matmul(JJ_vel, v_ew)
         # dq = torch.matmul(torch.pinverse(J), v_ew)
         dq = torch2numpy(dq)
-        # Euler discretization
+        # # Euler discretization
         # dt = .01
         # q = q + dq * dt
         # q = pin.integrate(robot.model, q, dq * dt)
 
         # TODO: Acceleration control
-        JJ_acc = torch.matmul(J.T, torch.inverse(
-            torch.matmul(J, J.T) + (damp ** 2 * Idt)))  # TODO: Add damped pseudoinverse
+        JJ_acc = torch.matmul(J.T, torch.inverse(torch.matmul(J, J.T) + (damp ** 2 * Idt)))  # TODO: Add damped pseudoinverse
         ddq = torch.matmul(JJ_acc, mu)
         ddq = torch2numpy(ddq)
         dt = 0.01
         dq = dq + ddq * dt
         q = q + dq * dt
-        # q = pin.integrate(robot.model, q, dq * dt)
+        #q = pin.integrate(robot.model, q, dq * dt)
 
         # TODO: CHECK->print desired pose and current pose
         # print('3 q: ', q)
@@ -664,7 +631,7 @@ if __name__ == '__main__':
         #                    p.JOINT_FIXED,
         #                    [0, 0, 0], [0, 0, 0], [0, 0, 0])
 
-        # pin.computeAllTerms(robot.model, robot.data, q, dq)
+        #pin.computeAllTerms(robot.model, robot.data, q, dq)
         # p.setJointMotorControlArray(robotId, joint_indexes, p.POSITION_CONTROL, q)
 
         # Update jacobian and Forward kinematics
@@ -678,9 +645,9 @@ if __name__ == '__main__':
         # p.setJointMotorControlArray(robotId, joint_indexes, p.VELOCITY_CONTROL, dq)
 
         # TODO: Clipping Joint limit
-        joint_value_clip(q)
+        #joint_value_clip(q)
 
-        for jj in range(len(joint_indexes)):  # TODO: PYBULLET set joint positions
+        for jj in range(len(joint_indexes)): #TODO: PYBULLET set joint positions
             p.resetJointState(robotId, joint_indexes[jj], q[jj])
 
         # TODO: RECORD joint positions from Pinocchio, XYZ position, joint values from PYBULLET
@@ -708,7 +675,7 @@ if __name__ == '__main__':
 
         # TODO: Check error (Sum of position difference between current and target), and euclidean distance
         dMi = x_desired.actInv(robot.data.oMf[EE_idx])  # Transformation from current EE to desired EE
-        # err = np.linalg.norm(pin.log6(dMi).vector)
+        #err = np.linalg.norm(pin.log6(dMi).vector)
         err = abs(np.sum(robot.data.oMf[EE_idx].translation - x_desired.translation))
         distance = np.sqrt(np.sum(np.power(np.abs(robot.data.oMf[EE_idx].translation - x_desired.translation), 2)))
         print('position error: ', err)
@@ -724,10 +691,10 @@ if __name__ == '__main__':
             print('dq result: ', dq)
             print('Final pose: ', robot.data.oMi[JOINT_INX])
             print("Convergence achieved!")
-            number_iteration = ii + 1
+            number_iteration = ii+1
             break
 
-    # # # TODO: Plot
+    # # TODO: Plot
     plot_mu(mu_values, number_iteration)
     plot_joints(joint_values, joint_pos_values, number_iteration)
     plot_error(error_values, number_iteration)
