@@ -245,6 +245,8 @@ class MoveGroupPythonInterfaceTutorial(object):
         )  # jump_threshold
 
         # Note: We are just planning, not asking move_group to actually move the robot yet:
+        print('plan: ', plan)
+        print('fraction: ', fraction)
         return plan, fraction
 
         ## END_SUB_TUTORIAL

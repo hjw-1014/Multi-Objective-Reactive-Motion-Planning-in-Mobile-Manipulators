@@ -21,7 +21,7 @@ def solve_euler(q, dq, dt):
     return q + dq * dt
 
 class Multi_EBMControl():
-    def __init__(self, energy_tree, device, dim=7, dt=0.005, optimization_steps=10, n_particles=1000, var_0=10., stochastic=False):
+    def __init__(self, energy_tree, device, dim=7, dt=0.005, optimization_steps=10, n_particles=10000, var_0=10., stochastic=False):
 
         self.device = device
         self.energy_tree = energy_tree
@@ -59,8 +59,11 @@ class Multi_EBMControl():
         # TODO: initialize/update Multivaritae Gaussian distribution , self.p_dx = tdist.MultivariateNormal(mu, self.var) in TaskgotoLeaf
         #self.energy_tree.set_context(state)
 
-        for jj in range(len(self.energy_tree)): # TODO: 06.28
+        for jj in range(len(self.energy_tree)):  # TODO: 06.28
             self.energy_tree[jj].set_context(state)
+
+        # for et in self.energy_tree:
+        #     et.set_context(state)
 
         ## 2. Compute optimal Action ##
         t1 = time.time()
@@ -82,8 +85,13 @@ class Multi_EBMControl():
 
             t1 = time.time()
 
-            for ii in range(len(self.energy_tree)): # TODO:
-                self.log_p_dq += self.energy_tree[ii].log_prob(action)
+            # for ii in range(len(self.energy_tree)):  # TODO: 06.28
+            #     self.log_p_dq += self.energy_tree[ii].log_prob(action)
+            #
+            # for et in self.energy_tree:
+            #     self.log_p_dq += et.log_prob(action)
+
+            self.log_p_dq = self.energy_tree[0].log_prob(action) + self.energy_tree[1].log_prob(action) # TODO: 07.10 FIX jscAndGoto!
 
             #log_p_dq = self.energy_tree.log_prob(action)  # Energy, torch.Size([1000]) # TODO: 06.28
 
@@ -183,7 +191,8 @@ class EnergyTree(nn.Module):
             self.map = map
 
         if i_temperatures is None:
-            i_temperatures = torch.ones(len(branches))
+            i_temperatures = torch.ones(len(branches)) #TODO: Change parameters
+            #self.i_temperatures = torch.tensor((0.1, 1.))
         self.i_temperatures = nn.Parameter(i_temperatures)
         self.branches = nn.ModuleList(branches)
 

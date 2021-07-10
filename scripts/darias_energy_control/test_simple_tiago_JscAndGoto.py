@@ -52,7 +52,7 @@ def experiment():
     ################
 
     n_trials = 100
-    horizon = 1500
+    horizon = 2000
     c = 0
     s = 0
     REWARD = 0
@@ -76,6 +76,7 @@ def experiment():
             if i == (horizon-1):
                 REWARD = reward
                 END_POSITION = env.check_endPosition()
+        print('################Iteraton ', itr, ' ended ##################')
         print('Position state: ', state[0])
         print('Distance:',  REWARD)
         print('End position: ', END_POSITION)

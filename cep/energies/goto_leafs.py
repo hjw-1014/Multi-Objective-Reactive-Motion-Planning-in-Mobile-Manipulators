@@ -20,7 +20,7 @@ class TaskGoToLeaf(EnergyLeaf):
             b = torch.zeros(3).float()
         self.register_buffer('b', b)
         if var is None:
-            var = torch.eye(self.dim).float()
+            var = torch.eye(self.dim).float() * 0.1
         self.register_buffer('var', var)
 
         if R is None:
@@ -80,10 +80,10 @@ class TaskGoToLeaf(EnergyLeaf):
 
 class JointGoToLeaf(EnergyLeaf):
     def __init__(self, dim=7, Kp = 1., Kv = 1.,
-                 q_des=torch.tensor([0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5]),
+                 q_des=torch.tensor([2.0, 0.1, 2.0, 1.0, 0.2, -1.0, 0.3]),
                  # ([2.215, 0.088, 2.156, 1.060, 0.238, -1.023, 0.373]),
                  dq_des=torch.tensor([0., 0., 0., 0., 0., 0., 0.]),
-                 var=torch.eye(7).float() * 10.):
+                 var=torch.eye(7).float() * 1000.):
 
         super(JointGoToLeaf, self).__init__()
         self.dim = dim

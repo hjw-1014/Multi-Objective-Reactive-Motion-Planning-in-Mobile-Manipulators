@@ -458,7 +458,7 @@ def calculate_vtl(state, R): # TODO: Velocity control
 
 # Load tiago from pinocchio
 robot = load_tiago()
-print('robot.model: ', robot)
+print('robot.model: ', robot.model)
 
 # TODO: Set the desired points
 qua = pin.Quaternion(0., 0., 0., 1.)

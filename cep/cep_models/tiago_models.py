@@ -72,20 +72,22 @@ def jsc_and_goto_cep_simple_model():  # TODO: 06.28, 06.29
     ee_goto_leaf = energies.TaskGoToLeaf(dim=6, b=b, A=A, R=H, var=torch.eye(6)*10.)
     ee_energy_tree = EnergyTree(branches=[ee_goto_leaf], map=pick_map)
     q_branches = [ee_energy_tree]
-    tk_energy_tree = EnergyTree(branches=q_branches, map=fk_map).to(device)
+    task_energy_tree = EnergyTree(branches=q_branches, map=fk_map).to(device)
 
     # TODO: JointGoToLeaf
-    ##Identity map##
+    ## Identity map ##
     identity_map = maps.SimplePosVel(dim=7)
     ## Leaf and Tree ##
     q_goto_leaf = energies.JointGoToLeaf()
     q_energy_tree = EnergyTree(branches=[q_goto_leaf], map=identity_map).to(device)
 
     #########################
+    energy_trees = [task_energy_tree, q_energy_tree]
+    #energy_trees = task_energy_tree
+
     #ee_obj_avoid_leaf = energies.ObjAvoidLeaf()  # TODO: add branches here LATER!!!
 
     # TODO: Whole network
-    energy_trees = [tk_energy_tree, q_energy_tree]
-    policy = Multi_EBMControl(energy_tree=energy_trees, device=device, optimization_steps=5, dt=0.005, n_particles=1000)
+    policy = Multi_EBMControl(energy_tree=energy_trees, device=device, optimization_steps=5, dt=0.005, n_particles=10000)
 
     return policy

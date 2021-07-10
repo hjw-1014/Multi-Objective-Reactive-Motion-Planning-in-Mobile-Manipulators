@@ -540,7 +540,7 @@
     <dynamics damping="100"/>
     <safety_controller k_position="0" k_velocity="10" soft_lower_limit="-0.005" soft_upper_limit="0.005"/>
   </joint>
-  <joint name="wheel_right_joint" type="continuous">
+  <joint name="wheel_right_joint" type="prismatic">
     <parent link="ignore_suspension_right_link"/>
     <child link="wheel_right_link"/>
     <origin rpy="-1.57079632679 0 0" xyz="0 -0.2022 0"/>
@@ -608,7 +608,7 @@
     <dynamics damping="100"/>
     <safety_controller k_position="0" k_velocity="10" soft_lower_limit="-0.005" soft_upper_limit="0.005"/>
   </joint>
-  <joint name="wheel_left_joint" type="continuous">
+  <joint name="wheel_left_joint" type="prismatic">
     <parent link="ignore_suspension_left_link"/>
     <child link="wheel_left_link"/>
     <origin rpy="-1.57079632679 0 0" xyz="0 0.2022 0"/>
