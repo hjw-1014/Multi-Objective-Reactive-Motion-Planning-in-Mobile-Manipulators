@@ -83,7 +83,7 @@ class JointGoToLeaf(EnergyLeaf):
                  q_des=torch.tensor([2.0, 0.1, 2.0, 1.0, 0.2, -1.0, 0.3]),
                  # ([2.215, 0.088, 2.156, 1.060, 0.238, -1.023, 0.373]),
                  dq_des=torch.tensor([0., 0., 0., 0., 0., 0., 0.]),
-                 var=torch.eye(7).float() * 1000.):
+                 var=torch.eye(7).float() * 100.):
 
         super(JointGoToLeaf, self).__init__()
         self.dim = dim
@@ -101,6 +101,11 @@ class JointGoToLeaf(EnergyLeaf):
         #self.register_buffer('dq_des', dq_des)
 
         self.var = var
+        # TODO: 07.10 -> Low variance for joints related with the elbow and big variance for the rest of thew joints
+        self.var[2][2] = 10.
+        self.var[3][3] = 10.
+
+
         ## Multivariate Gaussian distribution ##
         self.p_dx = None
 

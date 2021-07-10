@@ -144,9 +144,10 @@ class TiagoOneParallelHand(): # TODO: 06.12
 
         success = self._check_success(r)
 
+        q_vals = self.getPosVelJoints()
         print('joint positions: ', self.getPosVelJoints())
 
-        return obs, r, done, success
+        return obs, r, done, success, q_vals
 
     # AL: make sure the initial configuration is not in self-collision
     def check_collision(self):
