@@ -13,7 +13,7 @@ from cep.utils import numpy2torch, torch2numpy
 from cep.liegroups.torch import SO3, SE3
 
 
-number_iteration = 1000  # Define max iteration number
+number_iteration = 200  # Define max iteration number
 dt = 0.01  # Define time step
 
 q_limits = [[0.0, 2.74889357189],
@@ -185,18 +185,20 @@ def start_pybullet(): # load Tiago in Pybullet
 
     base_dir = os.path.abspath(os.path.dirname(__file__) + '../../..')
     robot_dir = os.path.join(base_dir, 'robots/tiago/')
-    urdf_filename = os.path.join(robot_dir, 'tiago_single_modified.urdf')
+    urdf_filename = os.path.join(robot_dir, 'tiago_single_with_base.urdf')
 
     planeId = p.loadURDF("plane.urdf")
     startPos = [0., 0., 0.]
     startOrientation = [0., 0., 0.]
-    robotId = p.loadURDF(urdf_filename, startPos, p.getQuaternionFromEuler([0., 0., 0.]), useFixedBase=1)
-
-    p.loadURDF('sphere_1cm.urdf', np.array([0.8, 0., 0.8]), # TODO: Put an object in target postion
+    robotId = p.loadURDF(urdf_filename, startPos, p.getQuaternionFromEuler([0., 0., 0.]))
+    # p.loadURDF("cube_small.urdf", np.array([0.4, -0.5, 0.5]),
+    #            p.getQuaternionFromEuler([0, 0, 0]),
+    #            useFixedBase=True, useMaximalCoordinates=True)
+    p.loadURDF('sphere_1cm.urdf', np.array([1.8, 0., 0.8]), # TODO: Put an object in target postion
                p.getQuaternionFromEuler([0, 0, 0]),
                useFixedBase=True)
 
-    joint_indexes = [31, 32, 33, 34, 35, 36, 37]
+    joint_indexes = [11, 9, 31, 32, 33, 34, 35, 36, 37]
 
     return robotId, planeId, joint_indexes
 
@@ -220,29 +222,29 @@ def plot_mu(mu_values: list, num: int):
         vy.append(mu_values[i][4].item())
         vz.append(mu_values[i][5].item())
 
-    axs[0, 0].plot(t, wx)
-    axs[0, 0].set_title('wx: task space')
-    axs[0, 0].set_ylim(min(wx)-10, max(wx)+10)
+    axs[0,0].plot(t, wx)
+    axs[0,0].set_title('wx: task space')
+    axs[0,0].set_ylim(min(wx)-10, max(wx)+10)
 
-    axs[0, 1].plot(t, wx)
-    axs[0, 1].set_title('wy: task space')
-    axs[0, 1].set_ylim(min(wy)-10, max(wy)+10)
+    axs[0,1].plot(t, wx)
+    axs[0,1].set_title('wy: task space')
+    axs[0,1].set_ylim(min(wy)-10, max(wy)+10)
 
-    axs[0, 2].plot(t, wx)
-    axs[0, 2].set_title('wz: task space')
-    axs[0, 2].set_ylim(min(wz)-10, max(wz)+10)
+    axs[0,2].plot(t, wx)
+    axs[0,2].set_title('wz: task space')
+    axs[0,2].set_ylim(min(wz)-10, max(wz)+10)
 
     axs[1, 0].plot(t, wx)
     axs[1, 0].set_title('vx: task space')
     axs[1, 0].set_ylim(min(vx)-10, max(vx)+10)
 
-    axs[1, 1].plot(t, wx)
-    axs[1, 1].set_title('vy: task space ')
-    axs[1, 1].set_ylim(min(vy)-10, max(vy)+10)
+    axs[1,1].plot(t, wx)
+    axs[1,1].set_title('vy: task space ')
+    axs[1,1].set_ylim(min(vy)-10, max(vy)+10)
 
-    axs[1, 2].plot(t, wx)
-    axs[1, 2].set_title('vz: task space')
-    axs[1, 2].set_ylim(min(vz)-10, max(vz)+10)
+    axs[1,2].plot(t, wx)
+    axs[1,2].set_title('vz: task space')
+    axs[1,2].set_ylim(min(vz)-10, max(vz)+10)
 
     plt.show()
 
@@ -383,7 +385,7 @@ def load_tiago(): # TODO: Modify the urdf path
 
     base_dir = os.path.abspath(os.path.dirname(__file__) + '../../..')
     robot_dir = os.path.join(base_dir, 'robots/tiago/')
-    urdf_filename = os.path.join(robot_dir, 'tiago_single_modifed.urdf')
+    urdf_filename = os.path.join(robot_dir, 'tiago_single_with_base.urdf')
     robot = RobotWrapper.BuildFromURDF(urdf_filename, [robot_dir])
     # robot.initViewer()
     return robot
@@ -490,6 +492,7 @@ def joint_value_clip(q: np.array):
 
     np.clip(deepcopy(q), q_limit_min, q_limit_max, q)
 
+
 # Load tiago from pinocchio
 robot = load_tiago()
 print('robot.model: ', robot.model)
@@ -497,12 +500,10 @@ print('robot.model: ', robot.model)
 # TODO: Set the desired points
 qua = pin.Quaternion(0., 0., 0., 1.)
 start_point = np.array([0.1, -0.7, 0.7])  # 0.10805 -0.7345  0.7065
-end_point = np.array([0.8, 0., 0.8])
+end_point = np.array([1.8, 0., 0.8])
 
 x_desired = pin.SE3(qua, end_point)  # TODO: set desired position and orientation
 x_desired.rotation = np.eye(3)
-
-
 
 # Get 7th arm joint index and end-effector index
 JOINT_INX = 7
@@ -518,7 +519,7 @@ DISRANCE = 0.01
 # load Tiago from pybullet
 robotId, planeId, joint_indexes = start_pybullet()
 
-q_des = np.ones((robot.nq, )) * 0.  # joint control desired q
+q_des = np.ones((robot.nq, )) * 0.5  # joint control desired q
 
 for jj in range(len(joint_indexes)):  # TODO: PYBULLET set joint positions
     p.resetJointState(robotId, joint_indexes[jj], q_des[jj])
@@ -643,8 +644,14 @@ if __name__ == '__main__':
         # TODO: Clipping Joint limit
         #joint_value_clip(q)
 
-        for jj in range(len(joint_indexes)): #TODO: PYBULLET set joint positions
-            p.resetJointState(robotId, joint_indexes[jj], q[jj])
+        for jj in range(len(joint_indexes)): # TODO: PYBULLET set joint positions
+            #p.resetJointState(robotId, joint_indexes[jj], q[jj])
+            p.resetJointState(robotId, joint_indexes[jj], q_des[jj])
+            
+        base_joints = [11, 9]
+        base_joints_des = [50., 50.]
+        for i in range(2):
+            p.resetJointState(robotId, base_joints[i], base_joints_des[i])
 
         # TODO: RECORD joint positions from Pinocchio, XYZ position, joint values from PYBULLET
         joint_values.append(q)

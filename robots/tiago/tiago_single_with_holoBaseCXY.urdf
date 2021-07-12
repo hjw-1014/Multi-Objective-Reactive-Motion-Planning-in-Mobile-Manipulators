@@ -364,11 +364,45 @@
       <inertia ixx="0.000001" ixy="0" ixz="0" iyy="0.000001" iyz="0" izz="0.000001"/>
     </inertial>
   </link>
+
+    <!--TODO Add X ,Y and Continuous joints -->
+  <link name="$world2" />
+  <link name="$world1" />
+  <link name="world" />
+
+  <joint name="Y" type="prismatic">
+        <origin rpy="0 0 0" xyz="0 0 0" />
+        <axis xyz="0 1 0" />
+        <limit effort="100.0" lower="-10.0" upper="10.0" velocity="0.1" />
+        <child link="$world1" />
+        <parent link="world" />
+        <calibration rising="0.0" />
+        <dynamics damping="100" />
+    </joint>
+    <joint name="X" type="prismatic">
+        <origin rpy="0 0 0" xyz="0 0 0" />
+        <axis xyz="1 0 0" />
+        <limit effort="100.0" lower="-10.0" upper="10.0" velocity="0.1" />
+        <child link="$world2" />
+        <parent link="$world1" />
+        <calibration rising="0.0" />
+        <dynamics damping="100" />
+    </joint>
+    <joint name="R" type="revolute">
+        <origin rpy="0 0 0" xyz="0 0 0" />
+        <axis xyz="0 0 1" />
+        <limit effort="100.0" lower="-10.0" upper="10.0" velocity="1." />
+        <child link="base_footprint" />
+        <parent link="$world2" />
+        <dynamics damping="100" />
+    </joint>
+
   <joint name="base_footprint_joint" type="fixed">
     <origin rpy="0 0 0" xyz="0 0 0.0985"/>
     <child link="base_link"/>
     <parent link="base_footprint"/>
   </joint>
+
   <!-- gazebo parameters are given here for base_link thru base_footprint -->
   <gazebo reference="base_footprint">
     <kp>100000000.0</kp>
@@ -531,7 +565,7 @@
     <gravity>1</gravity>
   </link>
   <joint name="ignore_suspension_right_joint" type="fixed">
-    <origin rpy="0 0 0" xyz="0 0 -0.02"/>
+    <origin rpy="0 0 0" xyz="0 0 0"/>
     <axis xyz="0 0 1"/>
     <limit effort="100.0" lower="-0.005" upper="0.005" velocity="1.0"/>
     <child link="ignore_suspension_right_link"/>
@@ -540,13 +574,12 @@
     <dynamics damping="100"/>
     <safety_controller k_position="0" k_velocity="10" soft_lower_limit="-0.005" soft_upper_limit="0.005"/>
   </joint>
-  <joint name="wheel_right_joint" type="revolute">
+  <joint name="wheel_right_joint" type="fixed">
     <parent link="ignore_suspension_right_link"/>
     <child link="wheel_right_link"/>
     <origin rpy="-1.57079632679 0 0" xyz="0 -0.2022 0"/>
     <axis xyz="0 0 1"/>
     <limit effort="6.0" velocity="10.152284264"/>
-    <dynamics damping="1.0" friction="1.0"/>
   </joint>
   <transmission name="wheel_right_trans">
     <type>transmission_interface/SimpleTransmission</type>
@@ -600,7 +633,7 @@
     <gravity>1</gravity>
   </link>
   <joint name="ignore_suspension_left_joint" type="fixed">
-    <origin rpy="0 0 0" xyz="0 0 -0.02"/>
+    <origin rpy="0 0 0" xyz="0 0 0"/>
     <axis xyz="0 0 1"/>
     <limit effort="100.0" lower="-0.005" upper="0.005" velocity="1.0"/>
     <child link="ignore_suspension_left_link"/>
@@ -609,13 +642,12 @@
     <dynamics damping="100"/>
     <safety_controller k_position="0" k_velocity="10" soft_lower_limit="-0.005" soft_upper_limit="0.005"/>
   </joint>
-  <joint name="wheel_left_joint" type="revolute">
+  <joint name="wheel_left_joint" type="fixed">
     <parent link="ignore_suspension_left_link"/>
     <child link="wheel_left_link"/>
     <origin rpy="-1.57079632679 0 0" xyz="0 0.2022 0"/>
-    <axis xyz="0 0 1 "/>
+    <axis xyz="0 0 1"/>
     <limit effort="6.0" velocity="10.152284264"/>
-    <dynamics damping="1.0" friction="1.0"/>
   </joint>
   <transmission name="wheel_left_trans">
     <type>transmission_interface/SimpleTransmission</type>
