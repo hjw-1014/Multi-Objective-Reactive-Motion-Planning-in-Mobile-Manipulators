@@ -388,10 +388,10 @@
         <calibration rising="0.0" />
         <dynamics damping="100" />
     </joint>
-    <joint name="R" type="revolute">
+    <joint name="R" type="continuous">
         <origin rpy="0 0 0" xyz="0 0 0" />
         <axis xyz="0 0 1" />
-        <limit effort="100.0" lower="-10.0" upper="10.0" velocity="1." />
+        <limit effort="100.0" lower="-3.1416" upper="3.1416" velocity="0.2" />
         <child link="base_footprint" />
         <parent link="$world2" />
         <dynamics damping="100" />

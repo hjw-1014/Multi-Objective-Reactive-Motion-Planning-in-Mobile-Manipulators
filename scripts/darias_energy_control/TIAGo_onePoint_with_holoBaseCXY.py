@@ -10,10 +10,12 @@ from copy import deepcopy
 import matplotlib.pyplot as plt
 import time
 import math
+from copy import deepcopy
+
 from cep.utils import numpy2torch, torch2numpy
 from cep.liegroups.torch import SO3, SE3
 
-number_iteration = 500  # Define max iteration number
+number_iteration = 400  # Define max iteration number
 dt = 0.01  # Define time step
 
 q_limits = [[0.0, 2.74889357189],
@@ -57,23 +59,49 @@ global w2  # End-effector y frame visualization
 global w3  # End-effector z frame visualization
 
 
-def theta2CosSin(q, robot): # TODO: 07.12
+def CosSin2theta(q: np.array, robot):  # TODO: 07.12 for base continuous joint
 
-    q_ref = np.zeros((robot.nq, 1)) # Define q which will be used in pinochio
-    # Transform theta to cos(theta) and sin(theta) for 8 ignore_caster joints
-    for i in range(8):
-        q_ref[(2 * i)] = np.cos(q[i])[0]
-        q_ref[(2 * i) + 1] = np.sin(q[i])[0]
-    # Transform theta to cos(theta) and sin(theta) for wheel left joint
-    q_ref[17] = math.cos((q[9])[0])
-    q_ref[18] = math.sin((q[9])[0])
-    # Transform theta to cos(theta) and sin(theta) for wheel right joint
-    q_ref[20] = math.cos((q[11])[0])
-    q_ref[21] = math.sin((q[11])[0])
+    '''
+        param: q -> np.array(11, 1)
+        return: q_ref -> np.array(10, 1)
+    '''
 
-    q_ref = q_ref.reshape(robot.nq, ) # *(34,)
+    q_ref = np.zeros((robot.nv, 1))  # (10, 1)
+    continuous_theta_cos = math.acos(q[2])  # Transform cos(theta) to theta
+    continuous_theta_sin = math.asin(q[3])
 
+    q_ref[2] = continuous_theta_cos
+    for i in range(2):  # Prismatic joint Y and X
+        q_ref[i] = q[i]
+    for j in range(3, 10):  # 7 arm revolute joints
+        q_ref[j] = q[j+1]
+
+    q_ref = q_ref.reshape(robot.nv, )
     return q_ref
+
+
+def theta2CosSin(q, robot):  # TODO: 07.12 for base continuous joint
+
+    '''
+        param: q -> np.array(10, 1)
+        return: q_ref -> np.array(11, 1)
+    '''
+
+    q_ref = np.zeros((robot.nq, 1))  # (11, 1), Define q which will be used in pinochio
+    # Transform theta to cos(theta) and sin(theta)
+    continuous_theta_cos = math.cos(q[2])  # Transform cos(theta) to theta
+    continuous_theta_sin = math.sin(q[2])
+
+    q_ref[2] = continuous_theta_cos
+    q_ref[3] = continuous_theta_sin
+    for i in range(2):  # prismatic Y and X joint
+        q_ref[i] = q[i]
+    for j in range(3, 10):  # 7 arm revolute joints
+        q_ref[j+1] = q[j]
+
+    q_ref = q_ref.reshape(robot.nq, )
+    return q_ref
+
 
 def MoveIt_generate_traj():  # TODO: 06.14
 
@@ -278,7 +306,7 @@ def plot_mu(mu_values: list, num: int):
 
 
 def plot_joints(joint_values: list, joint_pos_values: list, num: int):
-    fig, axs = plt.subplots(2, 4)
+    fig, axs = plt.subplots(2, 6)
     t = np.arange(0, num, 1)
 
     j1 = []
@@ -288,6 +316,10 @@ def plot_joints(joint_values: list, joint_pos_values: list, num: int):
     j5 = []
     j6 = []
     j7 = []
+    j8 = []
+    j9 = []
+    j10 = []
+    j11 = []
 
     j1_pos = []
     j2_pos = []
@@ -296,6 +328,9 @@ def plot_joints(joint_values: list, joint_pos_values: list, num: int):
     j5_pos = []
     j6_pos = []
     j7_pos = []
+    j8_pos = []
+    j9_pos = []
+    j10_pos = []
 
     for i in range(number_iteration):
         j1.append(joint_values[i][0])
@@ -305,6 +340,10 @@ def plot_joints(joint_values: list, joint_pos_values: list, num: int):
         j5.append(joint_values[i][4])
         j6.append(joint_values[i][5])
         j7.append(joint_values[i][6])
+        j8.append(joint_values[i][7])
+        j9.append(joint_values[i][8])
+        j10.append(joint_values[i][9])
+        j11.append(joint_values[i][10])
 
         j1_pos.append(joint_pos_values[i][0])
         j2_pos.append(joint_pos_values[i][1])
@@ -313,46 +352,139 @@ def plot_joints(joint_values: list, joint_pos_values: list, num: int):
         j5_pos.append(joint_pos_values[i][4])
         j6_pos.append(joint_pos_values[i][5])
         j7_pos.append(joint_pos_values[i][6])
+        j8_pos.append(joint_pos_values[i][7])
+        j9_pos.append(joint_pos_values[i][8])
+        j10_pos.append(joint_pos_values[i][9])
 
     # q1_des = np.ones((number_iteration, 1)) * np.pi/3
     axs[0, 0].plot(t, j1)
     axs[0, 0].plot(t, j1_pos, '+', linewidth=.02)
-    axs[0, 0].set_title('1st Joint')
+    axs[0, 0].set_title('prismatic Y')
     axs[0, 0].set_ylim(min(j1) - 1, max(j1) + 1)
     # axs[0, 0].plot(t, q1_des, label='Desired q=pi/3')
 
     axs[0, 1].plot(t, j2)
     axs[0, 1].plot(t, j2_pos, '+', linewidth=.02)
-    axs[0, 1].set_title('2nd Joint')
+    axs[0, 1].set_title('prismatic X')
     axs[0, 1].set_ylim(min(j2) - 1, max(j2) + 1)
 
     axs[0, 2].plot(t, j3)
     axs[0, 2].plot(t, j3_pos, '+', linewidth=.02)
-    axs[0, 2].set_title('3rd Joint')
+    axs[0, 2].set_title('Continuous Cos(theta)')
     axs[0, 2].set_ylim(min(j3) - 1, max(j3) + 1)
 
     axs[0, 3].plot(t, j4)
     axs[0, 3].plot(t, j4_pos, '+', linewidth=.02)
-    axs[0, 3].set_title('4th Joint')
+    axs[0, 3].set_title('Continuous Sin(theta)')
     axs[0, 3].set_ylim(min(j4) - 1, max(j4) + 1)
 
-    axs[1, 0].plot(t, j5)
-    axs[1, 0].plot(t, j5_pos, '+', linewidth=.02)
-    axs[1, 0].set_title('5th Joint')
-    axs[1, 0].set_ylim(min(j5) - 1, max(j5) + 1)
+    axs[0, 4].plot(t, j5)
+    axs[0, 4].plot(t, j5_pos, '+', linewidth=.02)
+    axs[0, 4].set_title('1th Joint')
+    axs[0, 4].set_ylim(min(j5) - 1, max(j5) + 1)
 
-    axs[1, 1].plot(t, j6)
-    axs[1, 1].plot(t, j6_pos, '+', linewidth=.02)
-    axs[1, 1].set_title('6th Joint')
-    axs[1, 1].set_ylim(min(j6) - 1, max(j6) + 1)
+    axs[0, 5].plot(t, j6)
+    axs[0, 5].plot(t, j6_pos, '+', linewidth=.02)
+    axs[0, 5].set_title('2th Joint')
+    axs[0, 5].set_ylim(min(j6) - 1, max(j6) + 1)
 
-    axs[1, 2].plot(t, j7)
-    axs[1, 2].plot(t, j7_pos, '+', linewidth=.02)
-    axs[1, 2].set_title('7th Joint')
-    axs[1, 2].set_ylim(min(j7) - 1, max(j7) + 1)
+    axs[1, 0].plot(t, j7)
+    axs[1, 0].plot(t, j7_pos, '+', linewidth=.02)
+    axs[1, 0].set_title('3th Joint')
+    axs[1, 0].set_ylim(min(j7) - 1, max(j7) + 1)
+
+    axs[1, 1].plot(t, j8)
+    axs[1, 1].plot(t, j8_pos, '+', linewidth=.02)
+    axs[1, 1].set_title('4th Joint')
+    axs[1, 1].set_ylim(min(j8) - 1, max(j8) + 1)
+
+    axs[1, 2].plot(t, j9)
+    axs[1, 2].plot(t, j9_pos, '+', linewidth=.02)
+    axs[1, 2].set_title('5th Joint')
+    axs[1, 2].set_ylim(min(j9) - 1, max(j9) + 1)
+
+    axs[1, 3].plot(t, j10)
+    axs[1, 3].plot(t, j10_pos, '+', linewidth=.02)
+    axs[1, 3].set_title('6th Joint')
+    axs[1, 3].set_ylim(min(j10) - 1, max(j10) + 1)
+
+    axs[1, 4].plot(t, j11)
+    axs[1, 4].set_title('7th Joint')
+    axs[1, 4].set_ylim(min(j11) - 1, max(j11) + 1)
 
     plt.show()
 
+def plot_joints_pybullet(joint_pos_values: list, num: int):
+    fig, axs = plt.subplots(2, 6)
+    t = np.arange(0, num, 1)
+
+    j1 = []
+    j2 = []
+    j3 = []
+    j4 = []
+    j5 = []
+    j6 = []
+    j7 = []
+    j8 = []
+    j9 = []
+    j10 = []
+
+    for i in range(number_iteration):
+
+        j1.append(joint_pos_values[i][0])
+        j2.append(joint_pos_values[i][1])
+        j3.append(joint_pos_values[i][2])
+        j4.append(joint_pos_values[i][3])
+        j5.append(joint_pos_values[i][4])
+        j6.append(joint_pos_values[i][5])
+        j7.append(joint_pos_values[i][6])
+        j8.append(joint_pos_values[i][7])
+        j9.append(joint_pos_values[i][8])
+        j10.append(joint_pos_values[i][9])
+
+    # q1_des = np.ones((number_iteration, 1)) * np.pi/3
+    axs[0, 0].plot(t, j1)
+    axs[0, 0].set_title('prismatic Y')
+    axs[0, 0].set_ylim(min(j1) - 1, max(j1) + 1)
+    # axs[0, 0].plot(t, q1_des, label='Desired q=pi/3')
+
+    axs[0, 1].plot(t, j2)
+    axs[0, 1].set_title('prismatic X')
+    axs[0, 1].set_ylim(min(j2) - 1, max(j2) + 1)
+
+    axs[0, 2].plot(t, j3)
+    axs[0, 2].set_title('Continuous')
+    axs[0, 2].set_ylim(min(j3) - 1, max(j3) + 1)
+
+    axs[0, 3].plot(t, j4)
+    axs[0, 3].set_title('1th Joint')
+    axs[0, 3].set_ylim(min(j4) - 1, max(j4) + 1)
+
+    axs[0, 4].plot(t, j5)
+    axs[0, 4].set_title('2th Joint')
+    axs[0, 4].set_ylim(min(j5) - 1, max(j5) + 1)
+
+    axs[1, 0].plot(t, j6)
+    axs[1, 0].set_title('3th Joint')
+    axs[1, 0].set_ylim(min(j6) - 1, max(j6) + 1)
+
+    axs[1, 1].plot(t, j7)
+    axs[1, 1].set_title('4th Joint')
+    axs[1, 1].set_ylim(min(j7) - 1, max(j7) + 1)
+
+    axs[1, 2].plot(t, j8)
+    axs[1, 2].set_title('5th Joint')
+    axs[1, 2].set_ylim(min(j8) - 1, max(j8) + 1)
+
+    axs[1, 3].plot(t, j9)
+    axs[1, 3].set_title('6th Joint')
+    axs[1, 3].set_ylim(min(j9) - 1, max(j9) + 1)
+
+    axs[1, 4].plot(t, j10)
+    axs[1, 4].set_title('7th Joint')
+    axs[1, 4].set_ylim(min(j10) - 1, max(j10) + 1)
+
+    plt.show()
 
 def plot_euclidiean_dist(dist_values, num):
     fig, axs = plt.subplots(1, 1)
@@ -581,10 +713,10 @@ if __name__ == '__main__':
 
         print("============= Start Update ", x_desired, '=============', ii, "th =============")
 
-        # TODO: Check the initial 7 q values in Pinocchio
+        # TODO: Check the initial 11 q values in Pinocchio
         print('1 q: ', q)
 
-        # TODO: Check the initial  7 joint states in PYBULLET
+        # TODO: Check the initial  10 joint states in PYBULLET
         check_joint_states = getPosVelJoints(robotId, joint_indexes)
         # print('check_joint_states: ', check_joint_states)
 
@@ -605,7 +737,7 @@ if __name__ == '__main__':
 
         # TODO: Get current state(Position and orientation, velocity)
         cur_dx_vec = pin.getFrameVelocity(robot.model, robot.data, EE_idx, pin.ReferenceFrame.WORLD).vector
-        cur_x = se3ToTransfrom(cur_x)  # To 4x4 Transformation matrix #
+        cur_x = se3ToTransfrom(cur_x)  # To 4x4 Transformation matrix
         cur_dx = numpy2torch(cur_dx_vec)
         state = [cur_x, cur_dx]
 
@@ -644,6 +776,10 @@ if __name__ == '__main__':
                               torch.inverse(torch.matmul(J, J.T) + (damp ** 2 * Idt)))  # TODO: Add damped pseudoinverse
         ddq = torch.matmul(JJ_acc, mu)
         ddq = torch2numpy(ddq)
+
+        # TODO: Euler discretization
+        q = CosSin2theta(q, robot)  # TODO: Transform (cos, sin) to theta, 07.12
+
         dt = 0.01
         dq = dq + ddq * dt
         q = q + dq * dt
@@ -679,6 +815,9 @@ if __name__ == '__main__':
         for jj in range(len(joint_indexes)):  # TODO: PYBULLET set joint positions
             p.resetJointState(robotId, joint_indexes[jj], q[jj])
             #p.resetJointState(robotId, joint_indexes[jj], q_des[jj])
+
+        # TODO: Transform thets to (cos, sin), 07.12
+        q = theta2CosSin(q, robot)
 
         # TODO: RECORD joint positions from Pinocchio, XYZ position, joint values from PYBULLET
         joint_values.append(q)
@@ -727,6 +866,7 @@ if __name__ == '__main__':
     # # TODO: Plot
     plot_mu(mu_values, number_iteration)
     plot_joints(joint_values, joint_pos_values, number_iteration)
+    plot_joints_pybullet(joint_pos_values, number_iteration)
     plot_error(error_values, number_iteration)
     plot_euclidiean_dist(dist_values, number_iteration)
     plot_xyz(x_values, y_values, z_values, number_iteration)
