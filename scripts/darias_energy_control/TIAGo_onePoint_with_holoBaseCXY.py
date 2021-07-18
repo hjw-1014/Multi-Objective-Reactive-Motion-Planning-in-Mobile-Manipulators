@@ -15,7 +15,7 @@ from copy import deepcopy
 from cep.utils import numpy2torch, torch2numpy
 from cep.liegroups.torch import SO3, SE3
 
-number_iteration = 400  # Define max iteration number
+number_iteration = 300  # Define max iteration number
 dt = 0.01  # Define time step
 
 q_limits = [[0.0, 2.74889357189],

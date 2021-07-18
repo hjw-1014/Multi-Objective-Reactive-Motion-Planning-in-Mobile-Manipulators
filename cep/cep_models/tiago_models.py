@@ -88,6 +88,6 @@ def jsc_and_goto_cep_simple_model():  # TODO: 06.28, 06.29
     #ee_obj_avoid_leaf = energies.ObjAvoidLeaf()  # TODO: add branches here LATER!!!
 
     # TODO: Whole network
-    policy = Multi_EBMControl(energy_tree=energy_trees, device=device, optimization_steps=5, dt=0.005, n_particles=10000)
+    policy = Multi_EBMControl(energy_tree=energy_trees, device=device, optimization_steps=10, dt=0.005, n_particles=10000)
 
     return policy
