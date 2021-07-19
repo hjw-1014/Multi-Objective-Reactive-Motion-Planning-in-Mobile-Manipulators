@@ -153,7 +153,7 @@ class MoveGroupPegInAHole(object):
 
         waypoints = []
         w1 = copy.deepcopy(self.goal)
-        w1.position.x -= 0.3
+        #w1.position.x -= 0.3
 
         waypoints.append(w1)
 
