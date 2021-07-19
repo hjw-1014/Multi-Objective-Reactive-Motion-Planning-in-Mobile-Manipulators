@@ -48,8 +48,8 @@ class tiago_2d_visualiz:
 
 		traj = self.xy_traj
 		for jj in range(len(traj)):  # TODO: PYBULLET set joint positions
-			p.resetJointState(self.robotId, self.joint_indexes[0], traj[jj][0])
-			p.resetJointState(self.robotId, self.joint_indexes[1], traj[jj][1])
+			p.resetJointState(self.robotId, self.joint_indexes[0], traj[jj][1])
+			p.resetJointState(self.robotId, self.joint_indexes[1], traj[jj][0])
 			time.sleep(0.1)
 
 	def start_pybullet(self):  # load Tiago in Pybullet
