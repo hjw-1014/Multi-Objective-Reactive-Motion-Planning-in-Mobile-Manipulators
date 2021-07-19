@@ -11,11 +11,14 @@ import pybullet_data
 import time
 #from tiago_utils import *
 
-class tiago_2d_visualiz:
+class tiago_2d_visualize:
 
 	def __init__(self):
+
 		self.joint_indexes = [0, 1]
+		self.trajectory = None
 		self.xy_traj = None
+		self.robotId = None
 
 	def open_json(self, filename):
 		# Opening JSON file
@@ -28,7 +31,8 @@ class tiago_2d_visualiz:
 		ic(type(data))
 		ic(type(data['trajectories'][0]['positions']))
 		ic(len(data['trajectories'][0]['positions']))
-		traj = data['trajectories'][0]['positions']
+
+		self.trajectory = data['trajectories'][0]['positions']
 		# ic(traj)
 		# ic(traj[0])
 		# ic(traj[-1])
@@ -42,12 +46,11 @@ class tiago_2d_visualiz:
 		# Closing file
 		f.close()
 
-		return traj
+		return self.trajectory
 
 	def visualize_trajectory(self):
 
-		traj = self.xy_traj
-		for jj in range(len(traj)):  # TODO: PYBULLET set joint positions
+		for jj in range(len(self.xy_traj)):  # TODO: PYBULLET set joint positions
 			p.resetJointState(self.robotId, self.joint_indexes[0], traj[jj][1])
 			p.resetJointState(self.robotId, self.joint_indexes[1], traj[jj][0])
 			time.sleep(0.1)
@@ -74,23 +77,22 @@ class tiago_2d_visualiz:
 			   p.getQuaternionFromEuler([0, 0, 0]), globalScaling=6,
 			   useFixedBase=True)
 
-		Num_Joints = p.getNumJoints(self.robotId)
-		# print('p.getNumJoints(robotId)', p.getNumJoints(robotId))
+		# Num_Joints = p.getNumJoints(self.robotId)
+		# # print('p.getNumJoints(robotId)', p.getNumJoints(robotId))
+		# # for i in range(Num_Joints):
+		# #     print('p.getJointState(robotId, {})'.format(i), p.getJointState(robotId, i))
 		# for i in range(Num_Joints):
-		#     print('p.getJointState(robotId, {})'.format(i), p.getJointState(robotId, i))
-		for i in range(Num_Joints):
-			print('p.getJointInfo(robotId, {})'.format(i), p.getJointInfo(self.robotId, i))
+		# 	print('p.getJointInfo(robotId, {})'.format(i), p.getJointInfo(self.robotId, i))
 
 		return self.robotId, self.joint_indexes
 
-	def get_x_y_traj(self, traj: list):
+	def get_x_y_traj(self, traj):
 
-		length = len(traj)
-		xy_traj = [[0, 0] for i in range(length)]
+		length = len(self.trajectory)
+		self.xy_traj = [[0, 0] for i in range(length)]
 		for i in range(length):
-			xy_traj[i] = traj[i]
+			self.xy_traj[i] = traj[i]
 
-		self.xy_traj = xy_traj
 
 		return self.xy_traj
 
@@ -121,13 +123,15 @@ class tiago_2d_visualiz:
 
 
 if __name__ == '__main__':
-	tiago_2d = tiago_2d_visualiz()
+	tiago_2d = tiago_2d_visualize()
 	traj = tiago_2d.open_json('qtrjs.json')
 	xy_traj = tiago_2d.get_x_y_traj(traj)
 	robotId, joint_indexes = tiago_2d.start_pybullet()
+
+	tiago_2d.plot_traj(xy_traj)
+
 	while True:
 		tiago_2d.visualize_trajectory()
 		p.stepSimulation()
 		#time.sleep(1./100.)
 
-	tiago_2d.plot_traj(xy_traj)
