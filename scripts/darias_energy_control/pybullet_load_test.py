@@ -212,7 +212,7 @@ def Debug_test(dt, enableGUI):
 
     # Load the robot for PyBullet
     cur_path = os.getcwd()
-    urdf_path = "/tiago_dual_holoBase0712.urdf"
+    urdf_path = "/tiago_single_with_holoBaseCXY.urdf"
     load_path = cur_path + urdf_path
     robotStartPos = [0., 0., 0.]
     robotStartOrientation = p.getQuaternionFromEuler([0, 0, 0])
