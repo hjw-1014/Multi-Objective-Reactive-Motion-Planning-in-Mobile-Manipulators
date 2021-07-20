@@ -31,6 +31,7 @@ class tiago_2d_visualize:  # TODO: add on 07.20
 		self.dim_xy = 2
 		self.num_path_points = 0
 		self.cascade_control_path = []
+		self.whole_cascade_control_path = []
 		self.end_point = [1.2, 1.0]
 		self.end_point_threshold = 0.01
 
@@ -141,9 +142,54 @@ class tiago_2d_visualize:  # TODO: add on 07.20
 
 		plt.show()
 
+	def plot_multiple_cascade_trajectories(self):
+
+		whole_cascade_control_path = self.whole_cascade_control_path
+
+		fig, ax = plt.subplots()
+		for cascade_control_path in whole_cascade_control_path:
+
+			lenth = len(cascade_control_path)
+
+			center_size = 5
+			marker_size = 5000
+
+			for i in range(lenth):
+				ax.scatter(cascade_control_path[i][0], cascade_control_path[i][1], s=center_size, alpha=1)
+				#ax.scatter(cascade_control_path[i][0], cascade_control_path[i][1], s=marker_size, alpha=.05)
+				#ax.plot(self.cascade_control_path[i][0], self.cascade_control_path[i][1])
+
+			# ax.scatter(x_traj, y_traj, c="tab:blue", s=center_size, label="tab:blue", alpha=1)
+			# ax.scatter(x_traj, y_traj, c="tab:green", s=marker_size,  label="tab:green", alpha=.05)
+			#ax.legend('')
+
+		xy_traj = self.xy_traj
+		x_traj = [0] * self.num_path_points
+		y_traj = [0] * self.num_path_points
+		for j in range(self.num_path_points):
+			x_traj[j] = xy_traj[j][0]
+			y_traj[j] = xy_traj[j][1]
+
+		ax.plot(x_traj, y_traj, 'C3', lw=1.)
+
+		ax.grid(True)
+
+		ax.set_xlim(-0.5, 1.5)
+		ax.set_ylim(-0.5, 1.5)
+
+		box_center_x = 0.5
+		box_center_y = 0.5
+		ax.text(box_center_x, box_center_y, "box")
+
+		left, bottom, width, height = (0.35, 0.35, 0.3, 0.3)
+		ax.add_patch(Rectangle((left, bottom), width, height, facecolor="black", alpha=0.5))
+
+		plt.show()
+
 	def plot_cascade_control_traj(self):
 
-		lenth = len(self.cascade_control_path)
+		cascade_control_path = self.cascade_control_path
+		lenth = len(cascade_control_path)
 
 		fig, ax = plt.subplots()
 		center_size = 10
@@ -154,8 +200,8 @@ class tiago_2d_visualize:  # TODO: add on 07.20
 		y_traj = [0] * self.num_path_points
 
 		for i in range(lenth):
-			ax.scatter(self.cascade_control_path[i][0], self.cascade_control_path[i][1], s=center_size, alpha=1)
-			ax.scatter(self.cascade_control_path[i][0], self.cascade_control_path[i][1], s=marker_size, alpha=.05)
+			ax.scatter(cascade_control_path[i][0], cascade_control_path[i][1], s=center_size, alpha=1)
+			ax.scatter(cascade_control_path[i][0], cascade_control_path[i][1], s=marker_size, alpha=.05)
 			#ax.plot(self.cascade_control_path[i][0], self.cascade_control_path[i][1])
 
 		# ax.scatter(x_traj, y_traj, c="tab:blue", s=center_size, label="tab:blue", alpha=1)
@@ -245,9 +291,9 @@ class tiago_2d_visualize:  # TODO: add on 07.20
 		dx = [0] * len(current_state)  # y and x
 
 		current_distances_from_path_points = self.compute_current_distance_from_path_points(current_state)
-		ic(len(current_distances_from_path_points))
+		#ic(len(current_distances_from_path_points))
 		min_dist, min_dist_index = self.choose_min_dist_point(current_distances_from_path_points)
-		print("min_dist")
+
 		closest_point = self.xy_traj[min_dist_index]
 
 		for i in range(len(current_state)):
@@ -262,20 +308,20 @@ class tiago_2d_visualize:  # TODO: add on 07.20
 			#current_distances_sorted = sorted(current_distances_from_path_points)
 			min_dist = min(current_distances_from_path_points)
 			#ic(min_dist)
-			ic(current_distances_from_path_points[-1])
+			#ic(current_distances_from_path_points[-1])
 			min_dist_index = current_distances_from_path_points.index(min_dist)
-			ic(min_dist_index)
+			#ic(min_dist_index)
 
 			idx = 1
 			while min_dist < self.cascade_threshold and not self.check_arrive():  # TODO: ERROR -> Get stuck here!!!
 				min_dist_index += 1
-				ic(min_dist_index)
+				#ic(min_dist_index)
 
 				if min_dist_index == self.num_path_points:
 					return min_dist, min_dist_index-1
 
 				min_dist = current_distances_from_path_points[min_dist_index]
-				ic(min_dist)
+				#ic(min_dist)
 				#if min_dist < self.cascade_threshold:
 
 				#idx += 1
@@ -287,14 +333,14 @@ class tiago_2d_visualize:  # TODO: add on 07.20
 			return self.end_point_threshold, self.num_path_points-1
 
 	def gen_random_start_point(self):  # TODO:
-		random_start_point = [0] * self.dim  # x, y, z
+		random_start_point = [0] * self.dim_xy  # x, y, z
 
 		random_x = 0.5
 		random_y = 0.5
 		while 0.35 < random_x < 0.65 and 0.35 < random_y < 0.65:
 			for i in range(self.dim):
-				random_x = random.random()
-				random_y = random.random()
+				random_x = random.uniform(-0.5, 1.5)
+				random_y = random.uniform(-0.5, 1.5)
 
 		random_start_point[0] = random_x
 		random_start_point[1] = random_y
@@ -309,13 +355,13 @@ class tiago_2d_visualize:  # TODO: add on 07.20
 	def set_known_start_point(self):
 
 		known_start_point = [0.2, 0.2, 0]
-		ic(known_start_point)
+		#ic(known_start_point)
 		for i in range(self.dim_xy):
 			p.resetJointState(self.robotId, self.joint_indices[i], known_start_point[i])
 
 	def set_start_points(self, start_point: list):
 
-		ic(start_point)
+		#ic(start_point)
 		for i in range(self.dim_xy):
 			p.resetJointState(self.robotId, self.joint_indices[i], start_point[i])
 
@@ -325,6 +371,11 @@ class tiago_2d_visualize:  # TODO: add on 07.20
 			p.resetJointState(self.robotId, self.joint_indices[0], next_position[0])
 			p.resetJointState(self.robotId, self.joint_indices[1], next_position[1])
 			time.sleep(0.1)
+
+	def record_cascade_path(self, current_position):
+
+		self.cascade_control_path.append(current_position)
+
 
 	def check_arrive(self):
 
@@ -358,20 +409,26 @@ class tiago_2d_visualize:  # TODO: add on 07.20
 			# 	self.plot_cascade_control_traj()
 
 			cur_state = self.get_robot_current_state()
-			ic(cur_state)
+			#ic(cur_state)
 			dx = self.cascade_control(cur_state)
-			ic(dx)
+			#ic(dx)
 
 			cur_position = cur_state[0]
-			ic(cur_position)
-			self.cascade_control_path.append(cur_position)  # TODO: Record path
+			#ic(cur_position)
+
+			self.cascade_control_path.append(cur_position)  # TODO: Record one path
 
 			cur_dist = self.compute_euclidean_distance(self.end_point, cur_position)
-			ic(cur_dist)
+			#ic(cur_dist)
 			if cur_dist < self.end_point_threshold:
 				ic(cur_position)
 				print("######### End point arrived!!! #########")
-				self.plot_cascade_control_traj()
+
+				current_cascade_control_path = self.cascade_control_path
+				self.whole_cascade_control_path.append(current_cascade_control_path)
+				self.cascade_control_path = []
+
+				#self.plot_cascade_control_traj()
 				break
 
 			for i in range(len(next_position)):
@@ -381,6 +438,66 @@ class tiago_2d_visualize:  # TODO: add on 07.20
 
 			p.stepSimulation()
 
+	def mutiple_baseline(self, nums: int):
+
+		traj = self.open_json('qtrjs.json')
+		xy_traj = self.get_x_y_traj(traj)
+		robotId, joint_indexes = self.start_pybullet()
+
+		start_points = []
+
+		for _ in range(nums):
+			random_start_point = self.gen_random_start_point()
+			start_points.append(random_start_point)
+
+		for start_point in start_points:
+			ic(start_point)
+			# TODO: set known start points or random point
+			self.set_start_points(start_point)
+			# self.set_known_start_point()
+			# random_start_point = self.gen_random_start_point()
+			# self.set_random_start_point(random_start_point)
+
+			next_position = [0] * 2
+
+			for iteration in range(1000):
+				ic(iteration)
+
+				# if self.check_arrive():
+				# 	self.plot_cascade_control_traj()
+
+				cur_state = self.get_robot_current_state()
+				#ic(cur_state)
+				dx = self.cascade_control(cur_state)
+				#ic(dx)
+
+				cur_position = cur_state[0]
+				#ic(cur_position)
+
+				self.cascade_control_path.append(cur_position)  # TODO: Record one path
+
+				cur_dist = self.compute_euclidean_distance(self.end_point, cur_position)
+				#ic(cur_dist)
+				if cur_dist < self.end_point_threshold:
+					#ic(cur_position)
+					print("######### End point arrived!!! #########")
+
+					current_cascade_control_path = self.cascade_control_path
+					self.whole_cascade_control_path.append(current_cascade_control_path)
+					self.cascade_control_path = []
+
+					# self.plot_cascade_control_traj()
+					time.sleep(2.)
+					break
+
+				for i in range(len(next_position)):
+					next_position[i] = cur_position[i] + self.delta * dx[i]
+
+				self.start_base_line(next_position)
+
+				p.stepSimulation()
+
+		self.plot_multiple_cascade_trajectories()
 
 	def demo(self):
 
@@ -397,6 +514,7 @@ class tiago_2d_visualize:  # TODO: add on 07.20
 if __name__ == '__main__':
 
 	tiago_2d = tiago_2d_visualize()
-	tiago_2d.base_line()
+	#tiago_2d.base_line()
 	#tiago_2d.demo()
+	tiago_2d.mutiple_baseline(nums=4)
 
