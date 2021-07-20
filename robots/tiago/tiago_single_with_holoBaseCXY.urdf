@@ -370,18 +370,18 @@
   <link name="$world1" />
   <link name="world" />
 
-  <joint name="Y" type="prismatic">
+  <joint name="X" type="prismatic">
         <origin rpy="0 0 0" xyz="0 0 0" />
-        <axis xyz="0 1 0" />
+        <axis xyz="1 0 0" />
         <limit effort="100.0" lower="-5.0" upper="5.0" velocity="0.2" />
         <child link="$world1" />
         <parent link="world" />
         <calibration rising="0.0" />
         <dynamics damping="100" />
     </joint>
-    <joint name="X" type="prismatic">
+    <joint name="Y" type="prismatic">
         <origin rpy="0 0 0" xyz="0 0 0" />
-        <axis xyz="1 0 0" />
+        <axis xyz="0 1 0" />
         <limit effort="100.0" lower="-5.0" upper="5.0" velocity="0.2" />
         <child link="$world2" />
         <parent link="$world1" />

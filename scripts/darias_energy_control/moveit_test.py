@@ -189,7 +189,7 @@ class MoveGroupPegInAHole(object):
     def set_goal_joint(self):
         self.goal_joint = self.robot.get_current_state()
 
-    def save_in_json(self, plan, filename='qtrjs.json'):
+    def save_in_json(self, plan, filename='qtrjs_0719.json'):
         PATH = os.path.dirname(__file__)
         file = os.path.join(PATH, filename)
 
