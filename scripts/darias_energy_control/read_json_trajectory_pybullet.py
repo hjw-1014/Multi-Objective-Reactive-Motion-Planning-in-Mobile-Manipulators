@@ -2,7 +2,6 @@
 
 import json
 import random
-
 from icecream import ic
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
@@ -13,6 +12,7 @@ import pybullet_data
 import time
 import math
 import random
+from copy import deepcopy
 #from tiago_utils import *
 
 
@@ -26,7 +26,7 @@ class tiago_2d_visualize:  # TODO: add on 07.20
 		self.robotId = None
 		self.cascade_threshold = 0.2  # TODO: Set different threshold to check the performance
 		self.k_d = 1.
-		self.delta = 0.1
+		self.delta = 0.5  # TODO: Change here to decide the step!!!
 		self.dim = 3
 		self.dim_xy = 2
 		self.num_path_points = 0
@@ -34,6 +34,15 @@ class tiago_2d_visualize:  # TODO: add on 07.20
 		self.whole_cascade_control_path = []
 		self.end_point = [1.2, 1.0]
 		self.end_point_threshold = 0.01
+
+		self.velocity_matrix = None # TODO: add on 07.21
+		self.grid_number = 301
+		self.grid_step = 0.01
+		self.grid_step_reciprocal = 1 / self.grid_step
+		self.grid_map_min = -1.5
+		self.grid_map_max = 1.5
+
+		self.round_whole_paths = None
 
 	def open_json(self, filename):
 		# Opening JSON file
@@ -74,7 +83,7 @@ class tiago_2d_visualize:  # TODO: add on 07.20
 
 	def start_pybullet(self):  # load Tiago in Pybullet
 
-		physicsClient = p.connect(p.GUI)  #or p.DIRECT for non-graphical version
+		physicsClient = p.connect(p.DIRECT)  #or p.DIRECT for non-graphical version
 		p.setAdditionalSearchPath(pybullet_data.getDataPath())
 		p.resetSimulation(p.RESET_USE_DEFORMABLE_WORLD)
 		p.setGravity(0, 0, -9.81)
@@ -156,7 +165,7 @@ class tiago_2d_visualize:  # TODO: add on 07.20
 
 			for i in range(lenth):
 				ax.scatter(cascade_control_path[i][0], cascade_control_path[i][1], s=center_size, alpha=1)
-				#ax.scatter(cascade_control_path[i][0], cascade_control_path[i][1], s=marker_size, alpha=.05)
+				#ax.scatter(cascade_control_path[i][0], cascade_control_path[i][1], s=marker_size, alpha=.05) # TODO: For base
 				#ax.plot(self.cascade_control_path[i][0], self.cascade_control_path[i][1])
 
 			# ax.scatter(x_traj, y_traj, c="tab:blue", s=center_size, label="tab:blue", alpha=1)
@@ -174,8 +183,8 @@ class tiago_2d_visualize:  # TODO: add on 07.20
 
 		ax.grid(True)
 
-		ax.set_xlim(-0.5, 1.5)
-		ax.set_ylim(-0.5, 1.5)
+		ax.set_xlim(-1.5, 1.5)
+		ax.set_ylim(-1.5, 1.5)
 
 		box_center_x = 0.5
 		box_center_y = 0.5
@@ -313,7 +322,7 @@ class tiago_2d_visualize:  # TODO: add on 07.20
 			#ic(min_dist_index)
 
 			idx = 1
-			while min_dist < self.cascade_threshold and not self.check_arrive():  # TODO: ERROR -> Get stuck here!!!
+			while min_dist < self.cascade_threshold and not self.check_arrive():  # TODO: ERROR -> Get stuck here!!! FIXED 0720
 				min_dist_index += 1
 				#ic(min_dist_index)
 
@@ -339,8 +348,8 @@ class tiago_2d_visualize:  # TODO: add on 07.20
 		random_y = 0.5
 		while 0.35 < random_x < 0.65 and 0.35 < random_y < 0.65:
 			for i in range(self.dim):
-				random_x = random.uniform(-0.5, 1.5)
-				random_y = random.uniform(-0.5, 1.5)
+				random_x = random.uniform(-1.5, 1.5)
+				random_y = random.uniform(-1.5, 1.5)
 
 		random_start_point[0] = random_x
 		random_start_point[1] = random_y
@@ -365,7 +374,7 @@ class tiago_2d_visualize:  # TODO: add on 07.20
 		for i in range(self.dim_xy):
 			p.resetJointState(self.robotId, self.joint_indices[i], start_point[i])
 
-	def start_base_line(self, next_position):
+	def start_baseline_resetJointState(self, next_position):
 
 		for jj in range(len(next_position)):  # TODO: PYBULLET set joint positions
 			p.resetJointState(self.robotId, self.joint_indices[0], next_position[0])
@@ -434,9 +443,164 @@ class tiago_2d_visualize:  # TODO: add on 07.20
 			for i in range(len(next_position)):
 				next_position[i] = cur_position[i] + self.delta * dx[i]
 
-			self.start_base_line(next_position)
+			self.start_baseline_resetJointState(next_position)
 
 			p.stepSimulation()
+
+	def visualize_vector_field(self, min_max=[[-1.5, -1.5], [1.5, 1.5]]):  # TODO: add on 07.21
+
+		fig, ax = plt.subplots()  # TODO: Initialize fig
+
+		whole_cascade_control_path = self.whole_cascade_control_path
+		num_paths = len(whole_cascade_control_path)
+		round_whole_paths = self.round_path_position_values(2)
+		velocity_matrix = self.transform_path_2_velocity_matrix()
+
+		min_x = min_max[0][0]
+		max_x = min_max[1][0]
+		min_y = min_max[0][1]
+		max_y = min_max[1][1]
+		n_sample = 301
+		x = np.linspace(min_x, max_x, n_sample)
+		y = np.linspace(min_y, max_y, n_sample)
+		X, Y = np.meshgrid(x, y)  # TODO: So each step is 0.01
+		X, Y = np.mgrid[min_x:max_x:301j, min_y:max_y:301j]
+		U_list, V_list = self.velocity_matrix_2_UV()
+
+		assert len(U_list) == len(V_list), "ERROR: Dimension of U_list doesn't match dimension of V_List!!!"
+
+		ic(X)
+		ic(Y)
+		for i in range(len(U_list)):
+			# ic(U_list[i])
+			# ic(len(U_list[i]))
+			# ic(V_list[i])
+			# ic(len(V_list[i]))
+			cur_u = U_list[i] * 10
+			cur_v = V_list[i] * 10
+			speed = (cur_u ** 2 + cur_v ** 2) ** (1/2)
+			speed = speed / np.max(speed)
+			ax.streamplot(X, Y, cur_u, cur_v, linewidth=2.)  # TODO: Draw vector field
+			print("### Draw vector field ###")
+
+		ax.set_title('Vector field')
+		ax.grid(True)
+
+		ax.set_xlim(-1.5, 1.5)
+		ax.set_ylim(-1.5, 1.5)
+
+		#plt.tight_layout()
+		plt.show()
+
+		# for cascade_control_path in round_whole_paths:
+		#
+		# 	lenth = len(cascade_control_path)
+		#
+		# 	center_size = 5
+		# 	marker_size = 5000
+		#
+		# 	for i in range(lenth):  # TODO: Draw the path generated by algorithm
+		# 		ax.scatter(cascade_control_path[i][0], cascade_control_path[i][1], s=center_size, alpha=1)
+		# ax.scatter(cascade_control_path[i][0], cascade_control_path[i][1], s=marker_size, alpha=.05)
+		# ax.plot(self.cascade_control_path[i][0], self.cascade_control_path[i][1])
+
+		# ax.scatter(x_traj, y_traj, c="tab:blue", s=center_size, label="tab:blue", alpha=1)
+		# ax.scatter(x_traj, y_traj, c="tab:green", s=marker_size,  label="tab:green", alpha=.05)
+		# ax.legend('')
+
+		# xy_traj = self.xy_traj
+		# x_traj = [0] * self.num_path_points
+		# y_traj = [0] * self.num_path_points
+		# for j in range(self.num_path_points):
+		# 	x_traj[j] = xy_traj[j][0]
+		# 	y_traj[j] = xy_traj[j][1]
+		#
+		# ax.plot(x_traj, y_traj, 'C3', lw=1.)  # TODO: Draw the groud truth path generated by MoveIt
+		#
+		# box_center_x = 0.5
+		# box_center_y = 0.5
+		# #ax.text(box_center_x, box_center_y, "box")
+		#
+		# left, bottom, width, height = (0.35, 0.35, 0.3, 0.3)
+		# #ax.add_patch(Rectangle((left, bottom), width, height, facecolor="black", alpha=0.5)) # TODO: Draw the box
+
+		# plt.show()
+
+	def round_path_position_values(self, num: int):  # TODO: set num to 2
+
+		whole_cascade_control_path = deepcopy(self.whole_cascade_control_path)
+		num_paths = len(whole_cascade_control_path)
+
+		for i in range(num_paths):
+			cur_path = whole_cascade_control_path[i]
+			for pos in cur_path:
+				for j in range(self.dim_xy):
+					pos[j] = round(pos[j], num)
+
+		round_whole_paths = whole_cascade_control_path
+		self.round_whole_paths = round_whole_paths
+
+		return round_whole_paths
+
+	def transform_path_2_velocity_matrix(self):
+
+		round_whole_paths = deepcopy(self.round_whole_paths)
+		num_paths = len(round_whole_paths)
+
+		for i in range(num_paths):
+			cur_path = round_whole_paths[i]
+			len_cur_path = len(cur_path)
+			for j in range(len_cur_path-1):
+				cur_path[j][0] = cur_path[j+1][0] - cur_path[j][0]
+				cur_path[j][1] = cur_path[j+1][1] - cur_path[j][1]
+			cur_path[len_cur_path-1][0] = 0.
+			cur_path[len_cur_path-1][1] = 0.
+
+		velocity_matrix = round_whole_paths
+		self.velocity_matrix = velocity_matrix
+
+		return velocity_matrix
+
+	def velocity_matrix_2_UV(self):
+
+		# U = np.zeros((n, n))
+		# V = np.zeros((n, n))
+		U_list = []
+		V_list = []
+
+		round_whole_paths = deepcopy(self.round_whole_paths)
+		velocity_matrix = deepcopy(self.velocity_matrix)
+
+		num_paths = len(velocity_matrix)
+
+		for n in range(num_paths):
+			cur_vel = velocity_matrix[n]
+			cur_path = round_whole_paths[n]
+
+			len_cur_path = len(cur_path)
+			len_cur_vel = len(cur_vel)
+
+			assert len_cur_vel == len_cur_path, "ERROR: current velocity dimension doesn't match path's dimension"
+
+			U = np.zeros((self.grid_number, self.grid_number))
+			V = np.zeros((self.grid_number, self.grid_number))
+
+			for k in range(len_cur_path):
+
+				# Get the position x and y in the map
+				x = cur_path[k][0]
+				y = cur_path[k][1]
+				x_i = int((x - self.grid_map_min) * self.grid_step_reciprocal)
+				y_j = int((y - self.grid_map_min) * self.grid_step_reciprocal)
+
+				# Velocity for visualization
+				U[x_i][y_j] = cur_vel[k][0]
+				V[x_i][y_j] = cur_vel[k][1]
+
+			U_list.append(U)
+			V_list.append(V)
+
+		return U_list, V_list
 
 	def mutiple_baseline(self, nums: int):
 
@@ -450,7 +614,9 @@ class tiago_2d_visualize:  # TODO: add on 07.20
 			random_start_point = self.gen_random_start_point()
 			start_points.append(random_start_point)
 
-		for start_point in start_points:
+		for point_number in range(len(start_points)):
+			ic(point_number)
+			start_point = start_points[point_number]
 			ic(start_point)
 			# TODO: set known start points or random point
 			self.set_start_points(start_point)
@@ -479,7 +645,8 @@ class tiago_2d_visualize:  # TODO: add on 07.20
 				cur_dist = self.compute_euclidean_distance(self.end_point, cur_position)
 				#ic(cur_dist)
 				if cur_dist < self.end_point_threshold:
-					#ic(cur_position)
+					ic(cur_position)
+					ic(cur_dist)
 					print("######### End point arrived!!! #########")
 
 					current_cascade_control_path = self.cascade_control_path
@@ -493,11 +660,12 @@ class tiago_2d_visualize:  # TODO: add on 07.20
 				for i in range(len(next_position)):
 					next_position[i] = cur_position[i] + self.delta * dx[i]
 
-				self.start_base_line(next_position)
+				self.start_baseline_resetJointState(next_position)
 
 				p.stepSimulation()
 
-		self.plot_multiple_cascade_trajectories()
+		self.plot_multiple_cascade_trajectories()  # TODO: Visualize
+		self.visualize_vector_field()
 
 	def demo(self):
 
@@ -511,10 +679,12 @@ class tiago_2d_visualize:  # TODO: add on 07.20
 			self.visualize_trajectory()
 			p.stepSimulation()
 
+
 if __name__ == '__main__':
 
 	tiago_2d = tiago_2d_visualize()
+
 	#tiago_2d.base_line()
 	#tiago_2d.demo()
-	tiago_2d.mutiple_baseline(nums=4)
+	tiago_2d.mutiple_baseline(nums=100)
 
