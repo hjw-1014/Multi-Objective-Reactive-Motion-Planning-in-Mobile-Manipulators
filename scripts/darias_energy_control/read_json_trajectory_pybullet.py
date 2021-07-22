@@ -341,7 +341,7 @@ class tiago_2d_visualize:  # TODO: add on 07.20
 		else:
 			return self.end_point_threshold, self.num_path_points-1
 
-	def gen_random_start_point(self):  # TODO:
+	def gen_random_start_point(self):  # TODO: Set random start points
 		random_start_point = [0] * self.dim_xy  # x, y, z
 
 		random_x = 0.5
@@ -385,7 +385,6 @@ class tiago_2d_visualize:  # TODO: add on 07.20
 
 		self.cascade_control_path.append(current_position)
 
-
 	def check_arrive(self):
 
 		curren_state = self.get_robot_current_state()
@@ -396,56 +395,6 @@ class tiago_2d_visualize:  # TODO: add on 07.20
 			return True
 
 		return False
-
-	def base_line(self, start_point):
-
-		traj = self.open_json('qtrjs.json')
-		xy_traj = self.get_x_y_traj(traj)
-		robotId, joint_indexes = self.start_pybullet()
-
-		# TODO: set known start points or random point
-		self.set_start_points(start_point)
-		#self.set_known_start_point()
-		#random_start_point = self.gen_random_start_point()
-		#self.set_random_start_point(random_start_point)
-
-		next_position = [0] * 2
-
-		for jj in range(1000):
-			ic(jj)
-
-			# if self.check_arrive():
-			# 	self.plot_cascade_control_traj()
-
-			cur_state = self.get_robot_current_state()
-			#ic(cur_state)
-			dx = self.cascade_control(cur_state)
-			#ic(dx)
-
-			cur_position = cur_state[0]
-			#ic(cur_position)
-
-			self.cascade_control_path.append(cur_position)  # TODO: Record one path
-
-			cur_dist = self.compute_euclidean_distance(self.end_point, cur_position)
-			#ic(cur_dist)
-			if cur_dist < self.end_point_threshold:
-				ic(cur_position)
-				print("######### End point arrived!!! #########")
-
-				current_cascade_control_path = self.cascade_control_path
-				self.whole_cascade_control_path.append(current_cascade_control_path)
-				self.cascade_control_path = []
-
-				#self.plot_cascade_control_traj()
-				break
-
-			for i in range(len(next_position)):
-				next_position[i] = cur_position[i] + self.delta * dx[i]
-
-			self.start_baseline_resetJointState(next_position)
-
-			p.stepSimulation()
 
 	def visualize_vector_field(self, min_max=[[-1.5, -1.5], [1.5, 1.5]]):  # TODO: add on 07.21
 
@@ -464,27 +413,29 @@ class tiago_2d_visualize:  # TODO: add on 07.20
 		x = np.linspace(min_x, max_x, n_sample)
 		y = np.linspace(min_y, max_y, n_sample)
 		X, Y = np.meshgrid(x, y)  # TODO: So each step is 0.01
-		X, Y = np.mgrid[min_x:max_x:301j, min_y:max_y:301j]
+		#X, Y = np.mgrid[min_x:max_x:301j, min_y:max_y:301j]
 		U_list, V_list = self.velocity_matrix_2_UV()
 
 		assert len(U_list) == len(V_list), "ERROR: Dimension of U_list doesn't match dimension of V_List!!!"
 
 		ic(X)
 		ic(Y)
-		for i in range(len(U_list)):
-			# ic(U_list[i])
-			# ic(len(U_list[i]))
-			# ic(V_list[i])
-			# ic(len(V_list[i]))
-			cur_u = U_list[i] * 10
-			cur_v = V_list[i] * 10
-			speed = (cur_u ** 2 + cur_v ** 2) ** (1/2)
-			speed = speed / np.max(speed)
-			ax.streamplot(X, Y, cur_u, cur_v, linewidth=2.)  # TODO: Draw vector field
-			print("### Draw vector field ###")
+		ax.streamplot(X, Y, U_list[0]*10, V_list[0]*10, linewidth=10., color='red')
+
+		# for i in range(len(U_list)):
+		# 	# ic(U_list[i])
+		# 	# ic(len(U_list[i]))
+		# 	# ic(V_list[i])
+		# 	# ic(len(V_list[i]))
+		# 	cur_u = np.nan_to_num(U_list[i])
+		# 	cur_v = np.nan_to_num(V_list[i])
+		# 	speed = (cur_u ** 2 + cur_v ** 2) ** (1/2)
+		# 	speed = speed / np.max(speed)
+		# 	ax.streamplot(X, Y, cur_u, cur_v, linewidth=2.)  # TODO: Draw vector field
+			#print("### Draw vector field ###")
 
 		ax.set_title('Vector field')
-		ax.grid(True)
+		#ax.grid(True)
 
 		ax.set_xlim(-1.5, 1.5)
 		ax.set_ylim(-1.5, 1.5)
@@ -525,6 +476,71 @@ class tiago_2d_visualize:  # TODO: add on 07.20
 		# #ax.add_patch(Rectangle((left, bottom), width, height, facecolor="black", alpha=0.5)) # TODO: Draw the box
 
 		# plt.show()
+
+	def plot_vector_field_in_arrows(self):  # TODO: add on 07.22
+
+		fig, ax = plt.subplots()  # TODO: Initialize fig
+
+		whole_cascade_control_path = self.whole_cascade_control_path
+		num_paths = len(whole_cascade_control_path)
+		round_whole_paths = self.round_path_position_values(2)
+		velocity_matrix = self.transform_path_2_velocity_matrix()
+
+		assert len(round_whole_paths) == len(velocity_matrix), "Dimension of path != Dimension of velocity path"
+
+		for i in range(len(round_whole_paths)):
+			cur_path = round_whole_paths[i]
+			cur_vel_path = velocity_matrix[i]
+			assert len(cur_path) == len(cur_vel_path), "Dimension of cur_path != Dimension of cur_vel_path"
+			for j in range(len(cur_path)):
+				cur_point = cur_path[j]
+				cur_vel = cur_vel_path[j]
+				cur_x = cur_point[0]
+				cur_y = cur_point[1]
+				cur_vel_x = cur_vel[0] * 0.5
+				cur_vel_y = cur_vel[1] * 0.5
+				ax.arrow(cur_x, cur_y, cur_vel_x, cur_vel_y, width=0.00001, head_width=0.02, head_length=0.05, color='g')
+			print("### Draw vector field in arrows ###")
+
+		ax.set_title('Vector field in arrows')
+		ax.grid(True)
+
+		ax.set_xlim(-1.5, 1.5)
+		ax.set_ylim(-1.5, 1.5)
+
+		# for cascade_control_path in round_whole_paths:
+		#
+		# 	lenth = len(cascade_control_path)
+		#
+		# 	center_size = 5
+		# 	marker_size = 5000
+		#
+		# 	for i in range(lenth):  # TODO: Draw the path generated by algorithm
+		# 		ax.scatter(cascade_control_path[i][0], cascade_control_path[i][1], s=center_size, alpha=1)
+		# ax.scatter(cascade_control_path[i][0], cascade_control_path[i][1], s=marker_size, alpha=.05)
+		# ax.plot(self.cascade_control_path[i][0], self.cascade_control_path[i][1])
+
+		# ax.scatter(x_traj, y_traj, c="tab:blue", s=center_size, label="tab:blue", alpha=1)
+		# ax.scatter(x_traj, y_traj, c="tab:green", s=marker_size,  label="tab:green", alpha=.05)
+		# ax.legend('')
+
+		xy_traj = self.xy_traj
+		x_traj = [0] * self.num_path_points
+		y_traj = [0] * self.num_path_points
+		for j in range(self.num_path_points):
+			x_traj[j] = xy_traj[j][0]
+			y_traj[j] = xy_traj[j][1]
+
+		ax.plot(x_traj, y_traj, 'C3', lw=1.)  # TODO: Draw the groud truth path generated by MoveIt
+
+		box_center_x = 0.5
+		box_center_y = 0.5
+		#ax.text(box_center_x, box_center_y, "box")
+
+		left, bottom, width, height = (0.35, 0.35, 0.3, 0.3)
+		ax.add_patch(Rectangle((left, bottom), width, height, facecolor="black", alpha=0.5)) # TODO: Draw the box
+
+		plt.show()
 
 	def round_path_position_values(self, num: int):  # TODO: set num to 2
 
@@ -574,28 +590,34 @@ class tiago_2d_visualize:  # TODO: add on 07.20
 		num_paths = len(velocity_matrix)
 
 		for n in range(num_paths):
-			cur_vel = velocity_matrix[n]
+			cur_vel_path = velocity_matrix[n]
 			cur_path = round_whole_paths[n]
 
 			len_cur_path = len(cur_path)
-			len_cur_vel = len(cur_vel)
+			len_cur_vel_path = len(cur_vel_path)
 
-			assert len_cur_vel == len_cur_path, "ERROR: current velocity dimension doesn't match path's dimension"
+			assert len_cur_vel_path == len_cur_path, "ERROR: current velocity dimension doesn't match path's dimension"
 
 			U = np.zeros((self.grid_number, self.grid_number))
 			V = np.zeros((self.grid_number, self.grid_number))
 
-			for k in range(len_cur_path):
-
+			for k in range(len_cur_path-1):
+				ic(k)
+				cur_point = cur_path[k]
+				cur_vel = cur_vel_path[k]
 				# Get the position x and y in the map
-				x = cur_path[k][0]
-				y = cur_path[k][1]
+				x = cur_point[0]
+				y = cur_point[1]
 				x_i = int((x - self.grid_map_min) * self.grid_step_reciprocal)
 				y_j = int((y - self.grid_map_min) * self.grid_step_reciprocal)
 
 				# Velocity for visualization
-				U[x_i][y_j] = cur_vel[k][0]
-				V[x_i][y_j] = cur_vel[k][1]
+				ic(x_i)
+				ic(y_j)
+				U[x_i][y_j] = cur_vel[0]
+				V[x_i][y_j] = cur_vel[1]
+				ic(U[x_i][y_j])
+				ic(V[x_i][y_j])
 
 			U_list.append(U)
 			V_list.append(V)
@@ -627,8 +649,8 @@ class tiago_2d_visualize:  # TODO: add on 07.20
 			next_position = [0] * 2
 
 			for iteration in range(1000):
-				ic(iteration)
-
+				#ic(iteration)
+				this_time = time.time()
 				# if self.check_arrive():
 				# 	self.plot_cascade_control_traj()
 
@@ -654,7 +676,8 @@ class tiago_2d_visualize:  # TODO: add on 07.20
 					self.cascade_control_path = []
 
 					# self.plot_cascade_control_traj()
-					time.sleep(2.)
+					#time.sleep(2.)
+					print("--- %s seconds ---" % (time.time() - this_time))
 					break
 
 				for i in range(len(next_position)):
@@ -665,7 +688,58 @@ class tiago_2d_visualize:  # TODO: add on 07.20
 				p.stepSimulation()
 
 		self.plot_multiple_cascade_trajectories()  # TODO: Visualize
+		self.plot_vector_field_in_arrows()
 		self.visualize_vector_field()
+
+	def base_line(self, start_point):
+
+		traj = self.open_json('qtrjs.json')
+		xy_traj = self.get_x_y_traj(traj)
+		robotId, joint_indexes = self.start_pybullet()
+
+		# TODO: set known start points or random point
+		self.set_start_points(start_point)
+		#self.set_known_start_point()
+		#random_start_point = self.gen_random_start_point()
+		#self.set_random_start_point(random_start_point)
+
+		next_position = [0] * 2
+
+		for jj in range(1000):
+			ic(jj)
+
+			# if self.check_arrive():
+			# 	self.plot_cascade_control_traj()
+
+			cur_state = self.get_robot_current_state()
+			#ic(cur_state)
+			dx = self.cascade_control(cur_state)
+			#ic(dx)
+
+			cur_position = cur_state[0]
+			#ic(cur_position)
+
+			self.cascade_control_path.append(cur_position)  # TODO: Record one path
+
+			cur_dist = self.compute_euclidean_distance(self.end_point, cur_position)
+			#ic(cur_dist)
+			if cur_dist < self.end_point_threshold:
+				ic(cur_position)
+				print("######### End point arrived!!! #########")
+
+				current_cascade_control_path = self.cascade_control_path
+				self.whole_cascade_control_path.append(current_cascade_control_path)
+				self.cascade_control_path = []
+
+				self.plot_cascade_control_traj()
+				break
+
+			for i in range(len(next_position)):
+				next_position[i] = cur_position[i] + self.delta * dx[i]
+
+			self.start_baseline_resetJointState(next_position)
+
+			p.stepSimulation()
 
 	def demo(self):
 
@@ -684,7 +758,8 @@ if __name__ == '__main__':
 
 	tiago_2d = tiago_2d_visualize()
 
+	start_time = time.time()
 	#tiago_2d.base_line()
 	#tiago_2d.demo()
-	tiago_2d.mutiple_baseline(nums=100)
-
+	tiago_2d.mutiple_baseline(nums=5)
+	print("--- %s seconds ---" % (time.time() - start_time))
