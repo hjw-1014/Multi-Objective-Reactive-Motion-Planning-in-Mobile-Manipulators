@@ -555,8 +555,6 @@ def set_context(state, R):
     x = state[0]  # Tensor(4, 4), end-effector rotation and position SE(3)
     v = state[1]  # Tensor (1, 6), end-effector spatial velocity V_b
     print('state:', state)
-    # print('x: ', x)
-    # print('v: ', v)
 
     # print('self.R_inv: ', self.R_inv) # Tensor (4, 4)
     # print('R: ', self.R) # Tensor (4, 4)
