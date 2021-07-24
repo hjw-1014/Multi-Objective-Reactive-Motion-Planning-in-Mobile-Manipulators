@@ -44,7 +44,10 @@ class tiago_2d_visualize:  # TODO: add on 07.20
 
 		self.round_whole_paths = None
 
-		self.activate_GUI = activate_GUI # TODO: add on 07.24
+		self.activate_GUI = activate_GUI  # TODO: add on 07.24
+		self.box_position = [0.5, 0.5]
+		self.repulsive_threshold = 0.5  # TODO: Think about which value is better. Add on 07.24
+		self.repulsive_scale = 5.  # TODO: Think about which value is better. Add on 07.24
 
 	def open_json(self, filename) -> list:
 		'''
@@ -441,6 +444,34 @@ class tiago_2d_visualize:  # TODO: add on 07.20
 
 		return False
 
+	def compute_repulsive_potential_force(self, current_position) -> list:  # TODO: 07.24
+		'''
+			Compute repulsive force for current position
+		'''
+		cur_dist = self.compute_euclidean_distance(current_position, self.box_position)
+		cur_dist_arr = np.clip(np.asarray(cur_dist), a_min=self.end_point_threshold, a_max=float('inf'))
+		cur_dist_clip = cur_dist_arr.tolist()
+		gradient = [0] * len(current_position)
+		for i in range(len(current_position)):
+			gradient[i] = current_position[i] - self.box_position[i]
+
+		repulsive_force = [0] * len(current_position)
+		if cur_dist > self.repulsive_threshold:
+			return [0, 0]
+		else:
+			for j in range(len(current_position)):
+				repulsive_force[j] = self.repulsive_scale * (1. / self.repulsive_threshold - 1. / cur_dist_clip) * (cur_dist**2) * gradient[j]
+			return repulsive_force
+
+	def compute_attractive_potential_force(self, current_position, closest_point) -> list:  # TODO 0724
+		cur_dist = self.compute_euclidean_distance(current_position, self.box_position)
+		attractive_force = [0] * len(current_position)
+
+		for i in range(len(current_position)):
+			attractive_force[i] = -self.k_d * (current_position[i] - closest_point[i])
+
+		return attractive_force
+
 	def cascade_control(self, current_state) -> list:
 		'''
 			current_state:
@@ -464,7 +495,7 @@ class tiago_2d_visualize:  # TODO: add on 07.20
 
 		return dx
 
-	def cascade_control_all_points(self, min_x=-1.5, min_y=-1.5, max_x=1.5, max_y=1.5, n_sample=301) -> np.array:
+	def cascade_control_all_points(self, min_x=-1.5, min_y=-1.5, max_x=1.5, max_y=1.5, n_sample=301) -> np.array: # TODO: Add repulsive potential field
 		''' # TODO: Add on 07.24
 			grid_map: np.array((90601, 2))
 			return: uv -> np.array((90601, 2)), the values for each position is the x and y velocity
@@ -481,15 +512,20 @@ class tiago_2d_visualize:  # TODO: add on 07.20
 		velocity_map = []  # Define the velocity map
 
 		for i in range(len(grid_map)):  # Transverse all the points in the map
-			cur_pos = grid_map[i]
-			dx = [0] * len(cur_pos)
+			cur_pos = grid_map[i]  # current position
+			dx = [0] * len(cur_pos)  # -> [vel_x, vel_y]
 			cur_pos_in_list = cur_pos.tolist()
-			cur_dist_paths = self.compute_current_distance_from_path_points_viz(cur_pos_in_list)
-			min_dist, min_dist_index = self.choose_min_dist_point_viz_vector(cur_dist_paths)
-			closest_point = self.xy_traj[min_dist_index]
-			for j in range(len(cur_pos)):  # TODO, change on 07.24
-				dx[j] = -self.k_d * (cur_pos[j] - closest_point[j])
-			dx_arr = np.asarray(dx) # TODO: Add repulsive potential field
+			cur_dist_paths = self.compute_current_distance_from_path_points_viz(cur_pos_in_list)  # For cuurent postion, get distance paths
+			min_dist, min_dist_index = self.choose_min_dist_point_viz_vector(cur_dist_paths) # Get the closest point and it's index
+			closest_point = self.xy_traj[min_dist_index]  # Get the closest point
+
+			# Potential field force
+			attractive_force = self.compute_attractive_potential_force(current_position=cur_pos, closest_point=closest_point)
+			repulive_force = self.compute_repulsive_potential_force(cur_pos)
+
+			for j in range(len(cur_pos)):  # TODO, change on 07.24 # Based on the distance, get the attractive potential
+				dx[j] = attractive_force[j] - repulive_force[j]  # x and y velocity
+			dx_arr = np.asarray(dx)  # TODO: Add repulsive potential field
 			velocity_map.append(dx_arr)
 
 		velocity_map_arr = np.asarray(velocity_map)
