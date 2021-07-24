@@ -18,7 +18,7 @@ from copy import deepcopy
 
 class tiago_2d_visualize:  # TODO: add on 07.20
 
-	def __init__(self):
+	def __init__(self, activate_GUI=False):
 
 		self.joint_indices = [0, 1]
 		self.trajectory = None
@@ -43,6 +43,8 @@ class tiago_2d_visualize:  # TODO: add on 07.20
 		self.grid_map_max = 1.5
 
 		self.round_whole_paths = None
+
+		self.activate_GUI = activate_GUI # TODO: add on 07.24
 
 	def open_json(self, filename):
 		# Opening JSON file
@@ -81,8 +83,8 @@ class tiago_2d_visualize:  # TODO: add on 07.20
 			p.resetJointState(self.robotId, self.joint_indices[1], self.xy_traj[jj][1])
 			time.sleep(0.1)
 
-	def start_pybullet(self, visulization=True):  # load Tiago in Pybullet
-		if visulization:
+	def start_pybullet(self):  # load Tiago in Pybullet
+		if self.activate_GUI:
 			physicsClient = p.connect(p.GUI)  #or p.DIRECT for non-graphical version
 		else:
 			physicsClient = p.connect(p.DIRECT)  #
@@ -278,6 +280,22 @@ class tiago_2d_visualize:  # TODO: add on 07.20
 
 		return current_distances_from_path_points
 
+	def compute_current_distance_from_path_points_viz(self, cur_position: list) -> list: # TODO: add on 07.24
+
+		'''
+			return the distances between current position and all the points of the path
+		'''
+
+		xy_traj = self.xy_traj
+
+		current_distances_from_path_points = []
+
+		for i in range(len(xy_traj)):
+			dist = self.compute_euclidean_distance(cur_position, xy_traj[i])
+			current_distances_from_path_points.append(dist)
+
+		return current_distances_from_path_points
+
 	def compute_euclidean_distance(self, first_point: list, second_point: list) -> float:
 
 		'''
@@ -291,27 +309,6 @@ class tiago_2d_visualize:  # TODO: add on 07.20
 			dist += pow((first_point[i] - second_point[i]), 2)
 
 		return math.sqrt(dist)
-
-	def cascade_control(self, current_state) -> list:
-		'''
-			current_state:
-			return velocity command dx
-		'''
-
-		xy_traj = self.xy_traj
-		current_position = current_state[0]
-		dx = [0] * len(current_state)  # y and x
-
-		current_distances_from_path_points = self.compute_current_distance_from_path_points(current_state)
-		#ic(len(current_distances_from_path_points))
-		min_dist, min_dist_index = self.choose_min_dist_point(current_distances_from_path_points)
-
-		closest_point = self.xy_traj[min_dist_index]
-
-		for i in range(len(current_state)):
-			dx[i] = -self.k_d * (current_position[i] - closest_point[i])
-
-		return dx
 
 	def choose_min_dist_point(self, current_distances_from_path_points: list):
 
@@ -343,6 +340,13 @@ class tiago_2d_visualize:  # TODO: add on 07.20
 
 		else:
 			return self.end_point_threshold, self.num_path_points-1
+
+	def choose_min_dist_point_viz_vector(self, current_distances_from_path_points: list): # TODO: add on 07.24
+
+		min_dist = min(current_distances_from_path_points)
+		min_dist_index = current_distances_from_path_points.index(min_dist)
+
+		return min_dist, min_dist_index # TODO: add
 
 	def gen_random_start_point(self):  # TODO: Set random start points
 		random_start_point = [0] * self.dim_xy  # x, y, z
@@ -399,99 +403,109 @@ class tiago_2d_visualize:  # TODO: add on 07.20
 
 		return False
 
-	def visualize_vector_field(self, min_max=[[-1.5, -1.5], [1.5, 1.5]]):  # TODO: add on 07.21
+	def cascade_control(self, current_state) -> list:
+		'''
+			current_state:
+				current_state[0] -> current position [x, y]
+				current_state[1] -> current velocity [dx, dy]
+			return: velocity command dx
+		'''
 
-		fig, ax = plt.subplots()  # TODO: Initialize fig
+		xy_traj = self.xy_traj
+		current_position = current_state[0]
+		dx = [0] * len(current_state)  # y and x
 
-		whole_cascade_control_path = self.whole_cascade_control_path
-		num_paths = len(whole_cascade_control_path)
-		round_whole_paths = self.round_path_position_values(2)
-		velocity_matrix = self.transform_path_2_velocity_matrix()
+		current_distances_from_path_points = self.compute_current_distance_from_path_points(current_state)
+		#ic(len(current_distances_from_path_points))
+		min_dist, min_dist_index = self.choose_min_dist_point(current_distances_from_path_points)
 
+		closest_point = self.xy_traj[min_dist_index]
+
+		for i in range(len(current_position)): # TODO, change on 07.24
+			dx[i] = -self.k_d * (current_position[i] - closest_point[i])
+
+		return dx
+
+	def cascade_control_all_points(self, min_max=[[-1.5, -1.5], [1.5, 1.5]], n_sample=301) -> np.array:
+		''' # TODO: Add on 07.24
+			grid_map: np.array((90601, 2))
+			return: uv -> np.array((90601, 2)), the values for each position is the x and y velocity
+		'''
 		min_x = min_max[0][0]
 		max_x = min_max[1][0]
 		min_y = min_max[0][1]
 		max_y = min_max[1][1]
+		n_sample = n_sample
+		x = np.linspace(min_x, max_x, n_sample)
+		y = np.linspace(min_y, max_y, n_sample)
+		XY = np.meshgrid(x, y)   # TODO: So each step is 0.01,  XY is a list with 2 arrays
+		xy = np.concatenate((XY[0][..., None], XY[1][..., None]), 2)  # (301, 301, 2)
+		xy_flat = np.reshape(xy, (-1, 2))  # (90601, 2)
+		grid_map = xy_flat  # np.array (90601, 2)
+
+		velocity_map = []
+		for i in range(len(grid_map)):
+			cur_pos = grid_map[i]
+			dx = [0] * len(cur_pos)
+			cur_pos_in_list = cur_pos.tolist()
+			cur_dist_paths = self.compute_current_distance_from_path_points_viz(cur_pos_in_list)
+			min_dist, min_dist_index = self.choose_min_dist_point_viz_vector(cur_dist_paths)
+			closest_point = self.xy_traj[min_dist_index]
+			for j in range(len(cur_pos)):  # TODO, change on 07.24
+				dx[j] = -self.k_d * (cur_pos[j] - closest_point[j])
+			dx_arr = np.asarray(dx)
+			velocity_map.append(dx_arr)
+
+		velocity_map_arr = np.asarray(velocity_map)
+
+		return velocity_map_arr
+
+	def visualize_vector_field(self, min_x=-1.5, min_y=-1.5, max_x=1.5, max_y=1.5):  # TODO: add on 07.21, change on 07.24
+
+		traj = self.open_json('qtrjs.json')  # Get 2d trajectory generated by MoveIt
+		xy_traj = self.get_x_y_traj(traj)
+
+		fig, ax = plt.subplots()  # TODO: Initialize fig
+
 		n_sample = 301
 		x = np.linspace(min_x, max_x, n_sample)
 		y = np.linspace(min_y, max_y, n_sample)
-		X, Y = np.meshgrid(x, y)  # TODO: So each step is 0.01
-		#X, Y = np.mgrid[min_x:max_x:301j, min_y:max_y:301j]
-		U_list, V_list = self.velocity_matrix_2_UV()
+		XY = np.meshgrid(x, y)   # TODO: So each step is 0.01,  XY is a list
 
+		uv = self.cascade_control_all_points()  # Get the velocity map with dimension np.array((301x301, 2))
 
-		xy = np.concatenate((X[...,None],Y[...,None]),2)
+		vel_x = np.reshape(uv[:, 0], (n_sample, n_sample))
+		vel_y = np.reshape(uv[:, 1], (n_sample, n_sample))
 
-		xy_flat = np.reshape(xy, (-1, 2))
+		speed = (vel_x ** 2 + vel_y ** 2) ** (1 / 2)
+		lw = 5 * speed / speed.max()
+		# mask = np.zeros(vel_x.shape, dtype=bool)
+		# mask[85:115, 185:215] = True
+		# vel_x = np.ma.array(vel_x, mask=mask) # TODO: Try to add a mask for the object. on 07.24
 
-		uv = -xy/10
-		uv = self.cascade_control(xy_flat)
+		ax.streamplot(XY[0], XY[1], vel_x, vel_y,
+					  density=[0.5,1.],
+					  linewidth=1.,
+					  color=speed,
+					  )  # TODO: Draw the vector field
 
-		u = uv[:,:,0]
-		v = uv[:,:,1]
+		xy_traj = self.xy_traj
+		x_traj = [0] * self.num_path_points
+		y_traj = [0] * self.num_path_points
+		for j in range(self.num_path_points):
+			x_traj[j] = xy_traj[j][0]
+			y_traj[j] = xy_traj[j][1]
 
-		assert len(U_list) == len(V_list), "ERROR: Dimension of U_list doesn't match dimension of V_List!!!"
+		ax.plot(x_traj, y_traj, 'C3', lw=1.)  # TODO: Draw the groud truth path generated by MoveIt
 
-		ic(X)
-		ic(Y)
-		#ax.streamplot(X, Y, U_list[0]*10, V_list[0]*10, linewidth=10., color='red')
-		ax.streamplot(X, Y, u, v, linewidth=1., color='red')
-		plt.show()
-
-		# for i in range(len(U_list)):
-		# 	# ic(U_list[i])
-		# 	# ic(len(U_list[i]))
-		# 	# ic(V_list[i])
-		# 	# ic(len(V_list[i]))
-		# 	cur_u = np.nan_to_num(U_list[i])
-		# 	cur_v = np.nan_to_num(V_list[i])
-		# 	speed = (cur_u ** 2 + cur_v ** 2) ** (1/2)
-		# 	speed = speed / np.max(speed)
-		# 	ax.streamplot(X, Y, cur_u, cur_v, linewidth=2.)  # TODO: Draw vector field
-			#print("### Draw vector field ###")
+		left, bottom, width, height = (0.35, 0.35, 0.3, 0.3)
+		ax.add_patch(Rectangle((left, bottom), width, height, facecolor="black", alpha=0.5)) # TODO: Draw the box
 
 		ax.set_title('Vector field')
-		#ax.grid(True)
-
+		ax.grid(True)
 		ax.set_xlim(-1.5, 1.5)
 		ax.set_ylim(-1.5, 1.5)
-
-		#plt.tight_layout()
 		plt.show()
-
-		# for cascade_control_path in round_whole_paths:
-		#
-		# 	lenth = len(cascade_control_path)
-		#
-		# 	center_size = 5
-		# 	marker_size = 5000
-		#
-		# 	for i in range(lenth):  # TODO: Draw the path generated by algorithm
-		# 		ax.scatter(cascade_control_path[i][0], cascade_control_path[i][1], s=center_size, alpha=1)
-		# ax.scatter(cascade_control_path[i][0], cascade_control_path[i][1], s=marker_size, alpha=.05)
-		# ax.plot(self.cascade_control_path[i][0], self.cascade_control_path[i][1])
-
-		# ax.scatter(x_traj, y_traj, c="tab:blue", s=center_size, label="tab:blue", alpha=1)
-		# ax.scatter(x_traj, y_traj, c="tab:green", s=marker_size,  label="tab:green", alpha=.05)
-		# ax.legend('')
-
-		# xy_traj = self.xy_traj
-		# x_traj = [0] * self.num_path_points
-		# y_traj = [0] * self.num_path_points
-		# for j in range(self.num_path_points):
-		# 	x_traj[j] = xy_traj[j][0]
-		# 	y_traj[j] = xy_traj[j][1]
-		#
-		# ax.plot(x_traj, y_traj, 'C3', lw=1.)  # TODO: Draw the groud truth path generated by MoveIt
-		#
-		# box_center_x = 0.5
-		# box_center_y = 0.5
-		# #ax.text(box_center_x, box_center_y, "box")
-		#
-		# left, bottom, width, height = (0.35, 0.35, 0.3, 0.3)
-		# #ax.add_patch(Rectangle((left, bottom), width, height, facecolor="black", alpha=0.5)) # TODO: Draw the box
-
-		# plt.show()
 
 	def plot_vector_field_in_arrows(self):  # TODO: add on 07.22
 
@@ -617,6 +631,13 @@ class tiago_2d_visualize:  # TODO: add on 07.20
 			U = np.zeros((self.grid_number, self.grid_number))
 			V = np.zeros((self.grid_number, self.grid_number))
 
+			U = np.ones((self.grid_number, self.grid_number)) * 0.
+			V = np.ones((self.grid_number, self.grid_number)) * 0.
+			for i in range(int(self.grid_number/2)):
+				V[i][0] = 0.1
+
+
+
 			for k in range(len_cur_path-1):
 				ic(k)
 				cur_point = cur_path[k]
@@ -703,7 +724,7 @@ class tiago_2d_visualize:  # TODO: add on 07.20
 
 				p.stepSimulation()
 
-		self.plot_multiple_cascade_trajectories()  # TODO: Visualize
+		#self.plot_multiple_cascade_trajectories()  # TODO: Visualize
 		self.plot_vector_field_in_arrows()
 		self.visualize_vector_field()
 
@@ -757,7 +778,7 @@ class tiago_2d_visualize:  # TODO: add on 07.20
 
 			p.stepSimulation()
 
-	def demo(self):
+	def moveit_trajectory_demo(self):
 
 		traj = self.open_json('qtrjs.json')
 		xy_traj = self.get_x_y_traj(traj)
