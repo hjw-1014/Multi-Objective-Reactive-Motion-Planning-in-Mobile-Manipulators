@@ -13,7 +13,7 @@ import time
 import math
 import random
 from copy import deepcopy
-#from tiago_utils import *
+
 
 class tiago_2d_visualize:  # TODO: add on 07.20
 
