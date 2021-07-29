@@ -523,7 +523,7 @@ class tiago_2d_visualize:  # TODO: add on 07.20
 			repulive_force = self.compute_repulsive_potential_force(cur_pos)
 
 			for j in range(len(cur_pos)):  # TODO, change on 07.24 # Based on the distance, get the attractive potential
-				dx[j] = attractive_force[j] - repulive_force[j]  # x and y velocity
+				dx[j] = attractive_force[j] + repulive_force[j]  # x and y velocity
 			dx_arr = np.asarray(dx)  # TODO: Add repulsive potential field
 			velocity_map.append(dx_arr)
 
