@@ -3,7 +3,7 @@ import pybullet as p
 
 class set_start:
 
-    def __init__(self, set_random_start=True, set_known_start=False, start_point=None):
+    def __init__(self, set_random_start=False, set_known_start=True, start_point=None):
         self.dim_xy = 2
         self.dim = 3
         self.robotId = 0
@@ -11,6 +11,7 @@ class set_start:
         self.set_random_start = set_random_start
         self.set_known_start = set_known_start
         self.start_point = start_point
+        self.joint_indices = [0, 1]
 
     def gen_random_start_point(self) -> list:  # TODO: generate random start points
         '''
@@ -43,7 +44,7 @@ class set_start:
         '''
             Set a known start state in Pybullet
         '''
-        known_start_point = [0.2, 0.2, 0]
+        known_start_point = [0.2, 0.2]
         # ic(known_start_point)
         for i in range(self.dim_xy):
             p.resetJointState(self.robotId, self.joint_indices[i], known_start_point[i])
@@ -61,7 +62,7 @@ class set_start:
         if self.set_random_start:
             random_start_point = self.gen_random_start_point()
             self.set_random_start_point(random_start_point)
-        elif self.set_random_start:
+        elif self.set_known_start:
             self.set_known_start_point()
         else:
             self.set_start_points(self.start_point)

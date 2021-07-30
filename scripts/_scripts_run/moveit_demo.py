@@ -1,22 +1,19 @@
-from read_json_trajectory_pybullet import *
+from utils import *
+from _pybullet import *
+from _plot import *
+import pybullet as p
 
+if __name__ == "__main__":
+    # TODO: Read json trajectory
+    traj, num_path_points = open_json('qtrjs.json')
+    xy_traj = get_x_y_traj(traj)
 
-def moveit_trajectory_demo(self):
-    traj = self.open_json('qtrjs.json')
-    xy_traj = self.get_x_y_traj(traj)
-    robotId, joint_indexes = self.start_pybullet()
+    # TODO: tiago environment
+    tiago_env = start_bullet_env(set_random_start=True, set_known_start=False, start_point=None)
+    robotId, joint_indexes = tiago_env.start_pybullet(activate_GUI=False) #TODO: Change here to start the GUI
 
-    self.plot_moveit_traj(xy_traj)
-
+    plot_moveit_traj(xy_traj)
     while True:
-        self.visualize_trajectory()
+        tiago_env.visualize_trajectory()
         p.stepSimulation()
 
-
-if __name__ == '__main__':
-
-	tiago_2d = tiago_2d_visualize(activate_GUI=True)
-
-	start_time = time.time()
-	tiago_2d.moveit_trajectory_demo()
-	print("--- %s seconds ---" % (time.time() - start_time))

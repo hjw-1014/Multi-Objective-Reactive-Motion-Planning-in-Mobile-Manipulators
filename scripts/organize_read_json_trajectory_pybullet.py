@@ -34,7 +34,7 @@ class tiago_2d_visualize:  # TODO: add on 07.20
 		self.end_point = [1.2, 1.0]
 		self.end_point_threshold = 0.01
 
-		self.velocity_matrix = None # TODO: add on 07.21
+		self.velocity_matrix = None  # TODO: add on 07.21
 		self.grid_number = 301
 		self.grid_step = 0.01
 		self.grid_step_reciprocal = 1 / self.grid_step
