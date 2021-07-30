@@ -14,9 +14,9 @@ def cascade_control(tiago_env, num_path_points, current_state, xy_traj) -> list:
     current_position = current_state[0]
     dx = [0] * len(current_state)  # y and x
 
-    current_distances_from_path_points = compute_current_distance_from_path_points(current_state, xy_traj)
+    current_distances_from_path_points = compute_current_distance_from_path_points_batch(current_position, xy_traj)
     # ic(len(current_distances_from_path_points))
-    min_dist, min_dist_index = choose_min_dist_point(tiago_env, num_path_points ,current_distances_from_path_points)
+    min_dist, min_dist_index = choose_min_dist_point(tiago_env, num_path_points, current_distances_from_path_points)
 
     closest_point = xy_traj[min_dist_index]
 
@@ -53,8 +53,7 @@ def cascade_control_all_points(xy_traj, min_x=-1.5, min_y=-1.5, max_x=1.5, max_y
         closest_point = xy_traj[min_dist_index]  # Get the closest point
 
         # Potential field force
-        attractive_force = compute_attractive_potential_force(current_position=cur_pos,
-                                                                   closest_point=closest_point)
+        attractive_force = compute_attractive_potential_force(current_position=cur_pos, closest_point=closest_point)
         repulive_force = compute_repulsive_potential_force(cur_pos)
 
         for j in range(len(cur_pos)):  # TODO, change on 07.24 # Based on the distance, get the attractive potential

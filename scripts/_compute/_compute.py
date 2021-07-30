@@ -10,17 +10,27 @@ box_position = [0.5, 0.5]
 k_d = 1.
 repulsive_scale = 1.
 
-def compute_current_distance_from_path_points(current_state, xy_traj) -> list:
+def compute_current_distance_from_path_points_batch(cur_position, xy_traj) -> list:
+    '''
+        return the distances between current position and all the points of the path
+    '''
+    xy_traj_arr = np.asarray(xy_traj)
+    cur_pos_arr = np.asarray(cur_position)
+
+    dist_arr = xy_traj_arr - cur_pos_arr
+    current_distances_from_path_points = np.diag(np.dot(dist_arr, dist_arr.T)).reshape([-1, 1])
+
+    return current_distances_from_path_points.tolist()
+
+def compute_current_distance_from_path_points(cur_position, xy_traj) -> list:
     '''
         return the distances between current position and all the points of the path
     '''
 
-    cur_positon = current_state[0]
-
     current_distances_from_path_points = []
 
     for i in range(len(xy_traj)):
-        dist = compute_euclidean_distance(cur_positon, xy_traj[i])
+        dist = compute_euclidean_distance(cur_position, xy_traj[i])
         current_distances_from_path_points.append(dist)
 
     return current_distances_from_path_points
@@ -77,7 +87,7 @@ def choose_min_dist_point(tiago_env, num_path_points ,current_distances_from_pat
         # ic(min_dist_index)
 
         idx = 1
-        while min_dist < cascade_threshold and not tiago_env.check_arrive():  # TODO: ERROR -> Get stuck here!!! FIXED 0720
+        while min_dist[0] < cascade_threshold and not tiago_env.check_arrive():  # TODO: ERROR -> Get stuck here!!! FIXED 0720
             min_dist_index += 1
             # ic(min_dist_index)
 
@@ -86,7 +96,6 @@ def choose_min_dist_point(tiago_env, num_path_points ,current_distances_from_pat
 
             min_dist = current_distances_from_path_points[min_dist_index]
         # ic(min_dist)
-        # if min_dist < self.cascade_threshold:
 
         # idx += 1
         # min_dist_index = current_distances_from_path_points.index(min_dist)
