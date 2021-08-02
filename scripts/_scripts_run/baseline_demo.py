@@ -15,6 +15,7 @@ if __name__ == "__main__":
     tiago_env = start_bullet_env(set_random_start=False, set_known_start=True, start_point=None)
     robotId, joint_indexes = tiago_env.start_pybullet(activate_GUI=False) #TODO: Change here to start the GUI
 
+    # TODO: Define parameters
     cascade_control_path = []
     end_point = [1.2, 1.0]
     end_point_threshold = 0.01

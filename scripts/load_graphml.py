@@ -23,7 +23,7 @@ def load_rrt_gragh_2_maps(filename):
         yaw = float(coords[2])
         xy = np.array([[x, y]])
         node_pos_map[node[0]] = xy
-    # ic(node_pos_map)
+    ic(node_pos_map)
 
     for edge in G.edges(data=True):
 
@@ -36,6 +36,9 @@ def load_rrt_gragh_2_maps(filename):
 
     return node_pos_map, son_father_map, edge_weight_map, edge_connect_father_son_map
 
-if __name__ == "__main__":
 
-    node_pos_map, son_father_map, edge_weight_map, edge_connect_father_son_map = load_rrt_gragh_2_maps(filename="graph.graphml")
+node_pos_map, son_father_map, edge_weight_map, edge_connect_father_son_map = load_rrt_gragh_2_maps(filename="graph.graphml")
+nodes_pos_graph_list = []
+for val in node_pos_map.values():
+    nodes_pos_graph_list.append(val)
+ic(nodes_pos_graph_list)

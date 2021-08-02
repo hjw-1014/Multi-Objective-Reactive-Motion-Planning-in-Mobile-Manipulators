@@ -13,7 +13,6 @@ def open_json(filename) -> list:
     trajectory = data['trajectories'][0]['positions']
 
     # Iterating through the json
-    # list
     # for i in data['trajectories'][0]['positions']:
     # 	print(i)
 
@@ -77,3 +76,13 @@ def load_rrt_gragh_2_maps(filename): # TODO: add on 08.02
     # ic(edge_connect_father_son_map)
 
     return node_pos_map, son_father_map, edge_weight_map, edge_connect_father_son_map
+
+def transforem_node_map_2_list(node_pos_map: dict) -> list:
+    '''
+        return a list contains the positions of nodes of the graph, without orders
+    '''
+    nodes_pos_graph_list = []
+    for val in node_pos_map.values():
+        nodes_pos_graph_list.append(val)
+
+    return nodes_pos_graph_list
