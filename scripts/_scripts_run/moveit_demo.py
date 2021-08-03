@@ -14,6 +14,8 @@ if __name__ == "__main__":
 
     plot_moveit_traj(xy_traj)
     while True:
-        tiago_env.visualize_trajectory()
+        tiago_env.visualize_trajectory(xy_traj)
         p.stepSimulation()
+
+
 

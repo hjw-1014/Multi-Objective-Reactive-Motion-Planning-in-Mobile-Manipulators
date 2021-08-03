@@ -32,7 +32,7 @@ class start_bullet_env:
         self.cascade_control_path = []
         self.whole_cascade_control_path = []
         self.end_point = [1.2, 1.0]
-        self.end_point_threshold = 0.01
+        self.end_point_threshold = 0.02
 
         self.velocity_matrix = None  # TODO: add on 07.21
         self.grid_number = 301
@@ -88,11 +88,11 @@ class start_bullet_env:
 
         return robotId, joint_indices
 
-    def visualize_trajectory(self):
+    def visualize_trajectory(self, xy_traj):
 
-        for jj in range(len(self.xy_traj)):  # TODO: PYBULLET set joint positions
-            p.resetJointState(self.robotId, self.joint_indices[0], self.xy_traj[jj][0])
-            p.resetJointState(self.robotId, self.joint_indices[1], self.xy_traj[jj][1])
+        for jj in range(len(xy_traj)):  # TODO: PYBULLET set joint positions
+            p.resetJointState(self.robotId, self.joint_indices[0], xy_traj[jj][0])
+            p.resetJointState(self.robotId, self.joint_indices[1], xy_traj[jj][1])
             time.sleep(0.1)
 
             def start_pybullet(self) -> (int, list):  # load Tiago in Pybullet

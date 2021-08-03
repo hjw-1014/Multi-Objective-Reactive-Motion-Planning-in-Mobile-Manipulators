@@ -25,6 +25,28 @@ def cascade_control(tiago_env, num_path_points, current_state, xy_traj) -> list:
 
     return dx
 
+def cascade_control_rrt_tree(tiago_env, num_path_points, current_state, graph_rrt, graph_rrt_son, graph_rrt_father, rrt_path) -> list:
+    '''
+        current_state:
+            current_state[0] -> current position [x, y]
+            current_state[1] -> current velocity [dx, dy]
+        return: velocity command dx, [vel_x, vel_y]
+    '''
+
+    current_position = current_state[0]
+    dx = [0] * len(current_state)  # y and x
+
+    cur_dist_son, cur_dist_father = compute_cur_dist_graph_points_batch(current_position, graph_rrt, graph_rrt_son, graph_rrt_father)
+    closest_point = choose_min_dist_point_gragh(tiago_env,
+                                                   num_path_points,
+                                                   cur_dist_son,
+                                                   cur_dist_father,
+                                                   graph_rrt, graph_rrt_son, graph_rrt_father, rrt_path)
+
+    for i in range(len(current_position)):  # TODO, change on 07.24
+        dx[i] = -k_d * (current_position[i] - closest_point[i])
+
+    return dx
 
 def cascade_control_all_points(xy_traj, min_x=-1.5, min_y=-1.5, max_x=1.5, max_y=1.5,
                                n_sample=301) -> np.array:  # TODO: Add repulsive potential field
@@ -57,7 +79,7 @@ def cascade_control_all_points(xy_traj, min_x=-1.5, min_y=-1.5, max_x=1.5, max_y
         repulive_force = compute_repulsive_potential_force(cur_pos)
 
         for j in range(len(cur_pos)):  # TODO, change on 07.24 # Based on the distance, get the attractive potential
-            dx[j] = attractive_force[j] - repulive_force[j]  # x and y velocity
+            dx[j] = attractive_force[j] + repulive_force[j]  # x and y velocity
         dx_arr = np.asarray(dx)  # TODO: Add repulsive potential field
         velocity_map.append(dx_arr)
 

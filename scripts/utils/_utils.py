@@ -86,3 +86,26 @@ def transforem_node_map_2_list(node_pos_map: dict) -> list:
         nodes_pos_graph_list.append(val)
 
     return nodes_pos_graph_list
+
+def load_rrt_nodes_list(filename):
+
+    rrt_nodes = np.load(filename)
+
+    return rrt_nodes
+
+def load_rrt_path(filename):
+
+    rrt_path = np.load(filename)
+
+    return rrt_path
+
+def split_son_father(graph_rrt: np.array):
+
+    graph_rrt_son = np.zeros((len(graph_rrt), 2))
+    graph_rrt_father = np.zeros((len(graph_rrt), 2))
+    for i in range(len(graph_rrt)):
+        graph_rrt_son[i] = graph_rrt[i][0]
+        graph_rrt_father[i] = graph_rrt[i][1]
+
+    return graph_rrt_son, graph_rrt_father
+

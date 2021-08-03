@@ -5,7 +5,8 @@ from icecream import ic
 
 repulsive_threshold = 0.1
 cascade_threshold = 0.1
-end_point_threshold = 0.01
+end_point_threshold = 0.02
+end_point = [1.2, 1.0]
 box_position = [0.5, 0.5]
 k_d = 1.
 repulsive_scale = 1.
@@ -21,6 +22,19 @@ def compute_current_distance_from_path_points_batch(cur_position, xy_traj) -> li
     current_distances_from_path_points = np.diag(np.dot(dist_arr, dist_arr.T)).reshape([-1, 1])
 
     return current_distances_from_path_points.tolist()
+
+def compute_cur_dist_graph_points_batch(cur_position: list, graph_rrt: np.array, graph_rrt_son: np.array, graph_rrt_father: np.array):
+    '''
+        return the distances between current position and all the points of the rrt graph
+    '''
+    cur_pos_arr = np.asarray(cur_position)
+
+    dist_arr_son = graph_rrt_son - cur_pos_arr
+    dist_arr_father = graph_rrt_son - cur_pos_arr
+    current_distances_from_path_points_son = np.diag(np.dot(dist_arr_son, dist_arr_son.T)).reshape([-1, 1])
+    current_distances_from_path_points_father = np.diag(np.dot(dist_arr_father, dist_arr_father.T)).reshape([-1, 1])
+
+    return current_distances_from_path_points_son.tolist(), current_distances_from_path_points_father.tolist()
 
 def compute_current_distance_from_path_points(cur_position, xy_traj) -> list:
     '''
@@ -106,9 +120,13 @@ def choose_min_dist_point(tiago_env, num_path_points, current_distances_from_pat
         return end_point_threshold, num_path_points - 1
 
 def choose_min_dist_point_gragh(tiago_env, num_path_points: int,
-                                current_distances_from_path_points: list,
-                                son_father_map: dict) -> (float, int):
-    # TODO: Need to update if add a path grpgh | add on 08.02
+                                cur_dist_son: list,
+                                cur_dist_father: list,
+                                graph_rrt: np.array,
+                                graph_rrt_son: np.array,
+                                graph_rrt_father: np.array,
+                                rrt_path: np.array) -> (float, int):
+    # TODO: Need to update if add a path gragh | add on 08.03
     '''
         Firstly, check if this point is already close enough to the end point.
         if not:
@@ -121,29 +139,17 @@ def choose_min_dist_point_gragh(tiago_env, num_path_points: int,
     '''
     if not tiago_env.check_arrive():
 
-        min_dist = min(current_distances_from_path_points)
-        min_dist_index = current_distances_from_path_points.index(min_dist)
+        min_dist = min(cur_dist_son)
+        min_dist_index = cur_dist_son.index(min_dist)
+
         # TODO: -> cur_node, 08.03
-        idx = 1
-        while min_dist[0] < cascade_threshold and not tiago_env.check_arrive():
-            # TODO: Move to the next point (Father node) on 08.03
+        if min_dist[0] < cascade_threshold and not tiago_env.check_arrive():
+            # TODO: Thinking how to move to the next point (Father node) which is not inside the cascade_threshold on 08.04
+            return graph_rrt_father[min_dist_index].tolist()
 
-            min_dist_index += 1
-            # ic(min_dist_index)
-
-            if min_dist_index == num_path_points:
-                return min_dist, min_dist_index - 1
-
-            min_dist = current_distances_from_path_points[min_dist_index]
-        # ic(min_dist)
-
-        # idx += 1
-        # min_dist_index = current_distances_from_path_points.index(min_dist)
-
-        return min_dist, min_dist_index
-
+        return graph_rrt_son[min_dist_index].tolist()
     else:
-        return end_point_threshold, num_path_points - 1
+        return end_point
 
 def choose_min_dist_point_viz_vector(current_distances_from_path_points: list) -> (float, int):  # TODO: add on 07.24
     '''
