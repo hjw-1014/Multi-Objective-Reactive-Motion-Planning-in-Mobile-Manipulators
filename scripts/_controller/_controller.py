@@ -25,7 +25,7 @@ def cascade_control(tiago_env, num_path_points, current_state, xy_traj) -> list:
 
     return dx
 
-def cascade_control_rrt_tree(tiago_env, num_path_points, current_state, graph_rrt, graph_rrt_son, graph_rrt_father, rrt_path) -> list:
+def cascade_control_rrt_tree(tiago_env, current_state, rrt_vertex, graph_rrt, graph_rrt_son, graph_rrt_father, rrt_path) -> list:
     '''
         current_state:
             current_state[0] -> current position [x, y]
@@ -36,9 +36,9 @@ def cascade_control_rrt_tree(tiago_env, num_path_points, current_state, graph_rr
     current_position = current_state[0]
     dx = [0] * len(current_state)  # y and x
 
-    cur_dist_son, cur_dist_father = compute_cur_dist_graph_points_batch(current_position, graph_rrt, graph_rrt_son, graph_rrt_father)
+    cur_dist_son, cur_dist_father = compute_cur_dist_graph_points_batch(current_position, graph_rrt_son, graph_rrt_father)
     closest_point = choose_min_dist_point_gragh(tiago_env,
-                                                   num_path_points,
+                                                   rrt_vertex,
                                                    cur_dist_son,
                                                    cur_dist_father,
                                                    graph_rrt, graph_rrt_son, graph_rrt_father, rrt_path)
@@ -75,6 +75,54 @@ def cascade_control_all_points(xy_traj, min_x=-1.5, min_y=-1.5, max_x=1.5, max_y
         closest_point = xy_traj[min_dist_index]  # Get the closest point
 
         # Potential field force
+        attractive_force = compute_attractive_potential_force(current_position=cur_pos, closest_point=closest_point)
+        repulive_force = compute_repulsive_potential_force(cur_pos)
+
+        for j in range(len(cur_pos)):  # TODO, change on 07.24 # Based on the distance, get the attractive potential
+            dx[j] = attractive_force[j] + repulive_force[j]  # x and y velocity
+        dx_arr = np.asarray(dx)  # TODO: Add repulsive potential field
+        velocity_map.append(dx_arr)
+
+    velocity_map_arr = np.asarray(velocity_map)
+
+    return velocity_map_arr
+
+def cascade_control_all_nodes_rrtTree(
+                                      graph_rrt,
+                                      graph_rrt_son,
+                                      graph_rrt_father,
+                                      rrt_path,
+                                      min_x=-1.5, min_y=-1.5, max_x=1.5, max_y=1.5,
+                                      n_sample=301) -> np.array:  # TODO: Add repulsive potential field
+    ''' # TODO: Add on 07.24
+        grid_map: np.array((90601, 2))
+        return: uv -> np.array((90601, 2)), the values for each position is the x and y velocity
+    '''
+    # Define the grid map
+    x = np.linspace(min_x, max_x, n_sample)
+    y = np.linspace(min_y, max_y, n_sample)
+    XY = np.meshgrid(x, y)  # TODO: So each step is 0.01 or 0.001???,  XY is a list with 2 arrays
+    xy = np.concatenate((XY[0][..., None], XY[1][..., None]), 2)  # (301, 301, 2)
+    xy_flat = np.reshape(xy, (-1, 2))  # (90601, 2)
+    grid_map = xy_flat  # np.array (90601, 2)
+
+    velocity_map = []  # Define the velocity map
+
+    for i in range(len(grid_map)):  # Transverse all the points in the map
+        print("grid_map: ", i)
+        cur_pos = grid_map[i]  # current position
+        dx = [0] * len(cur_pos)  # -> [vel_x, vel_y]
+        cur_pos_in_list = cur_pos.tolist()
+        cur_dist_son, cur_dist_father = compute_cur_dist_graph_points_batch(cur_pos_in_list, graph_rrt_son, graph_rrt_father)
+        print("cur_dist_son")
+        closest_point = choose_min_dist_point_graph_viz(
+                                cur_pos_in_list,
+                                cur_dist_son,
+                                cur_dist_father,
+                                graph_rrt_son,
+                                graph_rrt_father)  # Get the closest point and it's index
+        print('1')
+        # Potential field forces
         attractive_force = compute_attractive_potential_force(current_position=cur_pos, closest_point=closest_point)
         repulive_force = compute_repulsive_potential_force(cur_pos)
 

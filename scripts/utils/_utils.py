@@ -99,6 +99,13 @@ def load_rrt_path(filename):
 
     return rrt_path
 
+
+def load_rrt_vertex(filename):
+
+    rrt_vertex = np.load(filename, allow_pickle=True)
+
+    return rrt_vertex
+
 def split_son_father(graph_rrt: np.array):
 
     graph_rrt_son = np.zeros((len(graph_rrt), 2))

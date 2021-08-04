@@ -6,8 +6,8 @@ Environment for rrt_2D
 
 class MyEnv:
     def __init__(self):
-        self.x_range = (-100, 200)
-        self.y_range = (-100, 200)
+        self.x_range = (-78, 178)
+        self.y_range = (-78, 178)
         self.obs_boundary = self.obs_boundary()
         self.obs_rectangle = self.obs_rectangle()
 

@@ -18,10 +18,8 @@ class Plotting:
     def __init__(self, x_start, x_goal):
         self.xI, self.xG = x_start, x_goal
         self.env = my_env.MyEnv()
-        # self.obs_circle = self.env.obs_circle
         self.obs_rectangle = self.env.obs_rectangle
         self.obs_bound = self.env.obs_boundary
-        #self.my_obs_rectangle = self.env.my_obs_rectangle
 
     def animation(self, nodelist, path, name, animation=False):
         self.plot_grid(name)

@@ -36,10 +36,8 @@ class Rrt:
 
         self.x_range = self.env.x_range
         self.y_range = self.env.y_range
-        # self.obs_circle = self.env.obs_circle
         self.obs_rectangle = self.env.obs_rectangle
         self.obs_boundary = self.env.obs_boundary
-        #self.my_obx_rectangle = self.env.my_obs_rectangle
 
     def planning(self):
         for i in range(self.iter_max):
@@ -57,6 +55,7 @@ class Rrt:
                     # TODO: Extract all the nodes 08.03
                     nodes_list = self.utils.vertex_2_xy_list(self.vertex)
                     path = self.extract_path(node_new)
+                    self.utils.save_vertex_in_npy(self.vertex)
                     self.utils.save_graph_in_npy(nodes_list)
                     self.utils.save_path_in_npy(path)
                     return path, self.vertex, nodes_list

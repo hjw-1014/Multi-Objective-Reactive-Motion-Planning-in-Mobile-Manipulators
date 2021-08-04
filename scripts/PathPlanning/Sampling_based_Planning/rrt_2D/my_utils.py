@@ -152,8 +152,8 @@ class Utils:
 
         for i in range(num_nodes):
             if not vertex[i].parent:
-                node_arr[1][0] = -100
-                node_arr[1][1] = -100
+                node_arr[1][0] = 120
+                node_arr[1][1] = 100
             else:
                 node_arr[0][0] = vertex[i].x  # son node x
                 node_arr[0][1] = vertex[i].y  # son node y
@@ -178,9 +178,17 @@ class Utils:
 
         print("Save graph in graph_rrt.npy!!!")
 
+
+    @staticmethod
+    def save_vertex_in_npy(nodes_list: list):
+
+        np.save("vertex_rrt.npy", nodes_list)
+
+        print("Save vertex in vertex_rrt.npy!!!")
+
     @staticmethod
     def save_path_in_npy(path: list):
 
         np.save("path_rrt.npy", path)
 
-        print("Save graph in path_rrt.npy!!!")
+        print("Save path in path_rrt.npy!!!")

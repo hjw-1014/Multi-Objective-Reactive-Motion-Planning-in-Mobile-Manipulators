@@ -23,9 +23,9 @@ class start_bullet_env:
         self.trajectory = None
         self.xy_traj = None
         self.robotId = None
-        self.cascade_threshold = 0.2  # TODO: Set different threshold to check the performance
+        self.cascade_threshold = 0.1  # TODO: Set different threshold to check the performance
         self.k_d = 1.
-        self.delta = 0.5  # TODO: Change here to decide the step!!!
+        self.delta = 0.1 # TODO: Change here to decide the step!!!
         self.dim = 3
         self.dim_xy = 2
         self.num_path_points = 0
@@ -226,7 +226,7 @@ class start_bullet_env:
 
     def check_arrive(self) -> bool:
         '''
-            According to self.end_point_threshold=0.01 -> check the robot arrive at the target position or not
+            According to self.end_point_threshold=0.02 -> check the robot arrive at the target position or not
         '''
         curren_state = self.get_robot_current_state()
         curren_position = curren_state[0]
@@ -234,6 +234,22 @@ class start_bullet_env:
 
         if cur_dist < self.end_point_threshold:
             return True
+
+        return False
+
+    #@staticmethod
+    def next_step_arrive(self) -> bool:
+        '''
+            According to self.end_point_threshold=0.02 and self.cascade_threshold=0.1 -> check the robot arrive at the target position or not
+        '''
+        curren_state = self.get_robot_current_state()
+        curren_position = curren_state[0]
+        cur_dist = self.compute_euclidean_distance(self.end_point, curren_position)
+
+        if cur_dist < self.cascade_threshold:
+            return True
+
+        return False
 
     def compute_euclidean_distance(self, first_point: list, second_point: list) -> float:
         '''
