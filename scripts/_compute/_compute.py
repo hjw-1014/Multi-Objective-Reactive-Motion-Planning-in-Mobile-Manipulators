@@ -38,7 +38,7 @@ def compute_cur_dist_graph_points_batch(cur_position: list, graph_rrt_son: np.ar
     return np.around(current_distances_from_path_points_son, 2).tolist(), np.around(current_distances_from_path_points_father, 2).tolist()
 
 def compute_cur_dist_graph_points(cur_position, graph_rrt_son: np.array, graph_rrt_father: np.array) -> list:
-    '''
+    ''' # TODO: added on 08.05, good but we need batch computation, so this function just for test
         return the distances between current position and all the points of the path
     '''
 
@@ -146,14 +146,12 @@ def choose_min_dist_point(tiago_env, num_path_points, current_distances_from_pat
     else:
         return end_point_threshold, num_path_points - 1
 
-def choose_min_dist_point_gragh(tiago_env,
+def choose_min_dist_point_graph_batch(tiago_env,
                                 cur_dist_son: list,
                                 cur_dist_father: list,
-                                graph_rrt: np.array,
                                 graph_rrt_son: np.array,
-                                graph_rrt_father: np.array,
-                                rrt_path: np.array) -> list:
-    # TODO: Need to update if add a path gragh | add on 08.03
+                                graph_rrt_father: np.array) -> list:
+    # TODO: Need to update if add a path gragh | added on 08.03
     '''
         Firstly, check if this point is already close enough to the end point.
         if not:
@@ -180,13 +178,56 @@ def choose_min_dist_point_gragh(tiago_env,
             # TODO: Thinking how to move to the next point (Father node) which is not inside the cascade_threshold on 08.04 !!!!!!!!!!!!!
             father_node_dist = cur_dist_father[son_dist_index]
             father_node = graph_rrt_father[son_dist_index].tolist()
-            if math.hypot(father_node[0] - end_point[0], father_node[1] - end_point[1]) < delta:
-                return end_point
-            elif father_node_dist[0] <= cascade_threshold and math.hypot(father_node[0]-end_point[0], father_node[1] - end_point[1]) >= delta:
+            # if math.hypot(father_node[0] - end_point[0], father_node[1] - end_point[1]) < delta:
+            #     return end_point
+            # elif father_node_dist[0] <= cascade_threshold and math.hypot(father_node[0]-end_point[0], father_node[1] - end_point[1]) >= delta:
+            #     son_dist_index = cur_dist_son.index(father_node_dist)
+            #     son_dist = cur_dist_father[son_dist_index]
+            # elif father_node_dist[0] > cascade_threshold and math.hypot(father_node[0]-end_point[0], father_node[1] - end_point[1]) >= delta:
+            #     return father_node
+            # TODO: Change here 08.05
+            if father_node_dist[0] >= cascade_threshold:
+                return father_node
+            elif father_node_dist[0] < cascade_threshold:
+                if math.hypot(father_node[0]-end_point[0], father_node[1]-end_point[1]) < delta \
+                        or father_node_dist[0] <= end_point_threshold:
+                    return father_node
                 son_dist_index = cur_dist_son.index(father_node_dist)
                 son_dist = cur_dist_father[son_dist_index]
-            elif father_node_dist[0] > cascade_threshold and math.hypot(father_node[0]-end_point[0], father_node[1] - end_point[1]) >= delta:
+
+        return graph_rrt_son[son_dist_index].tolist()
+
+def choose_min_dist_point_graph_batch_viz(cur_position: list,  # TODO: -> added on 08.05
+                                cur_dist_son: list,
+                                cur_dist_father: list,
+                                graph_rrt_son: np.array,
+                                graph_rrt_father: np.array) -> (float, int):
+
+    cur_end_dist = math.hypot(cur_position[0]-end_point[0], cur_position[1]-end_point[1])
+
+    if end_point_threshold <= cur_end_dist <= delta:
+        return end_point
+
+    elif cur_end_dist < end_point_threshold:
+        return end_point
+
+    elif cur_end_dist > delta:
+        son_dist = min(cur_dist_son)
+        son_dist_index = cur_dist_son.index(son_dist)
+        while son_dist[0] < cascade_threshold:
+            # TODO: Thinking how to move to the next point (Father node) which is not inside the cascade_threshold on 08.04 !!!!!!!!!!!!!
+            # TODO: Make a change on 08.05, works
+            father_node_dist = cur_dist_father[son_dist_index]
+            father_node = graph_rrt_father[son_dist_index].tolist()
+            father_end_dist = math.hypot(father_node[0] - end_point[0], father_node[1] - end_point[1])
+            if father_node_dist[0] >= cascade_threshold:
                 return father_node
+            elif father_node_dist[0] < cascade_threshold:
+                if father_end_dist <= delta:
+                    return father_node
+                print('father_end_dist: ', father_end_dist)
+                son_dist_index = cur_dist_son.index(father_node_dist)
+                son_dist = cur_dist_father[son_dist_index]
 
         return graph_rrt_son[son_dist_index].tolist()
 
@@ -211,8 +252,8 @@ def choose_min_dist_point_graph_viz(cur_position: list,  # TODO: -> add on 08.04
             print('2')
             # TODO: Thinking how to move to the next point (Father node) which is not inside the cascade_threshold on 08.04 !!!!!!!!!!!!!
             father_node_dist = cur_dist_father[son_dist_index]
-            print("son_dist: ", son_dist)
-            print('father_node_dist: ', father_node_dist)
+            # print("son_dist: ", son_dist)
+            # print('father_node_dist: ', father_node_dist)
             father_node = graph_rrt_father[son_dist_index].tolist()
             father_end_dist = math.hypot(father_node[0] - end_point[0], father_node[1] - end_point[1])
             if father_end_dist < delta:
@@ -223,12 +264,6 @@ def choose_min_dist_point_graph_viz(cur_position: list,  # TODO: -> add on 08.04
                 son_dist_index = cur_dist_son.index(father_node_dist)
                 son_dist = cur_dist_father[son_dist_index]
                 father_node_idx = cur_dist_father.index(father_node_dist)
-
-                print("father_node_dist: ", father_node_dist)
-                print('father_end_dist: ', father_end_dist)
-                print("father_node_idx :", father_node_idx)
-                print("son_dist_index: ", son_dist_index)
-                print("son_dist:", son_dist)
             elif father_node_dist >= cascade_threshold:
                 print("5")
                 return father_node

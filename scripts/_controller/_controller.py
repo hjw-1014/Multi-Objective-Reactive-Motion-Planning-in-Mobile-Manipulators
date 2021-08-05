@@ -25,7 +25,7 @@ def cascade_control(tiago_env, num_path_points, current_state, xy_traj) -> list:
 
     return dx
 
-def cascade_control_rrt_tree(tiago_env, current_state, graph_rrt, graph_rrt_son, graph_rrt_father, rrt_path) -> list:
+def cascade_control_rrt_tree(tiago_env, current_state, graph_rrt_son, graph_rrt_father) -> list:
     '''
         current_state:
             current_state[0] -> current position [x, y]
@@ -37,10 +37,10 @@ def cascade_control_rrt_tree(tiago_env, current_state, graph_rrt, graph_rrt_son,
     dx = [0] * len(current_state)  # y and x
 
     cur_dist_son, cur_dist_father = compute_cur_dist_graph_points_batch(current_position, graph_rrt_son, graph_rrt_father)
-    closest_point = choose_min_dist_point_gragh(tiago_env,
+    closest_point = choose_min_dist_point_graph_batch(tiago_env,
                                                    cur_dist_son,
                                                    cur_dist_father,
-                                                   graph_rrt, graph_rrt_son, graph_rrt_father, rrt_path)
+                                                   graph_rrt_son, graph_rrt_father)
 
     for i in range(len(current_position)):  # TODO, change on 07.24
         dx[i] = -k_d * (current_position[i] - closest_point[i])
@@ -86,7 +86,7 @@ def cascade_control_all_points(xy_traj, min_x=-1.5, min_y=-1.5, max_x=1.5, max_y
 
     return velocity_map_arr
 
-def cascade_control_all_nodes_rrtTree(
+def cascade_control_all_nodes_rrtTree_viz(
                                       graph_rrt_son,
                                       graph_rrt_father,
                                       min_x=-1.5, min_y=-1.5, max_x=1.5, max_y=1.5,
@@ -108,12 +108,12 @@ def cascade_control_all_nodes_rrtTree(
     for i in range(len(grid_map)):  # Transverse all the points in the map
         print("grid_map: ", i)
         cur_pos = grid_map[i]  # current position
+        print('cur_pos: ', cur_pos)
         dx = [0] * len(cur_pos)  # -> [vel_x, vel_y]
         cur_pos_in_list = cur_pos.tolist()
         cur_dist_son, cur_dist_father = compute_cur_dist_graph_points_batch(cur_pos_in_list, graph_rrt_son, graph_rrt_father)
-        cur_dist_son, cur_dist_father = compute_cur_dist_graph_points(cur_pos_in_list, graph_rrt_son, graph_rrt_father)
-        print('1')
-        closest_point = choose_min_dist_point_graph_viz(
+        #cur_dist_son, cur_dist_father = compute_cur_dist_graph_points(cur_pos_in_list, graph_rrt_son, graph_rrt_father)
+        closest_point = choose_min_dist_point_graph_batch_viz(
                                 cur_pos_in_list,
                                 cur_dist_son,
                                 cur_dist_father,
@@ -127,7 +127,6 @@ def cascade_control_all_nodes_rrtTree(
             dx[j] = attractive_force[j] + repulsive_force[j]  # x and y velocity
         dx_arr = np.asarray(dx)  # TODO: Add repulsive potential field
         velocity_map.append(dx_arr)
-        print('6')
     velocity_map_arr = np.asarray(velocity_map)
 
     return velocity_map_arr

@@ -186,9 +186,9 @@ def plot_cascade_control_traj(cascade_control_path, xy_traj, num_path_points):
     ax.add_patch(Rectangle((left, bottom), width, height,
                            facecolor="black", alpha=0.5))
 
-    t = int(time.time())
+    t = time.strftime("%Y-%m-%d-%H_%M_%S", time.localtime())
     myfig = plt.gcf()
-    myfig.savefig('figures/run_{}.png'.format(t), dpi=300)
+    myfig.savefig('figures/run_exp_{}.png'.format(t), dpi=300)
 
     plt.show()
 

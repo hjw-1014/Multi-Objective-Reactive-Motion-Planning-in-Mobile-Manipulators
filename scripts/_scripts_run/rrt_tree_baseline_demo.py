@@ -1,14 +1,9 @@
-import numpy as np
 import pybullet as p
-import time
 from utils import *
 from _pybullet import start_bullet_env
 from _controller import *
 from _compute import *
 from _plot import *
-# sys.path.append("/home/ias/Documents/Jiawei/comp_energy_policy-Tiago/comp_energy_policy-main/scripts/PathPlanning/Sampling_based_Planning/rrt_2D/")
-# sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))) + \
-#                 'PathPlanning/Sampling_based_Planning/rrt_2d')
 
 class Node:
     def __init__(self, n: list):
@@ -18,7 +13,8 @@ class Node:
 
 
 if __name__ == "__main__":
-    # TODO: Read json trajectory
+
+    # TODO: Read json trajectory from moveit and rrt tree
     traj, num_path_points = open_json('qtrjs.json')
     xy_traj = get_x_y_traj(traj)
 
@@ -27,7 +23,6 @@ if __name__ == "__main__":
     graph_rrt = load_rrt_nodes_list("graph_rrt.npy") / 100  # numpy.ndarray(np.array)
     graph_rrt = np.around(graph_rrt, 3)
     #rrt_vertex = load_rrt_vertex("vertex_rrt.npy")
-
     graph_rrt_son, graph_rrt_father = split_son_father(graph_rrt)
 
     # TODO: tiago environment
@@ -53,10 +48,9 @@ if __name__ == "__main__":
         # TODO: Check if arrive the target point
         # Calculate the distance between end point and current point
         cur_dist = compute_euclidean_distance(end_point, cur_position)
-        ic(cur_position)
-        ic(cur_dist)
         if cur_dist < end_point_threshold:
             ic(cur_position)
+            ic(cur_dist)
             print("######### End point arrived!!! #########")
             print("--- %s seconds!!! ---" % (time.time() - start_time))
             plot_cascade_control_traj(cascade_control_path, rrt_path, len(rrt_path))  # TODO: Plot generated path
@@ -64,15 +58,13 @@ if __name__ == "__main__":
             break
 
         # Based on the current state, calculate the velocity command
-
-        dx = cascade_control_rrt_tree(tiago_env, current_state,
-                                      graph_rrt, graph_rrt_son, graph_rrt_father, rrt_path)
-        ic(dx)
+        dx = cascade_control_rrt_tree(tiago_env, current_state, graph_rrt_son, graph_rrt_father)
 
         cascade_control_path.append(cur_position)  # TODO: Record one path
 
         for i in range(len(next_position)):
             next_position[i] = cur_position[i] + delta * dx[i]
 
+        # Start pybullet engine
         tiago_env.start_baseline_resetJointState(next_position)
         p.stepSimulation()
