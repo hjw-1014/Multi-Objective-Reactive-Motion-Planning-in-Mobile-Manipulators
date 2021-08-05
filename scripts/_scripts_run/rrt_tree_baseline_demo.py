@@ -23,10 +23,10 @@ if __name__ == "__main__":
     xy_traj = get_x_y_traj(traj)
 
     rrt_path = load_rrt_path('path_rrt.npy') / 100  # numpy.ndarray
-    rrt_path = np.around(rrt_path, 4)
+    rrt_path = np.around(rrt_path, 3)
     graph_rrt = load_rrt_nodes_list("graph_rrt.npy") / 100  # numpy.ndarray(np.array)
-    graph_rrt = np.around(graph_rrt, 4)
-    rrt_vertex = load_rrt_vertex("vertex_rrt.npy")
+    graph_rrt = np.around(graph_rrt, 3)
+    #rrt_vertex = load_rrt_vertex("vertex_rrt.npy")
 
     graph_rrt_son, graph_rrt_father = split_son_father(graph_rrt)
 
@@ -65,7 +65,7 @@ if __name__ == "__main__":
 
         # Based on the current state, calculate the velocity command
 
-        dx = cascade_control_rrt_tree(tiago_env, current_state, rrt_vertex,
+        dx = cascade_control_rrt_tree(tiago_env, current_state,
                                       graph_rrt, graph_rrt_son, graph_rrt_father, rrt_path)
         ic(dx)
 

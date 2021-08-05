@@ -144,7 +144,7 @@ class Utils:
         nodes_list.append(root)
 
     @staticmethod
-    def vertex_2_xy_list(vertex):  # TODO: add on 08.03
+    def vertex_2_xy_list(vertex):  # TODO: added on 08.03
 
         node_arr = np.zeros((2, 2))
         nodes_list = []
@@ -152,6 +152,8 @@ class Utils:
 
         for i in range(num_nodes):
             if not vertex[i].parent:
+                node_arr[0][0] = 120
+                node_arr[0][1] = 100
                 node_arr[1][0] = 120
                 node_arr[1][1] = 100
             else:
@@ -160,6 +162,7 @@ class Utils:
                 node_arr[1][0] = vertex[i].parent.x  # father node x
                 node_arr[1][1] = vertex[i].parent.y  # father node y
             nodes_list.append(deepcopy(node_arr))
+            node_arr = np.zeros((2, 2))
         ic(num_nodes)
         ic(len(nodes_list))
         return nodes_list

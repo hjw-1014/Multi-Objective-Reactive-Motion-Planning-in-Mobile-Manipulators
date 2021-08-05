@@ -18,6 +18,7 @@ if __name__ == "__main__":
 	rrt_path = np.around(rrt_path, 2)
 	graph_rrt = load_rrt_nodes_list("graph_rrt.npy") / 100  # numpy.ndarray(np.array)
 	graph_rrt = np.around(graph_rrt, 2)
+	rrt_vertex = load_rrt_vertex("vertex_rrt.npy")
 
 	graph_rrt_son, graph_rrt_father = split_son_father(graph_rrt)
 
@@ -33,7 +34,7 @@ if __name__ == "__main__":
 	XY = np.meshgrid(x, y)  # TODO: So each step is 0.01,  XY is a list
 
 	# Get the velocity map with dimension np.array((301x301, 2))
-	uv = cascade_control_all_nodes_rrtTree(graph_rrt, graph_rrt_son,  graph_rrt_father, rrt_path, min_x=-1.5, min_y=-1.5, max_x=1.5, max_y=1.5, n_sample=301)  # TODO: change to rrt graph 08.04
+	uv = cascade_control_all_nodes_rrtTree(graph_rrt_son,  graph_rrt_father, min_x=-1.5, min_y=-1.5, max_x=1.5, max_y=1.5, n_sample=301)  # TODO: change to rrt graph 08.04
 
 	vel_x = np.reshape(uv[:, 0], (n_sample, n_sample))
 	vel_y = np.reshape(uv[:, 1], (n_sample, n_sample))

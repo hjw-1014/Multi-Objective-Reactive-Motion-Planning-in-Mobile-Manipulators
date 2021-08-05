@@ -37,6 +37,22 @@ def compute_cur_dist_graph_points_batch(cur_position: list, graph_rrt_son: np.ar
 
     return np.around(current_distances_from_path_points_son, 2).tolist(), np.around(current_distances_from_path_points_father, 2).tolist()
 
+def compute_cur_dist_graph_points(cur_position, graph_rrt_son: np.array, graph_rrt_father: np.array) -> list:
+    '''
+        return the distances between current position and all the points of the path
+    '''
+
+    current_distances_from_path_points_son = []
+    current_distances_from_path_points_father = []
+    for i in range(len(graph_rrt_son)):
+        dist_son = compute_euclidean_distance(cur_position, graph_rrt_son[i])
+        current_distances_from_path_points_son.append(dist_son)
+        dist_father = compute_euclidean_distance(cur_position, graph_rrt_father[i])
+        current_distances_from_path_points_father.append(dist_father)
+
+    return current_distances_from_path_points_son, current_distances_from_path_points_father
+
+
 def compute_current_distance_from_path_points(cur_position, xy_traj) -> list:
     '''
         return the distances between current position and all the points of the path
@@ -124,10 +140,6 @@ def choose_min_dist_point(tiago_env, num_path_points, current_distances_from_pat
                 return min_dist, min_dist_index - 1
 
             min_dist = current_distances_from_path_points[min_dist_index]
-        # ic(min_dist)
-
-        # idx += 1
-        # min_dist_index = current_distances_from_path_points.index(min_dist)
 
         return min_dist, min_dist_index
 
@@ -135,7 +147,6 @@ def choose_min_dist_point(tiago_env, num_path_points, current_distances_from_pat
         return end_point_threshold, num_path_points - 1
 
 def choose_min_dist_point_gragh(tiago_env,
-                                rrt_vertex,
                                 cur_dist_son: list,
                                 cur_dist_father: list,
                                 graph_rrt: np.array,
@@ -196,20 +207,30 @@ def choose_min_dist_point_graph_viz(cur_position: list,  # TODO: -> add on 08.04
     elif cur_end_dist > delta:
         son_dist = min(cur_dist_son)
         son_dist_index = cur_dist_son.index(son_dist)
-
-        while son_dist[0] < cascade_threshold:
+        while son_dist < cascade_threshold:
             print('2')
             # TODO: Thinking how to move to the next point (Father node) which is not inside the cascade_threshold on 08.04 !!!!!!!!!!!!!
             father_node_dist = cur_dist_father[son_dist_index]
+            print("son_dist: ", son_dist)
+            print('father_node_dist: ', father_node_dist)
             father_node = graph_rrt_father[son_dist_index].tolist()
             father_end_dist = math.hypot(father_node[0] - end_point[0], father_node[1] - end_point[1])
             if father_end_dist < delta:
-                return end_point  # TODO: THINKING!!! 08.04
-            elif father_node_dist[0] <= cascade_threshold and father_end_dist >= delta:
                 print('3')
+                return end_point  # TODO: THINKING!!! 08.04
+            elif father_node_dist < cascade_threshold:
+                print('4')
                 son_dist_index = cur_dist_son.index(father_node_dist)
                 son_dist = cur_dist_father[son_dist_index]
-            elif father_node_dist[0] > cascade_threshold and father_end_dist >= delta:
+                father_node_idx = cur_dist_father.index(father_node_dist)
+
+                print("father_node_dist: ", father_node_dist)
+                print('father_end_dist: ', father_end_dist)
+                print("father_node_idx :", father_node_idx)
+                print("son_dist_index: ", son_dist_index)
+                print("son_dist:", son_dist)
+            elif father_node_dist >= cascade_threshold:
+                print("5")
                 return father_node
 
         return graph_rrt_son[son_dist_index].tolist()

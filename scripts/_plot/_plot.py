@@ -1,5 +1,8 @@
+import time
+
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
+import numpy as np
 
 """
 Plotting tools for Sampling-based algorithms
@@ -182,6 +185,10 @@ def plot_cascade_control_traj(cascade_control_path, xy_traj, num_path_points):
     left, bottom, width, height = (0.35, 0.35, 0.3, 0.3)
     ax.add_patch(Rectangle((left, bottom), width, height,
                            facecolor="black", alpha=0.5))
+
+    t = int(time.time())
+    myfig = plt.gcf()
+    myfig.savefig('figures/run_{}.png'.format(t), dpi=300)
 
     plt.show()
 
