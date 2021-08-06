@@ -250,9 +250,9 @@ def start_pybullet():  # load Tiago in Pybullet
     joint_indexes = [0, 1, 2, 34, 35, 36, 37, 38, 39, 40]
 
     Num_Joints = p.getNumJoints(robotId)
-    # print('p.getNumJoints(robotId)', p.getNumJoints(robotId))
-    # for i in range(Num_Joints):
-    #     print('p.getJointState(robotId, {})'.format(i), p.getJointState(robotId, i))
+    print('p.getNumJoints(robotId)', p.getNumJoints(robotId))
+    for i in range(Num_Joints):
+        print('p.getJointState(robotId, {})'.format(i), p.getJointState(robotId, i))
     for i in range(Num_Joints):
         print('p.getJointInfo(robotId, {})'.format(i), p.getJointInfo(robotId, i))
 

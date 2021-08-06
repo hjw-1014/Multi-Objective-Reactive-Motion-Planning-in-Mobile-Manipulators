@@ -5,9 +5,6 @@ import matplotlib.pyplot as plt
 
 from cep.envs import TiagoOneParallelHand
 from cep.cep_models import cep_simple_model_tiago
-
-# from cep.envs import DariasHandSimple
-# from cep.cep_models import cep_simple_model
 import torch
 
 

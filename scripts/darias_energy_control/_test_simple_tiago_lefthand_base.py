@@ -3,16 +3,15 @@ import pybullet as p
 import time
 import matplotlib.pyplot as plt
 
-from cep.envs import TiagoOneParallelHand
-from cep.cep_models import jsc_and_goto_cep_simple_model
-
+from cep.envs import Tiago_LeftParallelHand_Base
+from cep.cep_models import cep_simple_model_tiago_lefthand_base
 import torch
 
 
 joint_limit_buffers = 0.02
-joint_limits = np.array([2.75, 1.57, 3.53, 2.35, 2.09, 1.57, 2.09]) - joint_limit_buffers
+joint_limits = np.array([2.5, 2.5, 3.1416, 2.75, 1.57, 3.53, 2.35, 2.09, 1.57, 2.09]) - joint_limit_buffers
 
-device = torch.device('cpu')
+device = torch.device('cuda')
 
 
 class CEPPolicy():
@@ -20,11 +19,11 @@ class CEPPolicy():
         self.dt = dt
         self.dtype = dtype
 
-        self.controller = jsc_and_goto_cep_simple_model()
+        self.controller = cep_simple_model_tiago_lefthand_base()
 
     def policy(self, state):
-        joint_poses = state[0, 0:7]
-        joint_vels = state[0, 7:]
+        joint_poses = state[0, 0:10]
+        joint_vels = state[0, 10:]
 
         action = self.controller.policy(state)
 
@@ -97,7 +96,7 @@ def experiment():
 
     time_step = 1 / 250.
 
-    env = TiagoOneParallelHand(time_step=time_step)
+    env = Tiago_LeftParallelHand_Base(time_step=time_step)
 
     policy = CEPPolicy(dt=time_step)
     ################
@@ -130,13 +129,13 @@ def experiment():
             if i == (horizon-1):
                 REWARD = reward
                 END_POSITION = env.check_endPosition()
-        print('################Iteraton ', itr, ' ended ##################')
         print('Position state: ', state[0])
         print('Distance:',  REWARD)
         print('End position: ', END_POSITION)
         print('Desired position', env.Target_pos)
-        plot_joints(q_list, horizon)
+        #plot_joints(q_list, horizon)
     p.disconnect()
+
 
 if __name__ == '__main__':
     p.connect(p.GUI_SERVER, 1234,

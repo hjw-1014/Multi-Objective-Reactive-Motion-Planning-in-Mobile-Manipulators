@@ -21,7 +21,7 @@ def solve_euler(q, dq, dt):
     return q + dq * dt
 
 class Multi_EBMControl():
-    def __init__(self, energy_tree, device, dim=7, dt=0.005, optimization_steps=10, n_particles=10000, var_0=10., stochastic=False):
+    def __init__(self, energy_tree, device, dim=10, dt=0.005, optimization_steps=10, n_particles=10000, var_0=10., stochastic=False):
 
         self.device = device
         self.energy_tree = energy_tree
@@ -110,7 +110,7 @@ class Multi_EBMControl():
         return self.optimizer.best_solution.x_optima  # torch.Size([7])
 
 class EBMControl():
-    def __init__(self, energy_tree, device, dim=7, dt=0.005, optimization_steps=10, n_particles=1000, var_0=10., stochastic=False):
+    def __init__(self, energy_tree, device, dim=10, dt=0.005, optimization_steps=10, n_particles=1000, var_0=10., stochastic=False):
 
         self.device = device
         self.energy_tree = energy_tree
@@ -231,6 +231,7 @@ class EnergyTree(nn.Module):
 
 
     def log_prob_i(self, energy, action):
+        #print(ind)
         return energy.log_prob(action)
 
 

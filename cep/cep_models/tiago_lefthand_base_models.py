@@ -2,7 +2,7 @@ import torch
 import numpy as np
 from cep.utils import eul2rot
 
-from cep.kinematics import TiagoRobot, TiagoRobot_lefthand_Base
+from cep.kinematics import TiagoRobot_lefthand_Base
 from cep.controllers import Multi_EBMControl, EBMControl, EnergyTree
 
 
@@ -19,13 +19,13 @@ else:
     device = torch.device("cpu")
 
 
-def cep_simple_model_tiago():  # TODO: 06.12 Done
+def cep_simple_model_tiago_lefthand_base():  # TODO: 08.06
     ##Get all the FK maps##
-    tiago_kin = TiagoRobot()
-    fk_map = maps.FK_ALL(tiago_kin)
+    tiago_kin_lefthand_base = TiagoRobot_lefthand_Base()
+    fk_map = maps.FK_ALL_lefthand_base(tiago_kin_lefthand_base)
 
     ## End Effector Branch ##
-    b = torch.Tensor([0.7, 0.2, 0.9])
+    b = torch.Tensor([1.8, 0., 0.8])
     R = eul2rot(torch.Tensor([0., 0., 0.]))
 
     H = torch.eye(4)
@@ -58,7 +58,7 @@ def jsc_and_goto_cep_simple_model():  # TODO: 06.28, 06.29
 
     # TODO: TaskGoToLeaf
     ##Get all the FK maps##
-    tiago_kin = TiagoRobot()
+    tiago_kin = TiagoRobot_lefthand_Base()
     fk_map = maps.FK_ALL(tiago_kin)
     pick_map = maps.SelectionMap(idx=6)
     ## End Effector Branch ##
