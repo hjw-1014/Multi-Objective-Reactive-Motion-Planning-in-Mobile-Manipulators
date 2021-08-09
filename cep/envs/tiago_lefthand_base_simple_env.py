@@ -11,10 +11,10 @@ def solve_euler(q, dq, dt):
 class Tiago_LeftParallelHand_Base(): # TODO: 08.06
 
     """
-    Tiago with one parallel gripper Simple Environment.
+    Tiago with one parallel gripper and base Simple Environment.
     Environment to evaluate the quality of prior composition for obstacle avoidance + Goto Target
-    State dim 14; 7 q / 7 dq;
-    Action dim (7,2); 7 q_des/ 7 dq_des
+    State dim 14; 10 q / 10 dq;
+    Action dim (10,2); 10 q_des/ 10 dq_des
 
     """
 
@@ -22,20 +22,11 @@ class Tiago_LeftParallelHand_Base(): # TODO: 08.06
 
     def __init__(self, reward_type=0, time_step=1./240.):
         self.EE_link = "arm_7_link"
-        self.EE_ID = 40
+        self.EE_ID = 43
         self.Target_pos = [1.8, 0., 0.8]
         self.name_base_link = "world"
         self.JOINT_ID = [0, 1, 2, 34, 35, 36, 37, 38, 39, 40]
         self.link_names = ['X', 'Y', 'R', "arm_1_link", "arm_2_link", "arm_3_link", "arm_4_link", "arm_5_link", "arm_6_link", self.EE_link]
-        # self.tiago_parallel_gripper_hand = {
-        #     "arm_1_link": [0],
-        #     "arm_2_link": [0, 1],
-        #     "arm_3_link": [0, 1, 2],
-        #     "arm_4_link": [0, 1, 2, 3],
-        #     "arm_5_link": [0, 1, 2, 3, 4],
-        #     "arm_6_link": [0, 1, 2, 3, 4, 5],
-        #     "arm_7_link": [0, 1, 2, 3, 4, 5, 6],
-        # }
 
         p.setPhysicsEngineParameter(numSolverIterations=150)
         p.setTimeStep(time_step)
@@ -67,7 +58,7 @@ class Tiago_LeftParallelHand_Base(): # TODO: 08.06
 
         ## Observation-Action Space ##
         self.action_space = spaces.Box(-10, 10, shape=(10,), dtype='float32')
-        self.observation_space = spaces.Box(-np.inf, np.inf, shape=(18,), dtype='float32') # TODO: Shape???
+        self.observation_space = spaces.Box(-np.inf, np.inf, shape=(18,), dtype='float32')  # TODO: Shape???
 
         self.max_obj_dist_init = 0.01
 
@@ -153,7 +144,7 @@ class Tiago_LeftParallelHand_Base(): # TODO: 08.06
 
         return obs, r, done, success, q_vals
 
-    # AL: make sure the initial configuration is not in self-collision
+    # AAL: make sure the initial configuration is not in self-collision
     def check_collision(self):
         closest_points = p.getClosestPoints(self.robot, self.robot, self.max_obj_dist_init)
 
@@ -190,5 +181,5 @@ class Tiago_LeftParallelHand_Base(): # TODO: 08.06
 
         jointStates = p.getJointStates(self.robot, self.JOINT_ID)  # State of all joints (position, velocity, reaction forces, appliedJointMotortoruqe)
         joint_pos = np.vstack((np.array([[jointStates[i_joint][0] for i_joint in range(len(jointStates))]]).transpose()))
-
-        return joint_pos
+        link_pos = p.getLinkState(self.robot, self.EE_ID)
+        return joint_pos, link_pos

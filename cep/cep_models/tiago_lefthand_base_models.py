@@ -11,7 +11,7 @@ from cep import energies
 
 
 
-#GPU_ON = torch.cuda.is_available()
+GPU_ON = torch.cuda.is_available()
 GPU_ON = False
 if GPU_ON:
     device = torch.device("cuda:0")
@@ -46,7 +46,7 @@ def cep_simple_model_tiago_lefthand_base():  # TODO: 08.06
 
 def joint_cep_simple_model_tiago():  # TODO: 06.26 Done
 
-    identity_map = maps.SimplePosVel(dim=7)
+    identity_map = maps.SimplePosVel(dim=10)
     q_goto_leaf = energies.JointGoToLeaf()
 
     q_branches = [q_goto_leaf]   # TODO: add branches here
@@ -54,7 +54,7 @@ def joint_cep_simple_model_tiago():  # TODO: 06.26 Done
     policy = EBMControl(energy_tree=energy_tree, device=device, optimization_steps=5, dt=0.005, n_particles=10000)
     return policy
 
-def jsc_and_goto_cep_simple_model():  # TODO: 06.28, 06.29
+def jsc_and_goto_cep_simple_model_lefthandBase():  # TODO: 06.28, 06.29
 
     # TODO: TaskGoToLeaf
     ##Get all the FK maps##
@@ -62,7 +62,7 @@ def jsc_and_goto_cep_simple_model():  # TODO: 06.28, 06.29
     fk_map = maps.FK_ALL(tiago_kin)
     pick_map = maps.SelectionMap(idx=6)
     ## End Effector Branch ##
-    b = torch.Tensor([0.7, 0.2, 0.9])
+    b = torch.Tensor([1.8, 0., 0.8])
     R = eul2rot(torch.Tensor([0., 0., 0.]))
     H = torch.eye(4)
     H[:3, :3] = R
@@ -76,9 +76,9 @@ def jsc_and_goto_cep_simple_model():  # TODO: 06.28, 06.29
 
     # TODO: JointGoToLeaf
     ## Identity map ##
-    identity_map = maps.SimplePosVel(dim=7)
+    identity_map = maps.SimplePosVel(dim=10)
     ## Leaf and Tree ##
-    q_goto_leaf = energies.JointGoToLeaf()
+    q_goto_leaf = energies.JointGoToLeaf_lefthand_and_base()
     q_energy_tree = EnergyTree(branches=[q_goto_leaf], map=identity_map).to(device)
 
     #########################

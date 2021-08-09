@@ -61,7 +61,7 @@ class TaskGoToLeaf(EnergyLeaf):
         #print('v_ew: ', ve_w)
         ###########################################
 
-        scale = 60.
+        scale = 20.
         mu = scale * ve_w - 1.2 * scale * v
         #print('mu: ', mu)  # Tensor(6, 1)
 
@@ -86,6 +86,59 @@ class JointGoToLeaf(EnergyLeaf):
                  var=torch.eye(7).float() * 100.):
 
         super(JointGoToLeaf, self).__init__()
+        self.dim = dim
+
+        self.Kp = Kp
+        #self.register_buffer('Kp', Kp)
+
+        self.Kv = Kv
+        #self.register_buffer('Kv', Kv)
+
+        self.q_des = q_des
+        #self.register_buffer('q_des', q_des)
+
+        self.dq_des = dq_des
+        #self.register_buffer('dq_des', dq_des)
+
+        self.var = var
+        # TODO: 07.10 -> Low variance for joints related with the elbow and big variance for the rest of thew joints
+        self.var[2][2] = 10.
+        self.var[3][3] = 10.
+
+
+        ## Multivariate Gaussian distribution ##
+        self.p_dx = None
+
+    def set_context(self, state):
+        '''
+        We compute the conditioning variables of our model to have a faster optimization
+        '''
+        q = state[0]  # Tensor(7, 1), joint position values
+        dq = state[1]  # Tensor (7, 1), joint speed values
+
+        ###########################################
+        ddq = self.Kp * (self.q_des - q) + self.Kv * (self.dq_des - dq)
+
+        self.p_dx = tdist.MultivariateNormal(ddq, self.var)  # self.var->torch.size(7, 7)
+
+    def log_prob(self, action):
+        '''
+        Target Energy is a energy function that will provide the desired velocity given the current state p(\dot{x} | x)
+        We will model it with a gaussian distribution
+        '''
+
+        # TODO:
+        action = action[:, :self.dim]  # torch.Size([1000, 7])
+        return self.p_dx.log_prob(action)  # torch.Size([1000])
+
+class JointGoToLeaf_lefthand_and_base(EnergyLeaf):
+    def __init__(self, dim=10, Kp = 1., Kv = 1.,
+                 q_des=torch.tensor([0., 0., 0., 2.0, 0.1, 2.0, 1.0, 0.2, -1.0, 0.3]),
+                 # ([2.215, 0.088, 2.156, 1.060, 0.238, -1.023, 0.373]),
+                 dq_des=torch.tensor([0., 0., 0., 0., 0., 0., 0., 0., 0., 0.]),
+                 var=torch.eye(10).float() * 100.):
+
+        super(JointGoToLeaf_lefthand_and_base, self).__init__()
         self.dim = dim
 
         self.Kp = Kp

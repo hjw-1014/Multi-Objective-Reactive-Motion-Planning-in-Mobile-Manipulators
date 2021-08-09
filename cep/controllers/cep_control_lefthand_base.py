@@ -123,7 +123,7 @@ class EBMControl():
         self.optimization_steps = optimization_steps
         self.n_particles = n_particles
         self.var_0 = var_0
-        self.optimizer = RWR(beta=0.1)
+        self.optimizer = RWR(beta=0.1)  # TODO: Maybe try different Black-box algorithms
 
         ## Position Action ##
         self.dt = dt

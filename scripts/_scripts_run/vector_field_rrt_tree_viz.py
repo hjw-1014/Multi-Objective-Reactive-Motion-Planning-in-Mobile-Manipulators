@@ -23,7 +23,7 @@ if __name__ == "__main__":
 	graph_rrt = load_rrt_nodes_list("graph_rrt.npy") / 100  # numpy.ndarray(np.array)
 	graph_rrt = np.around(graph_rrt, 2)
 	rrt_vertex = load_rrt_vertex("vertex_rrt.npy")
-	graph_rrt_son, graph_rrt_father = split_son_father(graph_rrt)
+	graph_rrt_son, graph_rrt_father = split_son_father(deepcopy(graph_rrt))
 
 	fig, ax = plt.subplots()  # TODO: Initialize fig
 

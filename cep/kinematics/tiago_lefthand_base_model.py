@@ -11,6 +11,7 @@ link_names = ['X', 'Y', 'R', 'arm_1_link', 'arm_2_link', 'arm_3_link', 'arm_4_li
 class TiagoRobot_lefthand_Base(Robot): # TODO: Done
     def __init__(self):
         super(TiagoRobot_lefthand_Base, self).__init__(urdf_file=urdf_filename, link_name_list=link_names)
+
         #check if it's successful loading
         # p.connect(p.GUI)
         # robot = p.loadURDF(urdf_filename)

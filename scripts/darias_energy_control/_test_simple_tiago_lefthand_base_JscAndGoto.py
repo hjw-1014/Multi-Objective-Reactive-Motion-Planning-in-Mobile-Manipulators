@@ -4,7 +4,7 @@ import time
 import matplotlib.pyplot as plt
 
 from cep.envs import Tiago_LeftParallelHand_Base
-from cep.cep_models import cep_simple_model_tiago_lefthand_base
+from cep.cep_models import jsc_and_goto_cep_simple_model
 import torch
 
 
@@ -19,7 +19,7 @@ class CEPPolicy():
         self.dt = dt
         self.dtype = dtype
 
-        self.controller = cep_simple_model_tiago_lefthand_base()
+        self.controller = jsc_and_goto_cep_simple_model()
 
     def policy(self, state):
         joint_poses = state[0, 0:10]
@@ -119,7 +119,6 @@ def experiment():
             #### Get Control Action (Position Control)####
             a = policy.policy(state)
             state, reward, done, success, q_vals = env.step(a)
-            print(state)
             # TODO: Record joint values 07.10
             q_list.append(q_vals)
             #############################

@@ -24,15 +24,15 @@ class FK_ALL_lefthand_base(Map):
 
         self.kinematics.update_kindyn(q_np)
 
-        z = np.array(self.kinematics.links_fk(rotation=True))  # (7, 4, 4)
-        J = np.array(self.kinematics.links_J())  # (7, 6, 7)
-        zd = np.einsum('jnm,m->jn', J, qd_np)  # (7, 6) # TODO: ???
+        z = np.array(self.kinematics.links_fk(rotation=True))  # (10, 4, 4)
+        J = np.array(self.kinematics.links_J())  # (10, 6, 10)
+        zd = np.einsum('jnm,m->jn', J, qd_np)  # (10, 6) # TODO: ???
 
         self.J = numpy2torch(J)
-        z = numpy2torch(z)  # torch.Size([7, 4, 4])
-        zd = numpy2torch(zd)  # torch.Size([7, 6])
+        z = numpy2torch(z)  # torch.Size([10, 4, 4])
+        zd = numpy2torch(zd)  # torch.Size([10, 6])
         return [z, zd]
 
     def map_action(self, a):
-        return torch.einsum('jnm,bm->bjn', self.J, a)  # torch.Size([1000, 7, 6])
-        #  J->torch.Size([7, 6, 7]), a->torch.Size([1000, 7])
+        return torch.einsum('jnm,bm->bjn', self.J, a)  # torch.Size([1000, 10, 6])
+        #  J->torch.Size([10, 6, 10]), a->torch.Size([1000, 10])

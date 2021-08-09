@@ -163,8 +163,8 @@ class Utils:
                 node_arr[1][1] = vertex[i].parent.y  # father node y
             nodes_list.append(deepcopy(node_arr))
             node_arr = np.zeros((2, 2))
-        ic(num_nodes)
-        ic(len(nodes_list))
+        # ic(num_nodes)
+        # ic(len(nodes_list))
         return nodes_list
 
     @staticmethod
