@@ -5,7 +5,7 @@ class SimplePosVel(Map):
     '''
     Map joints to cartesian space
     '''
-    def __init__(self, dim=2):
+    def __init__(self, dim=10):
         super(SimplePosVel, self).__init__()
         self.dim = dim
 

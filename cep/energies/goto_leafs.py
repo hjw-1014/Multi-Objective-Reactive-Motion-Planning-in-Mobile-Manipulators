@@ -183,3 +183,51 @@ class JointGoToLeaf_lefthand_and_base(EnergyLeaf):
         # TODO:
         action = action[:, :self.dim]  # torch.Size([1000, 7])
         return self.p_dx.log_prob(action)  # torch.Size([1000])
+
+class PathPlanLeaf_lefthand_and_base(EnergyLeaf):
+
+    def __init__(self, dim=2, Kp = 1., Kv = 1., var=torch.eye(2).float() * 10.):
+
+        super(PathPlanLeaf_lefthand_and_base, self).__init__()
+        self.dim = dim
+
+        self.Kp = Kp
+        #self.register_buffer('Kp', Kp)
+
+        self.Kv = Kv
+        #self.register_buffer('Kv', Kv)
+
+        self.var = var
+
+        ## Multivariate Gaussian distribution ##
+        self.p_dx = None
+
+    def set_context(self, state):
+        '''
+        We compute the conditioning variables of our model to have a faster optimization
+        '''
+        xy = state[0]  # Tensor(7, 1), joint position values
+        v = state[1]  # Tensor (7, 1), joint speed values
+
+        # TODO: NEED to set a multivariable gaussian distribution of dx. | added on 08.12
+        ###########################################
+        #dx = self.cascade_control(xy)  # TODO: 08.12
+        dx = cascade_control_dx(xy)
+
+        self.p_dx = tdist.MultivariateNormal(dx, self.var)  # self.var->torch.size(2, 2)
+
+    def log_prob(self, action):
+        '''
+        Target Energy is a energy function that will provide the desired velocity given the current state p(\dot{x} | x)
+        We will model it with a gaussian distribution
+        '''
+
+        # TODO:
+        action = action[:, :self.dim]  # torch.Size([1000, 2])
+        return self.p_dx.log_prob(action)  # torch.Size([1000])
+
+    def cascade_control(self, xy):  ## TODO: added 08.12
+
+        dx = 0
+
+        return dx

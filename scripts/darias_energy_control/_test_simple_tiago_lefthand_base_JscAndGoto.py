@@ -36,57 +36,6 @@ class CEPPolicy():
         joint_vels = joint_vels + joint_accs * self.dt
         return joint_poses, joint_vels
 
-def plot_joints(joint_values: list, num: int):
-
-    fig, axs = plt.subplots(2, 4)
-    t = np.arange(0, num, 1)
-
-    j1 = []
-    j2 = []
-    j3 = []
-    j4 = []
-    j5 = []
-    j6 = []
-    j7 = []
-
-    for i in range(num):
-        j1.append(joint_values[i][0])
-        j2.append(joint_values[i][1])
-        j3.append(joint_values[i][2])
-        j4.append(joint_values[i][3])
-        j5.append(joint_values[i][4])
-        j6.append(joint_values[i][5])
-        j7.append(joint_values[i][6])
-
-    axs[0, 0].plot(t, j1)
-    axs[0, 0].set_title('1st Joint')
-    axs[0, 0].set_ylim(min(j1) - 1, max(j1) + 1)
-
-    axs[0, 1].plot(t, j2)
-    axs[0, 1].set_title('2nd Joint')
-    axs[0, 1].set_ylim(min(j2) - 1, max(j2) + 1)
-
-    axs[0, 2].plot(t, j3)
-    axs[0, 2].set_title('3rd Joint')
-    axs[0, 2].set_ylim(min(j3) - 1, max(j3) + 1)
-
-    axs[0, 3].plot(t, j4)
-    axs[0, 3].set_title('4th Joint')
-    axs[0, 3].set_ylim(min(j4) - 1, max(j4) + 1)
-
-    axs[1, 0].plot(t, j5)
-    axs[1, 0].set_title('5th Joint')
-    axs[1, 0].set_ylim(min(j5) - 1, max(j5) + 1)
-
-    axs[1, 1].plot(t, j6)
-    axs[1, 1].set_title('6th Joint')
-    axs[1, 1].set_ylim(min(j6) - 1, max(j6) + 1)
-
-    axs[1, 2].plot(t, j7)
-    axs[1, 2].set_title('7th Joint')
-    axs[1, 2].set_ylim(min(j7) - 1, max(j7) + 1)
-
-    plt.show()
 
 def experiment():
     '''

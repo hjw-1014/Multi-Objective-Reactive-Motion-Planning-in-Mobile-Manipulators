@@ -25,6 +25,28 @@ def cascade_control(tiago_env, num_path_points, current_state, xy_traj) -> list:
 
     return dx
 
+def cep_cascade_control_rrt_tree(current_state, graph_rrt_son, graph_rrt_father) -> list:
+    '''
+        current_state:
+            current_state[0] -> current position [x, y]
+            current_state[1] -> current velocity [dx, dy]
+        return: velocity command dx, [vel_x, vel_y]
+    '''
+
+    current_position = current_state[0]
+    dx = [0] * len(current_state)  # y and x
+
+    cur_dist_son, cur_dist_father = compute_cur_dist_graph_points(current_position, graph_rrt_son, graph_rrt_father)
+    closest_point = choose_min_dist_point_graph_batch(
+                                                   cur_dist_son,
+                                                   cur_dist_father,
+                                                   graph_rrt_son, graph_rrt_father)
+
+    for i in range(len(current_position)):  # TODO, change on 07.24
+        dx[i] = -k_d * (current_position[i] - closest_point[i])
+
+    return dx
+
 def cascade_control_rrt_tree(tiago_env, current_state, graph_rrt_son, graph_rrt_father) -> list:
     '''
         current_state:
@@ -36,7 +58,7 @@ def cascade_control_rrt_tree(tiago_env, current_state, graph_rrt_son, graph_rrt_
     current_position = current_state[0]
     dx = [0] * len(current_state)  # y and x
 
-    cur_dist_son, cur_dist_father = compute_cur_dist_graph_points_batch(current_position, graph_rrt_son, graph_rrt_father)
+    cur_dist_son, cur_dist_father = compute_cur_dist_graph_points(current_position, graph_rrt_son, graph_rrt_father)
     closest_point = choose_min_dist_point_graph_batch(tiago_env,
                                                    cur_dist_son,
                                                    cur_dist_father,
@@ -111,8 +133,8 @@ def cascade_control_all_nodes_rrtTree_viz(
         print('cur_pos: ', cur_pos)
         dx = [0] * len(cur_pos)  # -> [vel_x, vel_y]
         cur_pos_in_list = cur_pos.tolist()
-        cur_dist_son, cur_dist_father = compute_cur_dist_graph_points_batch(cur_pos_in_list, graph_rrt_son, graph_rrt_father)
-        #cur_dist_son, cur_dist_father = compute_cur_dist_graph_points(cur_pos_in_list, graph_rrt_son, graph_rrt_father)
+        #cur_dist_son, cur_dist_father = compute_cur_dist_graph_points_batch(cur_pos_in_list, graph_rrt_son, graph_rrt_father)
+        cur_dist_son, cur_dist_father = compute_cur_dist_graph_points(cur_pos_in_list, graph_rrt_son, graph_rrt_father)
         closest_point = choose_min_dist_point_graph_batch_viz(
                                 cur_pos_in_list,
                                 cur_dist_son,

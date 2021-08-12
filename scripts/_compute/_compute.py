@@ -3,8 +3,8 @@ import math
 from copy import deepcopy
 from icecream import ic
 
-repulsive_threshold = 0.42 # 0.27+0.15
-cascade_threshold = 0.1
+repulsive_threshold = 0.42  # 0.27+0.15
+cascade_threshold = 0.15
 end_point_threshold = 0.02
 end_point = [1.2, 1.0]
 box_position = [0.5, 0.5]
@@ -173,7 +173,7 @@ def choose_min_dist_point_graph_batch(tiago_env,
         son_dist_index = cur_dist_son.index(son_dist)
 
         # TODO: -> cur_node, 08.03
-        while son_dist[0] < cascade_threshold:
+        while son_dist < cascade_threshold:
 
             # TODO: 1Thinking how to move to the next point (Father node) which is not inside the cascade_threshold on 08.04 !!!!!!!!!!!!!
             father_node_dist = cur_dist_father[son_dist_index]
@@ -208,9 +208,9 @@ def choose_min_dist_point_graph_batch(tiago_env,
             #     return father_node
 
             # # TODO: 3Change here 08.09
-            if father_node_dist[0] >= cascade_threshold:
+            if father_node_dist >= cascade_threshold:
                 return father_node
-            elif father_node_dist[0] < cascade_threshold:
+            elif father_node_dist < cascade_threshold:
                 if father_end_dist < delta:
                     return father_node
                 son_dist_index = cur_dist_son.index(father_node_dist)
@@ -235,15 +235,15 @@ def choose_min_dist_point_graph_batch_viz(cur_position: list,  # TODO: -> added 
     elif cur_end_dist > delta:
         son_dist = min(cur_dist_son)
         son_dist_index = cur_dist_son.index(son_dist)
-        while son_dist[0] < cascade_threshold:
+        while son_dist < cascade_threshold:
             # TODO: Thinking how to move to the next point (Father node) which is not inside the cascade_threshold on 08.04 !!!!!!!!!!!!!
             # TODO: Make a change on 08.05, works
             father_node_dist = cur_dist_father[son_dist_index]
             father_node = graph_rrt_father[son_dist_index].tolist()
             father_end_dist = math.hypot(father_node[0] - end_point[0], father_node[1] - end_point[1])
-            if father_node_dist[0] >= cascade_threshold:
+            if father_node_dist >= cascade_threshold:
                 return father_node
-            elif father_node_dist[0] < cascade_threshold:
+            elif father_node_dist < cascade_threshold:
                 if father_end_dist < delta:
                     return father_node
                 print('father_end_dist: ', father_end_dist)

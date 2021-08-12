@@ -38,9 +38,13 @@ class Tiago_LeftParallelHand_Base(): # TODO: 08.06
 
         self.robot = p.loadURDF(self.robot_file, flags=p.URDF_USE_SELF_COLLISION_EXCLUDE_PARENT)
 
-        self.ballId = p.loadURDF('sphere_1cm.urdf', [1.8, 0., 0.8], p.getQuaternionFromEuler([0., 0., 0.]))
+        self.ballId = p.loadURDF('sphere_1cm.urdf', [1.5, 1.2, 0.8], p.getQuaternionFromEuler([0., 0., 0.]))
         joint_num = p.getNumJoints(self.robot)
         #print("joint_num ", joint_num)
+
+        p.loadURDF('cube_small.urdf', np.array([0.5, 0.5, 0.15]),  # TODO: Put an object in target postion
+                   p.getQuaternionFromEuler([0, 0, 0]), globalScaling=6,
+                   useFixedBase=True)
         ##############################################################
 
         ############## Robot Initial State #################
@@ -140,7 +144,7 @@ class Tiago_LeftParallelHand_Base(): # TODO: 08.06
         success = self._check_success(r)
 
         q_vals = self.getPosVelJoints()
-        print('joint positions: ', self.getPosVelJoints())
+        #print('joint positions: ', self.getPosVelJoints())
 
         return obs, r, done, success, q_vals
 
