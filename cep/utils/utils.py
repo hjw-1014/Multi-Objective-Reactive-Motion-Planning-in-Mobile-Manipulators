@@ -13,3 +13,6 @@ def torch2numpy(x):
         return x.cpu().detach().numpy()
     else:
         return x.detach().numpy()
+
+def qten2qnine(q):
+    return q

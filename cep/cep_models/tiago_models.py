@@ -2,7 +2,7 @@ import torch
 import numpy as np
 from cep.utils import eul2rot
 
-from cep.kinematics import TiagoRobot, TiagoRobot_lefthand_Base
+from cep.kinematics import TiagoRobot
 from cep.controllers import Multi_EBMControl, EBMControl, EnergyTree
 
 

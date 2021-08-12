@@ -11,7 +11,7 @@ class SimplePosVel(Map):
 
 
     def map_state(self, x):
-        q = x[0,:self.dim]
+        q = x[0, :self.dim]
         qd = x[0, self.dim:]
         return [q, qd]
 

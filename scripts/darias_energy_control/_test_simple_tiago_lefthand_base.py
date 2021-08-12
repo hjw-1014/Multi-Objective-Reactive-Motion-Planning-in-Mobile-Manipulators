@@ -102,7 +102,7 @@ def experiment():
     ################
 
     n_trials = 100
-    horizon = 2000
+    horizon = 1000
     c = 0
     s = 0
     REWARD = 0

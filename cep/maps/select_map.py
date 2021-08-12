@@ -17,8 +17,8 @@ class SelectionMap(Map):
     def map_state(self, x):
         # x[0]->torch.Size([7, 4, 4])
         # x[1]->torch.Size([7, 6])
-        xyz = x[0][self.idx, ...] # torch.Size([4, 4])
-        v_xyz = x[1][self.idx, ...] # torch.Size([6])
+        xyz = x[0][self.idx, ...]  # torch.Size([4, 4])
+        v_xyz = x[1][self.idx, ...]  # torch.Size([6])
         return [xyz, v_xyz]
 
     def map_action(self,a):

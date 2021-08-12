@@ -11,7 +11,7 @@ from cep import energies
 
 
 
-GPU_ON = torch.cuda.is_available()
+# GPU_ON = torch.cuda.is_available()
 GPU_ON = False
 if GPU_ON:
     device = torch.device("cuda:0")
@@ -35,7 +35,7 @@ def cep_simple_model_tiago_lefthand_base():  # TODO: 08.06
     A = torch.eye(6)
     ee_goto_leaf = energies.TaskGoToLeaf(dim=6, b=b, A=A, R=H, var=torch.eye(6)*10.)
     #ee_obj_avoid = energies.ObjAvoidLeaf()  # TODO: add branches here???
-    pick_map = maps.SelectionMap(idx=6)
+    pick_map = maps.SelectionMap(idx=9)  # TODO 08.12 WHY????
     ee_energy_tree = EnergyTree(branches=[ee_goto_leaf], map=pick_map)
     #########################
     q_branches = [ee_energy_tree]   # TODO: add branches here???
@@ -59,8 +59,8 @@ def jsc_and_goto_cep_simple_model_lefthandBase():  # TODO: 06.28, 06.29
     # TODO: TaskGoToLeaf
     ##Get all the FK maps##
     tiago_kin = TiagoRobot_lefthand_Base()
-    fk_map = maps.FK_ALL(tiago_kin)
-    pick_map = maps.SelectionMap(idx=6)
+    fk_map = maps.FK_ALL_lefthand_base(tiago_kin)
+    pick_map = maps.SelectionMap(idx=9)
     ## End Effector Branch ##
     b = torch.Tensor([1.8, 0., 0.8])
     R = eul2rot(torch.Tensor([0., 0., 0.]))
