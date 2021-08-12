@@ -2,6 +2,7 @@ import torch
 import torch.distributions as tdist
 import numpy as np
 
+import cascade_control_dx
 from .energy_leaf import EnergyLeaf
 
 from cep.utils import eul2rot, rot2eul, rot2quat
@@ -212,7 +213,8 @@ class PathPlanLeaf_lefthand_and_base(EnergyLeaf):
         # TODO: NEED to set a multivariable gaussian distribution of dx. | added on 08.12
         ###########################################
         #dx = self.cascade_control(xy)  # TODO: 08.12
-        dx = cascade_control_dx(xy)
+
+        dx = cascade_control_dx.cascade_control_get_dx(xy)
 
         self.p_dx = tdist.MultivariateNormal(dx, self.var)  # self.var->torch.size(2, 2)
 
