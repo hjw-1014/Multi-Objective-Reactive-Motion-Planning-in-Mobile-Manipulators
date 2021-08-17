@@ -26,7 +26,7 @@ def getDist(pos1, pos2):
     return np.sqrt(sum([(pos1[0] - pos2[0]) ** 2, (pos1[1] - pos2[1]) ** 2, (pos1[2] - pos2[2]) ** 2]))
 
 
-''' The following utils can be used for rrt or rrt*,
+''' The following _utils can be used for rrt or rrt*,
     required param initparams should have
     env,      environement generated from env3D
     V,        node set

@@ -6,7 +6,8 @@ from cep.utils import torch2numpy, numpy2torch
 import time
 
 
-class PathplanMap(Map):  ## TODO: Added on 08.12
+class PathplanMap(Map):  ## TODO: Added on 08.12,
+    # TODO: Can try non-holonomic base!!! => change map_state, but it's difficlut | 08.17
     '''
     Map joints to cartesian space
     '''

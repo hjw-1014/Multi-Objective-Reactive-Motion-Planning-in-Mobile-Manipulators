@@ -19,7 +19,7 @@ class PATH:
         self.yaw = yaw  # final yaw angles [rad]
 
 
-# utils
+# _utils
 def pi_2_pi(theta):
     while theta > math.pi:
         theta -= 2.0 * math.pi

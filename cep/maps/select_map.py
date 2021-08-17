@@ -21,5 +21,5 @@ class SelectionMap(Map):
         v_xyz = x[1][self.idx, ...]  # torch.Size([6])
         return [xyz, v_xyz]
 
-    def map_action(self,a):
+    def map_action(self, a):
         return a[:, self.idx, ...]

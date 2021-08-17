@@ -86,7 +86,6 @@ class Multi_EBMControl():
             t1 = time.time()
 
             for ii in range(0, len(self.energy_tree)):  # TODO: 06.28
-                print("ii: ", ii)
                 tmp = torch.clone(self.energy_tree[ii].log_prob(action))
                 self.log_p_dq = tmp + self.log_p_dq
 
@@ -110,7 +109,7 @@ class Multi_EBMControl():
         return self.optimizer.best_solution.x_optima  # torch.Size([7])
 
 class EBMControl():
-    def __init__(self, energy_tree, device, dim=10, dt=0.005, optimization_steps=10, n_particles=1000, var_0=10., stochastic=False):
+    def __init__(self, energy_tree, device, dim=10, dt=0.005, optimization_steps=10, n_particles=10000, var_0=10., stochastic=False):
 
         self.device = device
         self.energy_tree = energy_tree

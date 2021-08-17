@@ -20,10 +20,10 @@ class Tiago_LeftParallelHand_Base(): # TODO: 08.06
 
     ######################## Tiago with one parallel gripper hand ########################
 
-    def __init__(self, reward_type=0, time_step=1./240.):
+    def __init__(self, reward_type=0, time_step=1./240., Target_pose=[1.5,1.2,0.8]):
         self.EE_link = "arm_7_link"
         self.EE_ID = 43
-        self.Target_pos = [1.8, 0., 0.8]
+        self.Target_pos = Target_pose
         self.name_base_link = "world"
         self.JOINT_ID = [0, 1, 2, 34, 35, 36, 37, 38, 39, 40]
         self.link_names = ['X', 'Y', 'R', "arm_1_link", "arm_2_link", "arm_3_link", "arm_4_link", "arm_5_link", "arm_6_link", self.EE_link]
@@ -84,7 +84,7 @@ class Tiago_LeftParallelHand_Base(): # TODO: 08.06
         #print('====RESET=====')
         if q0 is None:
             for i, q_i in enumerate(self.q_home):
-                q_i = q_i + np.random.randn() * 0.2  # Reset initial joint positions
+                q_i = q_i + np.random.randn() * 0.1  # Reset initial joint positions
                 #print('## q_i ##', q_i)
                 p.resetJointState(self.robot, self.JOINT_ID[i], q_i)
             p.stepSimulation()
@@ -171,7 +171,7 @@ class Tiago_LeftParallelHand_Base(): # TODO: 08.06
         #print('current position: ', cur_pos)
         dist = np.sqrt(np.sum(np.power(np.abs(cur_pos - self.Target_pos), 2)))
 
-        return -dist
+        return dist
 
     def _check_done(self, r):
         return False

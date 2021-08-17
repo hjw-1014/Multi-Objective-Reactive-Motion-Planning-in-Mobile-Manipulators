@@ -145,7 +145,7 @@ class BIT_star:
         print('complete')
         print('number of times resampling ' + str(num_resample))
 
-# ---------IRRT utils
+# ---------IRRT _utils
     def Sample(self, m, cmax, bias = 0.05, xrand = set()):
         # sample within a eclipse 
         print('new sample')

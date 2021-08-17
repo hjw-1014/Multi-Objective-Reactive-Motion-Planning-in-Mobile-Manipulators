@@ -1,6 +1,6 @@
 import pybullet as p
 import time
-from utils import *
+from _utils import *
 from _pybullet import start_bullet_env
 from _controller import *
 from _compute import *

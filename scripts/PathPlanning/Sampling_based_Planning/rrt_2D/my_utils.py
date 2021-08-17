@@ -1,5 +1,5 @@
 """
-utils for collision check
+_utils for collision check
 @author: huiming zhou
 """
 

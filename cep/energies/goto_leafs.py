@@ -1,13 +1,20 @@
 import torch
 import torch.distributions as tdist
 import numpy as np
-
 import cascade_control_dx
 from .energy_leaf import EnergyLeaf
-
+#from _utils import torch2numpy
 from cep.utils import eul2rot, rot2eul, rot2quat
 from cep.liegroups.torch import SO3, SE3
 
+def torch2numpy(x):
+    if x is None:
+        print(x)
+
+    if x.device.type=='cuda':
+        return x.cpu().detach().numpy()
+    else:
+        return x.detach().numpy()
 
 class TaskGoToLeaf(EnergyLeaf):
     def __init__(self, dim=6, A = None, b = None, R = None, var=None):
@@ -187,7 +194,7 @@ class JointGoToLeaf_lefthand_and_base(EnergyLeaf):
 
 class PathPlanLeaf_lefthand_and_base(EnergyLeaf):
 
-    def __init__(self, dim=2, Kp = 1., Kv = 1., var=torch.eye(2).float() * 10.):
+    def __init__(self, dim=2, Kp = 1., Kv = 1., var=torch.eye(2).float() * 1.):
 
         super(PathPlanLeaf_lefthand_and_base, self).__init__()
         self.dim = dim
@@ -207,16 +214,18 @@ class PathPlanLeaf_lefthand_and_base(EnergyLeaf):
         '''
         We compute the conditioning variables of our model to have a faster optimization
         '''
-        xy = state[0]  # Tensor(7, 1), joint position values
+        xy = state[0]# Tensor(2, 1), x and y
+        xy_t = torch2numpy(xy).tolist()
         v = state[1]  # Tensor (7, 1), joint speed values
+        v_t = torch2numpy(v).tolist()
 
-        # TODO: NEED to set a multivariable gaussian distribution of dx. | added on 08.12
+        # TODO: NEED to set a multivariable gaussian distribution of dx. | added on 08.13, 08.17
         ###########################################
-        #dx = self.cascade_control(xy)  # TODO: 08.12
 
-        dx = cascade_control_dx.cascade_control_get_dx(xy)
+        ddx = cascade_control_dx.cascade_control_get_dx(xy_t, v_t)
+        ddx_t = torch.tensor(ddx)
 
-        self.p_dx = tdist.MultivariateNormal(dx, self.var)  # self.var->torch.size(2, 2)
+        self.p_dx = tdist.MultivariateNormal(ddx_t, self.var)  # self.var->torch.size(2, 2)
 
     def log_prob(self, action):
         '''
@@ -227,9 +236,3 @@ class PathPlanLeaf_lefthand_and_base(EnergyLeaf):
         # TODO:
         action = action[:, :self.dim]  # torch.Size([1000, 2])
         return self.p_dx.log_prob(action)  # torch.Size([1000])
-
-    def cascade_control(self, xy):  ## TODO: added 08.12
-
-        dx = 0
-
-        return dx

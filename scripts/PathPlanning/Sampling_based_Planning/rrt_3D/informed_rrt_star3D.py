@@ -50,7 +50,7 @@ class IRRT:
         self.N = 10000 # used for determining how many batches needed
         self.ind = 0
         self.i = 0
-        # rrt* near and other utils
+        # rrt* near and other _utils
         self.stepsize = 1
         self.gamma = 500
         self.eta = self.stepsize

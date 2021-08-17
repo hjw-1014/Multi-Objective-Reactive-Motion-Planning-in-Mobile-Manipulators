@@ -560,7 +560,7 @@ def generate_path(q0, q1, maxc):
     return paths
 
 
-# utils
+# _utils
 def pi_2_pi(theta):
     while theta > PI:
         theta -= 2.0 * PI

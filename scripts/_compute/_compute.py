@@ -246,8 +246,8 @@ def choose_min_dist_point_graph_batch_viz(cur_position: list,  # TODO: -> added 
             elif father_node_dist < cascade_threshold:
                 if father_end_dist < delta:
                     return father_node
-                print('father_end_dist: ', father_end_dist)
-                print("father_node_dist: ", father_node_dist)
+                #print('father_end_dist: ', father_end_dist)
+                #print("father_node_dist: ", father_node_dist)
                 son_dist_index = cur_dist_son.index(father_node_dist)
                 son_dist = cur_dist_father[son_dist_index]
 

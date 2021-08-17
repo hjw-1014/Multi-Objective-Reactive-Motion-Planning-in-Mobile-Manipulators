@@ -1,4 +1,4 @@
-from utils import _utils
+from _utils import _utils
 from _pybullet import _pybullet_utils
 from _set_start import *
 from _compute import _compute

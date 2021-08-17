@@ -4,3 +4,4 @@ from .kinematics_dynamics_lefthand_base import FK_ALL_lefthand_base
 from .simple_map import SimplePosVel
 from .select_map import SelectionMap
 from .pathplann_map import PathplanMap
+from .simple_map_base import SimpleBase
