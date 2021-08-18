@@ -15,7 +15,7 @@ device = torch.device('cuda')
 
 
 class CEPPolicy:
-    def __init__(self, dt=1/10., dtype='float64'):
+    def __init__(self, dt=1/100., dtype='float64'):
         self.dt = dt
         self.dtype = dtype
 
