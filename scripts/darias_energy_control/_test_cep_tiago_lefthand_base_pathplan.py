@@ -14,8 +14,8 @@ joint_limits = np.array([2.5, 2.5, 3.1416, 2.75, 1.57, 3.53, 2.35, 2.09, 1.57, 2
 device = torch.device('cuda')
 
 
-class CEPPolicy():
-    def __init__(self, dt=1 / 240., dtype='float64'):
+class CEPPolicy:
+    def __init__(self, dt=1/10., dtype='float64'):
         self.dt = dt
         self.dtype = dtype
 
@@ -25,15 +25,15 @@ class CEPPolicy():
         joint_poses = state[0, :2]
         joint_vels = state[0, 10:12]
 
-        action = self.controller.policy(state)[:2]
+        action = self.controller.policy(state)
 
-        x, dx = self.step(joint_poses, joint_vels, action)
+        x, dx = self.step(joint_poses, joint_vels, action[:2])
         return x, dx
 
 
     def step(self, joint_poses, joint_vels, joint_accs):
-        joint_poses = joint_poses + joint_vels * self.dt
         joint_vels = joint_vels + joint_accs * self.dt
+        joint_poses = joint_poses + joint_vels * self.dt  # TODO: WHY??? 08.18
         return joint_poses, joint_vels
 
 def plot_joints(joint_values: list, num: int):
@@ -94,15 +94,15 @@ def experiment():
     results_dir: path to the folder in which we are saving the results
     '''
 
-    time_step = 1 / 250.
+    time_step = 1 / 240.
 
     env = Tiago_LeftParallelHand_Base(time_step=time_step, Target_pose=[1.5, 1.2, 0.8])
 
     policy = CEPPolicy(dt=time_step)
     ################
 
-    n_trials = 100
-    horizon = 1000
+    n_trials = 10
+    horizon = 10000
     c = 0
     s = 0
     REWARD = 0

@@ -118,13 +118,15 @@ def cep_model_lefthandBase_taskgotoAndPathplan():  ## TODO: Added on 08.12, 08.1
     # base_goto_leaf = energies.PathPlanLeaf_lefthand_and_base()
     # base_energy_tree = EnergyTree(branches=[base_goto_leaf], map=base_map).to(device)
 
-    base_map = maps.PathplanMap(idx=2)
-    identity_map = maps.SimpleBase(dim=10)
+    base_map = maps.PathplanMap(idx=2)  # Map R^10 to R^2
+    identity_map = maps.SimpleBase(dim=2)  # Keep x and y as the same
     ## Leaf and Tree ##
     base_goto_leaf = energies.PathPlanLeaf_lefthand_and_base()
-    b_energy_tree = EnergyTree(branches=[base_goto_leaf], map=identity_map).to(device)
-    b_branches = [b_energy_tree]
-    base_energy_tree = EnergyTree(branches=b_branches, map=base_map).to(device)
+    base_energy_tree = EnergyTree(branches=[base_goto_leaf], map=identity_map).to(device)
+
+    #########################
+    q_branches = [base_energy_tree]
+    base_energy_tree = EnergyTree(branches=q_branches, map=base_map).to(device)
 
     #########################
     energy_trees = [task_energy_tree, base_energy_tree]
@@ -132,11 +134,11 @@ def cep_model_lefthandBase_taskgotoAndPathplan():  ## TODO: Added on 08.12, 08.1
     #ee_obj_avoid_leaf = energies.ObjAvoidLeaf()  # TODO: add branches here LATER!!!
 
     # TODO: Whole network
-    policy = Multi_EBMControl(energy_tree=energy_trees, device=device, optimization_steps=10, dt=0.005, n_particles=1000)
+    policy = Multi_EBMControl(energy_tree=energy_trees, device=device, optimization_steps=100, dt=0.005, n_particles=1000)
 
     return policy
 
-def cep_tiago_lefthand_base_pathplan():  # TODO: 08.15, 08.17
+def cep_tiago_lefthand_base_pathplan():  # TODO: 08.15, 08.17, 08.18
 
     # TODO: PathPlanLeaf
     base_map = maps.PathplanMap(idx=2)  # Map R^10 to R^2

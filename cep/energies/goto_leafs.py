@@ -145,8 +145,8 @@ class JointGoToLeaf_lefthand_and_base(EnergyLeaf):
                  # ([2.215, 0.088, 2.156, 1.060, 0.238, -1.023, 0.373]),
                  dq_des=torch.tensor([0., 0., 0., 0., 0., 0., 0., 0., 0., 0.]),
                  var=torch.eye(10).float() * 100.):
-
         super(JointGoToLeaf_lefthand_and_base, self).__init__()
+
         self.dim = dim
 
         self.Kp = Kp
@@ -214,9 +214,9 @@ class PathPlanLeaf_lefthand_and_base(EnergyLeaf):
         '''
         We compute the conditioning variables of our model to have a faster optimization
         '''
-        xy = state[0]# Tensor(2, 1), x and y
+        xy = state[0]  # torch.Size([2]), x and y
         xy_t = torch2numpy(xy).tolist()
-        v = state[1]  # Tensor (7, 1), joint speed values
+        v = state[1]  # torch.Size([2]), dx, dy
         v_t = torch2numpy(v).tolist()
 
         # TODO: NEED to set a multivariable gaussian distribution of dx. | added on 08.13, 08.17

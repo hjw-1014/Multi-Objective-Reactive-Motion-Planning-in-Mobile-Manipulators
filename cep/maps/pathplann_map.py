@@ -17,10 +17,10 @@ class PathplanMap(Map):  ## TODO: Added on 08.12,
 
     def map_state(self, x):
 
-        xy = x[0][:self.idx]
-        v_xy = x[0][10:12]
+        xy = x[0][:self.idx]  # torch.Size([2])
+        v_xy = x[0][10:12]  # torch.Size([2])
         return [xy, v_xy]
 
     def map_action(self, a):
 
-        return a
+        return a[..., :2]

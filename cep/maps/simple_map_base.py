@@ -16,4 +16,4 @@ class SimpleBase(Map):
         return [q, qd]
 
     def map_action(self, a):
-        return a
+        return a[..., :2]

@@ -3,6 +3,8 @@ from _compute import *
 
 k_d = 1.
 ka = 0.1
+kp = 1.
+kv = 1.
 def cascade_control(tiago_env, num_path_points, current_state, xy_traj) -> list:
     '''
         current_state:
@@ -44,18 +46,22 @@ def cep_cascade_control_rrt_tree(current_position, current_velocity, graph_rrt_s
 
     for i in range(len(current_position)):  # TODO, change on 07.24
         dx[i] = -k_d * (current_position[i] - closest_point[i])
-    sum_dx = sum(dx)
+    sum_dx = math.hypot(dx[0], dx[1])
     for ii in range(2):
         dx[ii] = dx[ii] / sum_dx
 
+    # for j in range(2):
+    #     ddx[j] = -ka * (current_velocity[j] - dx[j])
+
     for j in range(2):
-        ddx[j] = -ka * (current_velocity[j] - dx[j])
-    sum_ddx = sum(ddx)
+        ddx[j] = kp * (closest_point[j] - current_position[j]) + kv * ( 0 - current_velocity[j])
+
+    sum_ddx = math.hypot(ddx[0], ddx[1])
     for jj in range(2):
         ddx[jj] = ddx[jj] / sum_ddx
     print("### dx: ", dx)
     print("### ddx: ", ddx)
-    return ddx
+    return ddx[:]
 
 def cascade_control_rrt_tree(tiago_env, current_state, graph_rrt_son, graph_rrt_father) -> list:
     '''

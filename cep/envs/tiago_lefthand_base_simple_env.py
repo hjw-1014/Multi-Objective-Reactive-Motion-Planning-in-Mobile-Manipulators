@@ -42,6 +42,9 @@ class Tiago_LeftParallelHand_Base(): # TODO: 08.06
         joint_num = p.getNumJoints(self.robot)
         #print("joint_num ", joint_num)
 
+        # TODO: add 08.18
+        p.addUserDebugLine([0., 0., 0.], [1.2, 1.0, 0.], lineColorRGB=[1., 0., 0.])
+
         p.loadURDF('cube_small.urdf', np.array([0.5, 0.5, 0.15]),  # TODO: Put an object in target postion
                    p.getQuaternionFromEuler([0, 0, 0]), globalScaling=6,
                    useFixedBase=True)

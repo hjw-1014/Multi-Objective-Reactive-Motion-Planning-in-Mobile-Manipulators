@@ -109,7 +109,7 @@ class Multi_EBMControl():
         return self.optimizer.best_solution.x_optima  # torch.Size([7])
 
 class EBMControl():
-    def __init__(self, energy_tree, device, dim=10, dt=0.005, optimization_steps=10, n_particles=10000, var_0=10., stochastic=False):
+    def __init__(self, energy_tree, device, dim=10, dt=0.005, optimization_steps=100, n_particles=10000, var_0=1., stochastic=False):
 
         self.device = device
         self.energy_tree = energy_tree
@@ -200,7 +200,7 @@ class EnergyTree(nn.Module):
 
     def set_context(self, state):
 
-        state_z = self.map.map_state(state)
+        state_z = self.map.map_state(state)  # state -> torch.Size([1, 20]), state_z =
 
         #processes = []
         for branch in self.branches:
