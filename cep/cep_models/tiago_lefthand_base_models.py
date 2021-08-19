@@ -87,7 +87,7 @@ def jsc_and_goto_cep_simple_model_lefthandBase():  # TODO: 06.28, 06.29, 08.13
     #ee_obj_avoid_leaf = energies.ObjAvoidLeaf()  # TODO: add branches here LATER!!!
 
     # TODO: Whole network
-    policy = Multi_EBMControl(energy_tree=energy_trees, device=device, optimization_steps=10, dt=0.005, n_particles=10000)
+    policy = Multi_EBMControl(energy_tree=energy_trees, device=device, optimization_steps=20, dt=0.005, n_particles=1000)
 
     return policy
 
@@ -106,7 +106,7 @@ def cep_model_lefthandBase_taskgotoAndPathplan():  ## TODO: Added on 08.12, 08.1
     H[:3, -1] = b
     A = torch.eye(6)
     ## Leaf and Tree ##
-    ee_goto_leaf = energies.TaskGoToLeaf(dim=10, b=b, A=A, R=H, var=torch.eye(6)*10.)
+    ee_goto_leaf = energies.TaskGoToLeaf(dim=6, b=b, A=A, R=H, var=torch.eye(6)*10.)
     ee_energy_tree = EnergyTree(branches=[ee_goto_leaf], map=pick_map)
     q_branches = [ee_energy_tree]
     task_energy_tree = EnergyTree(branches=q_branches, map=fk_map).to(device)
@@ -134,7 +134,7 @@ def cep_model_lefthandBase_taskgotoAndPathplan():  ## TODO: Added on 08.12, 08.1
     #ee_obj_avoid_leaf = energies.ObjAvoidLeaf()  # TODO: add branches here LATER!!!
 
     # TODO: Whole network
-    policy = Multi_EBMControl(energy_tree=energy_trees, device=device, optimization_steps=100, dt=0.005, n_particles=1000)
+    policy = Multi_EBMControl(energy_tree=energy_trees, device=device, optimization_steps=5, dt=0.005, n_particles=10000)
 
     return policy
 

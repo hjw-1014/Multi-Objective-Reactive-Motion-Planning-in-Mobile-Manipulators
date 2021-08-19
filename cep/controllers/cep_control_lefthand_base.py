@@ -85,15 +85,15 @@ class Multi_EBMControl():
 
             t1 = time.time()
 
-            for ii in range(0, len(self.energy_tree)):  # TODO: 06.28
-                tmp = torch.clone(self.energy_tree[ii].log_prob(action))
-                self.log_p_dq = tmp + self.log_p_dq
+            # for ii in range(0, len(self.energy_tree)):  # TODO: 06.28
+            #     tmp = torch.clone(self.energy_tree[ii].log_prob(action))
+            #     self.log_p_dq = tmp + self.log_p_dq
 
             #
             # for et in self.energy_tree:
             #     self.log_p_dq += et.log_prob(action)
 
-            #self.log_p_dq = self.energy_tree[0].log_prob(action) + self.energy_tree[1].log_prob(action) # TODO: 07.10 FIX jscAndGoto!
+            self.log_p_dq = self.energy_tree[0].log_prob(action) + self.energy_tree[1].log_prob(action) # TODO: 07.10 FIX jscAndGoto!
 
             #log_p_dq = self.energy_tree.log_prob(action)  # Energy, torch.Size([1000]) # TODO: 06.28
 

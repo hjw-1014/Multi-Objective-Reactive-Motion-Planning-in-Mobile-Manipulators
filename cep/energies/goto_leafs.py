@@ -141,7 +141,7 @@ class JointGoToLeaf(EnergyLeaf):
 
 class JointGoToLeaf_lefthand_and_base(EnergyLeaf):
     def __init__(self, dim=10, Kp = 1., Kv = 1.,
-                 q_des=torch.tensor([0., 0., 0., 2.0, 0.1, 2.0, 1.0, 0.2, -1.0, 0.3]),
+                 q_des=torch.tensor([1.2, 1.0, 0., 2.0, 0.1, 2.0, 1.0, 0.2, -1.0, 0.3]),
                  # ([2.215, 0.088, 2.156, 1.060, 0.238, -1.023, 0.373]),
                  dq_des=torch.tensor([0., 0., 0., 0., 0., 0., 0., 0., 0., 0.]),
                  var=torch.eye(10).float() * 100.):
@@ -163,8 +163,10 @@ class JointGoToLeaf_lefthand_and_base(EnergyLeaf):
 
         self.var = var
         # TODO: 07.10 -> Low variance for joints related with the elbow and big variance for the rest of thew joints
-        self.var[2][2] = 10.
-        self.var[3][3] = 10.
+        self.var[0][0] = 10.
+        self.var[0][0] = 10.
+        # self.var[2][2] = 10.
+        # self.var[3][3] = 10.
 
 
         ## Multivariate Gaussian distribution ##

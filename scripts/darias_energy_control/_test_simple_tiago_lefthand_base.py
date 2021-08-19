@@ -7,7 +7,6 @@ from cep.envs import Tiago_LeftParallelHand_Base
 from cep.cep_models import cep_simple_model_tiago_lefthand_base
 import torch
 
-
 joint_limit_buffers = 0.02
 joint_limits = np.array([2.5, 2.5, 3.1416, 2.75, 1.57, 3.53, 2.35, 2.09, 1.57, 2.09]) - joint_limit_buffers
 
@@ -102,7 +101,7 @@ def experiment():
     ################
 
     n_trials = 100
-    horizon = 1000
+    horizon = 1500
     c = 0
     s = 0
     REWARD = 0

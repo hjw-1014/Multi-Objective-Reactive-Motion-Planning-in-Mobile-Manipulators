@@ -20,7 +20,7 @@ class Tiago_LeftParallelHand_Base(): # TODO: 08.06
 
     ######################## Tiago with one parallel gripper hand ########################
 
-    def __init__(self, reward_type=0, time_step=1./240., Target_pose=[1.5,1.2,0.8]):
+    def __init__(self, reward_type=0, time_step=1./240., Target_pose=[1.5, 1.2, 0.8]):
         self.EE_link = "arm_7_link"
         self.EE_ID = 43
         self.Target_pos = Target_pose
@@ -51,7 +51,7 @@ class Tiago_LeftParallelHand_Base(): # TODO: 08.06
         ##############################################################
 
         ############## Robot Initial State #################
-        self.q_home = [0., 0., 0., 0.5, 0., 0., 0., 0., 0., 0.]
+        self.q_home = [-0.1, -0.1, 0., 0.5, 0., 0., 0., 0., 0., 0.]
         self.qlimits = [[-5.0, 5.0],
                         [-5.0, 5.0],
                         [-3.1416,  3.1416],

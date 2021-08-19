@@ -31,8 +31,8 @@ class CEPPolicy():
 
 
     def step(self, joint_poses, joint_vels, joint_accs):
-        joint_poses = joint_poses + joint_vels * self.dt
         joint_vels = joint_vels + joint_accs * self.dt
+        joint_poses = joint_poses + joint_vels * self.dt
         return joint_poses, joint_vels
 
 

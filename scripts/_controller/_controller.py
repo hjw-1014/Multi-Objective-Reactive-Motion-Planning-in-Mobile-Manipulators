@@ -59,8 +59,8 @@ def cep_cascade_control_rrt_tree(current_position, current_velocity, graph_rrt_s
     sum_ddx = math.hypot(ddx[0], ddx[1])
     for jj in range(2):
         ddx[jj] = ddx[jj] / sum_ddx
-    print("### dx: ", dx)
-    print("### ddx: ", ddx)
+    # print("### dx: ", dx)
+    # print("### ddx: ", ddx)
     return ddx[:]
 
 def cascade_control_rrt_tree(tiago_env, current_state, graph_rrt_son, graph_rrt_father) -> list:
