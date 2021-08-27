@@ -28,7 +28,7 @@ class TaskGoToLeaf(EnergyLeaf):
             b = torch.zeros(3).float()
         self.register_buffer('b', b)
         if var is None:
-            var = torch.eye(self.dim).float() * 0.1
+            var = torch.eye(self.dim).float() * 1.
         self.register_buffer('var', var)
 
         if R is None:
@@ -196,7 +196,7 @@ class JointGoToLeaf_lefthand_and_base(EnergyLeaf):
 
 class PathPlanLeaf_lefthand_and_base(EnergyLeaf):
 
-    def __init__(self, dim=2, Kp = 1., Kv = 1., var=torch.eye(2).float() * 0.01):
+    def __init__(self, dim=2, Kp = 1., Kv = 1., var=torch.eye(2).float() * 5.):
 
         super(PathPlanLeaf_lefthand_and_base, self).__init__()
         self.dim = dim

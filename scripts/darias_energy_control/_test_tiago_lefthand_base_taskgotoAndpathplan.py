@@ -7,7 +7,6 @@ from cep.envs import Tiago_LeftParallelHand_Base
 from cep.cep_models import cep_model_lefthandBase_taskgotoAndPathplan
 import torch
 
-
 joint_limit_buffers = 0.02
 joint_limits = np.array([2.5, 2.5, 3.1416, 2.75, 1.57, 3.53, 2.35, 2.09, 1.57, 2.09]) - joint_limit_buffers
 
@@ -20,7 +19,7 @@ class CEPPolicy():
 
         self.controller = cep_model_lefthandBase_taskgotoAndPathplan()
 
-    def policy(self, state, r):
+    def policy(self, state):
         joint_poses = state[0, 0:10]
         joint_vels = state[0, 10:]
 
@@ -66,7 +65,7 @@ def experiment():
             init = time.time()
 
             #### Get Control Action (Position Control)####
-            a = policy.policy(state, r)
+            a = policy.policy(state)
             state, reward, done, success, q_vals = env.step(a)
             # TODO: Record joint values 07.10
             q_list.append(q_vals)
