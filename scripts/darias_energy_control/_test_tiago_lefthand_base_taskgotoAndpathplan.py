@@ -14,13 +14,13 @@ joint_limits = np.array([2.5, 2.5, 3.1416, 2.75, 1.57, 3.53, 2.35, 2.09, 1.57, 2
 device = torch.device('cuda')
 
 class CEPPolicy():
-    def __init__(self, dt=1 / 240., dtype='float64'):
+    def __init__(self, dt=1 / 10., dtype='float64'):
         self.dt = dt
         self.dtype = dtype
 
         self.controller = cep_model_lefthandBase_taskgotoAndPathplan()
 
-    def policy(self, state):
+    def policy(self, state, r):
         joint_poses = state[0, 0:10]
         joint_vels = state[0, 10:]
 
@@ -50,10 +50,11 @@ def experiment():
     ################
 
     n_trials = 5
-    horizon = 2000
+    horizon = 5000
     c = 0
     s = 0
     REWARD = 0
+    r = 10
     END_POSITION = None
     for itr in range(n_trials):
         print('###Iteration: {}'.format(itr))
@@ -65,7 +66,7 @@ def experiment():
             init = time.time()
 
             #### Get Control Action (Position Control)####
-            a = policy.policy(state)
+            a = policy.policy(state, r)
             state, reward, done, success, q_vals = env.step(a)
             # TODO: Record joint values 07.10
             q_list.append(q_vals)

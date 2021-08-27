@@ -41,6 +41,7 @@ class Multi_EBMControl():
         ## Position Action ##
         self.dt = dt
 
+
     def policy(self, state):
         ## 1. State to Torch ##
         state_t = numpy2torch(state, self.device)
@@ -155,7 +156,7 @@ class EBMControl():
 
     def compute_optimal_action(self):
         mu = torch.zeros(self.dim).to(self.device)
-        std = torch.eye(self.dim).to(self.device)*self.var_0
+        std = torch.eye(self.dim).to(self.device) * self.var_0
 
         self.optimizer.init_optimization()
         white_noise = torch.randn(self.n_particles, self.dim).to(self.device)
@@ -193,9 +194,9 @@ class EnergyTree(nn.Module):
             self.map = map
 
         if i_temperatures is None:
-            i_temperatures = torch.ones(len(branches)) #TODO: Change parameters
-            #self.i_temperatures = torch.tensor((0.1, 1.))
-        self.i_temperatures = nn.Parameter(i_temperatures)
+            #i_temperatures = torch.ones(len(branches)) #TODO: Change parameters
+            self.i_temperatures = torch.tensor((0.2, 1.))
+        #self.i_temperatures = nn.Parameter(i_temperatures)
         self.branches = nn.ModuleList(branches)
 
     def set_context(self, state):

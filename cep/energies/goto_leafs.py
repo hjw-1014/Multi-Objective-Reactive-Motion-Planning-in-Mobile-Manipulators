@@ -196,7 +196,7 @@ class JointGoToLeaf_lefthand_and_base(EnergyLeaf):
 
 class PathPlanLeaf_lefthand_and_base(EnergyLeaf):
 
-    def __init__(self, dim=2, Kp = 1., Kv = 1., var=torch.eye(2).float() * 1.):
+    def __init__(self, dim=2, Kp = 1., Kv = 1., var=torch.eye(2).float() * 0.01):
 
         super(PathPlanLeaf_lefthand_and_base, self).__init__()
         self.dim = dim
