@@ -26,6 +26,5 @@ PyTorch
 Test everything is working by running the python file
 
 ``python scripts/darias_energy_control/test_simple_darias.py``
-# Multi-Objective-Reactive-Motion-Planning-in-Mobile-Manipulators
-# Test
- #test
+
+## Find important files inside /cep
