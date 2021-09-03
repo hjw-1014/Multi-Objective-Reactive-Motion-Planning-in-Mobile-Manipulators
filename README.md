@@ -1,6 +1,6 @@
 # MORMG
 
-Multi-object reactive motion generation based on composable energy policy
+Multi-object reactive motion generation based on [composable energy policy](https://arxiv.org/pdf/2105.04962.pdf)
 
 ## Installation
 
