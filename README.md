@@ -27,8 +27,10 @@ PyTorch
 ## Test Repository
 
 Test everything is working by running the python file
+
 ``python scripts/darias_energy_control/test_simple_darias.py``
 
 ``python scripts/darias_energy_control/test_simple_tiago.py``
 
-# Find important files inside ``/cep``
+# Results
+![Vector field](https://github.com/hjw-1014/Multi-Objective-Reactive-Motion-Planning-in-Mobile-Manipulators/blob/main/scripts/_scripts_run/vector_field/rrt_tree_exp_2021-08-17-22_51_47.png)
