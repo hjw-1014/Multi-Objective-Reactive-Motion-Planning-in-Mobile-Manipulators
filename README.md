@@ -2,6 +2,9 @@
 
 Multi-object reactive motion generation based on [composable energy policy](https://arxiv.org/pdf/2105.04962.pdf)
 
+# TIAGo++ mobile manipulator
+[TIAGo++](https://github.com/hjw-1014/Multi-Objective-Reactive-Motion-Planning-in-Mobile-Manipulators/blob/devel/TIAGo%2B%2B.png)
+
 ## Installation
 
 Tested in Python 3.7
