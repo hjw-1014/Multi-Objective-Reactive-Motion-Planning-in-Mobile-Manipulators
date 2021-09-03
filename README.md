@@ -27,7 +27,8 @@ PyTorch
 ## Test Repository
 
 Test everything is working by running the python file
-
 ``python scripts/darias_energy_control/test_simple_darias.py``
 
-## Find important files inside ``/cep``
+``python scripts/darias_energy_control/test_simple_tiago.py``
+
+# Find important files inside ``/cep``
