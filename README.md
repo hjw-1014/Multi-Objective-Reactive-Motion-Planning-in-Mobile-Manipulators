@@ -8,6 +8,9 @@ Install the repository. Inside the repository
 
 ``pip install -e  .``
 
+### Install all packages
+``pip install -r requirements.txt``
+
 ### Requirements
 
 ``pip install numpy matplotlib pybullet future``

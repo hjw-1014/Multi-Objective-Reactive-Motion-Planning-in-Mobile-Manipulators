@@ -1,0 +1,50 @@
+asttokens==2.0.5
+catkin==0.7.17
+catkin-pkg @ file:///home/conda/feedstock_root/build_artifacts/catkin_pkg_1601416181613/work
+-e git+https://github.com/TheCamusean/comp_energy_policy.git@215ec0c90cb59206f53c44dc18d690275f359596#egg=cep
+certifi==2021.5.30
+cffi @ file:///tmp/build/80754af9/cffi_1613246939562/work
+cloudpickle==1.6.0
+colorama==0.4.4
+cycler==0.10.0
+distro @ file:///home/conda/feedstock_root/build_artifacts/distro_1591810140801/work
+docutils @ file:///home/conda/feedstock_root/build_artifacts/docutils_1618676240793/work
+empy==3.3.4
+executing==0.7.0
+future==0.18.2
+gencpp==0.6.2
+geneus==2.2.6
+genlisp==0.4.16
+genmsg==0.5.12
+gennodejs==2.0.1
+genpy==0.6.8
+gym==0.18.3
+icecream==2.1.1
+kiwisolver==1.3.1
+matplotlib==3.4.2
+mkl-fft==1.3.0
+mkl-random==1.1.1
+mkl-service==2.3.0
+netifaces @ file:///home/conda/feedstock_root/build_artifacts/netifaces_1610709808107/work
+networkx==2.6.2
+nose @ file:///home/conda/feedstock_root/build_artifacts/nose_1602434998960/work
+numpy==1.20.3
+Pillow==8.2.0
+pybullet==3.1.7
+pycparser @ file:///tmp/build/80754af9/pycparser_1594388511720/work
+pyglet==1.5.15
+Pygments==2.9.0
+pyparsing==2.4.7
+python-dateutil==2.8.1
+PyYAML==5.4.1
+rosdep @ file:///home/conda/feedstock_root/build_artifacts/rosdep_1620627234470/work
+rosdistro @ file:///home/conda/feedstock_root/build_artifacts/rosdistro_1610299012033/work
+rosgraph==1.14.3
+roslib==1.14.6
+rospkg @ file:///home/conda/feedstock_root/build_artifacts/rospkg_1620109692518/work
+rospy==1.14.3
+scipy==1.6.3
+six==1.16.0
+torch @ file:///tmp/build/80754af9/pytorch_1614404297457/work
+tqdm==4.61.2
+typing-extensions @ file:///tmp/build/80754af9/typing_extensions_1611751222202/work
