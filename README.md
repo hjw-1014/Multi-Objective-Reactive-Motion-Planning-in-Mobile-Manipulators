@@ -35,6 +35,7 @@ Test simple original CEP by running the python file
 ``python scripts/darias_energy_control/test_simple_tiago.py``
 
 Test CEP of TIAGo++ with different energy components
+
 ''python scripts/darias_energy_control/_test_tiago_lefthand_base_taskgotoAndpathplan.py``
 ''python scripts/darias_energy_control/_test_cep_tiago_lefthand_base_pathplan.py``
 ''python scripts/darias_energy_control/_test_simple_tiago_lefthand_base.py``
