@@ -1,4 +1,4 @@
-# MORMG
+# MORMG | Multi-Objective Reactive Motion Generation in Mobile-Manipulators
 
 Multi-object reactive motion generation based on [composable energy policy](https://arxiv.org/pdf/2105.04962.pdf)
 
