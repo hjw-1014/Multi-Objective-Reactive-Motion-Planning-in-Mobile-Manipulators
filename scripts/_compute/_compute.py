@@ -218,7 +218,7 @@ def choose_min_dist_point_graph_batch(tiago_env,
 
         return graph_rrt_son[son_dist_index].tolist()
 
-def choose_min_dist_point_graph_batch_viz(cur_position: list,  # TODO: -> added on 08.05
+def choose_min_dist_point_graph_batch_viz(cur_position: list,  # TODO: -> added on 08.05 | need to return n points 09.02
                                 cur_dist_son: list,
                                 cur_dist_father: list,
                                 graph_rrt_son: np.array,

@@ -224,7 +224,7 @@ class PathPlanLeaf_lefthand_and_base(EnergyLeaf):
         # TODO: NEED to set a multivariable gaussian distribution of dx. | added on 08.13, 08.17
         ###########################################
 
-        ddx = cascade_control_dx.cascade_control_get_dx(xy_t, v_t)
+        ddx = cascade_control_dx.cascade_control_get_dx(xy_t, v_t)  # TODO: Return n ddx from x points | 09.02
         ddx_t = torch.tensor(ddx)
 
         self.p_dx = tdist.MultivariateNormal(ddx_t, self.var)  # self.var->torch.size(2, 2)

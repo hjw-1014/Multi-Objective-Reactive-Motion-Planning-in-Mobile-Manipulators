@@ -39,7 +39,7 @@ def cep_cascade_control_rrt_tree(current_position, current_velocity, graph_rrt_s
     ddx = [0] * 2
 
     cur_dist_son, cur_dist_father = compute_cur_dist_graph_points(current_position, graph_rrt_son, graph_rrt_father)
-    closest_point = choose_min_dist_point_graph_batch_viz(current_position,
+    closest_point = choose_min_dist_point_graph_batch_viz(current_position,  # TODO: Return n closest points | 09.02
                                                    cur_dist_son,
                                                    cur_dist_father,
                                                    graph_rrt_son, graph_rrt_father)

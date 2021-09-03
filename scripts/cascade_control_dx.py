@@ -36,6 +36,6 @@ def cascade_control_get_dx(xy: list, v_l: list):  ## TODO: added on 08.12, 08.17
     graph_rrt_son, graph_rrt_father = split_son_father(graph_rrt)
 
     # Based on the current state, calculate the velocity command
-    ddx = cep_cascade_control_rrt_tree(xy, v_l, graph_rrt_son, graph_rrt_father)
+    ddx = cep_cascade_control_rrt_tree(xy, v_l, graph_rrt_son, graph_rrt_father) # TODO: Return n ddx from x points | 09.02
 
     return ddx
