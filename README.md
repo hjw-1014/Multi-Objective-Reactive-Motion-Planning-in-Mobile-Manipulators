@@ -42,5 +42,10 @@ Test CEP of TIAGo++ with different energy components
 
 ``python scripts/darias_energy_control/_test_simple_tiago_lefthand_base.py``
 
-# Vector fields based on rrt tree
+## Result pictures
+
+* RRT tree
+![RRT tree](https://github.com/hjw-1014/Multi-Objective-Reactive-Motion-Planning-in-Mobile-Manipulators/blob/main/scripts/_scripts_run/figures/rrt_tree_0705_1.png)
+
+* Vector fields based on rrt tree
 ![Vector field](https://github.com/hjw-1014/Multi-Objective-Reactive-Motion-Planning-in-Mobile-Manipulators/blob/main/scripts/_scripts_run/vector_field/rrt_tree_exp_2021-08-17-22_51_47.png)
