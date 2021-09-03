@@ -1,4 +1,6 @@
-# comp_energy_policy
+# MORMG
+
+Multi-object reactive motion generation based on composable energy policy
 
 ## Installation
 
