@@ -10,7 +10,7 @@ import torch
 joint_limit_buffers = 0.02
 joint_limits = np.array([2.5, 2.5, 3.1416, 2.75, 1.57, 3.53, 2.35, 2.09, 1.57, 2.09]) - joint_limit_buffers
 
-device = torch.device('cuda')
+device = torch.device('cpu')
 
 class CEPPolicy:
     def __init__(self, dt=1/240., dtype='float64'):
