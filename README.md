@@ -28,8 +28,19 @@ Install the repository. Inside the repository
 
 ``conda install pytorch torchvision torchaudio cudatoolkit=10.2 -c pytorch``
 
+## Run test for OSC(Operation Space control)
 
-## Run test
+* Test simple OSC only for left-arm control
+
+`` python /scripts/darias_energy_control/OSC/TIAGo_OnePoint_Baseline.py ``
+
+
+* Test simple OSC for whole-body control(Left arm and base)
+
+`` python /scripts/darias_energy_control/OSC/TIAGo_OnePoint_with_holoBaseCXY.py ``
+
+
+## Run test for CEP(Composable Energy Control)
 
 * Test simple original CEP by running the python file
 

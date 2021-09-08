@@ -184,6 +184,7 @@ def start_pybullet(): # load Tiago in Pybullet
     p.setGravity(0, 0, -9.81)
 
     base_dir = os.path.abspath(os.path.dirname(__file__) + '../../..')
+    base_dir = os.path.abspath(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))))
     robot_dir = os.path.join(base_dir, 'robots/tiago/')
     urdf_filename = os.path.join(robot_dir, 'tiago_single_modified.urdf')
 
@@ -375,15 +376,17 @@ def se3ToTransfrom(SE3):
     t = numpy2torch(SE3.translation)
     x1 = torch.cat((r, t.reshape(3, 1)), 1)
     homo = torch.tensor([[0, 0, 0, 1]])
-    Tf = torch.cat((x1, homo), 0)
+    Tf = torch.cat((x1.float(), homo.float()), 0)
 
     return Tf
 
 def load_tiago(): # TODO: Modify the urdf path
 
     base_dir = os.path.abspath(os.path.dirname(__file__) + '../../..')
+    base_dir = os.path.abspath(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))))
     robot_dir = os.path.join(base_dir, 'robots/tiago/')
-    urdf_filename = os.path.join(robot_dir, 'tiago_single_modifed.urdf')
+    robot_dir = os.path.join(base_dir, 'robots/tiago/')
+    urdf_filename = os.path.join(robot_dir, 'tiago_single_modified.urdf')
     robot = RobotWrapper.BuildFromURDF(urdf_filename, [robot_dir])
     # robot.initViewer()
     return robot

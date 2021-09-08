@@ -15,6 +15,8 @@ from copy import deepcopy
 from cep.utils import numpy2torch, torch2numpy
 from cep.liegroups.torch import SO3, SE3
 
+print(os.path.abspath(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))))
+
 number_iteration = 300  # Define max iteration number
 dt = 0.01  # Define time step
 
@@ -233,6 +235,7 @@ def start_pybullet():  # load Tiago in Pybullet
     p.setGravity(0, 0, -9.81)
 
     base_dir = os.path.abspath(os.path.dirname(__file__) + '../../..')
+    base_dir = os.path.abspath(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))))
     robot_dir = os.path.join(base_dir, 'robots/tiago/')
     urdf_filename = os.path.join(robot_dir, 'tiago_single_with_holoBaseCXY.urdf')
 
@@ -536,16 +539,17 @@ def se3ToTransfrom(SE3):
     t = numpy2torch(SE3.translation)
     x1 = torch.cat((r, t.reshape(3, 1)), 1)
     homo = torch.tensor([[0, 0, 0, 1]])
-    Tf = torch.cat((x1, homo), 0)
+    Tf = torch.cat((x1.float(), homo.float()), 0)
 
     return Tf
 
 
 def load_tiago():  # TODO: Modify the urdf path
 
-    base_dir = os.path.abspath(os.path.dirname(__file__) + '../../..')
+    #base_dir = os.path.abspath(os.path.dirname(__file__) + '../../../..')
+    base_dir = os.path.abspath(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))))
     robot_dir = os.path.join(base_dir, 'robots/tiago/')
-    urdf_filename = os.path.join(robot_dir, 'tiago_single_with_holoBaseCXY.urdf')
+    urdf_filename = os.path.join(robot_dir, 'tiago_OSC_with_holoBaseCXY.urdf')
     robot = RobotWrapper.BuildFromURDF(urdf_filename, [robot_dir])
     # robot.initViewer()
     return robot
@@ -862,10 +866,9 @@ if __name__ == '__main__':
             break
 
     # # TODO: Plot
-    plot_mu(mu_values, number_iteration)
-    plot_joints(joint_values, joint_pos_values, number_iteration)
-    plot_joints_pybullet(joint_pos_values, number_iteration)
-    plot_error(error_values, number_iteration)
+    #plot_mu(mu_values, number_iteration)
+    #plot_joints(joint_values, joint_pos_values, number_iteration)
+    #plot_error(error_values, number_iteration)
     plot_euclidiean_dist(dist_values, number_iteration)
     plot_xyz(x_values, y_values, z_values, number_iteration)
 
