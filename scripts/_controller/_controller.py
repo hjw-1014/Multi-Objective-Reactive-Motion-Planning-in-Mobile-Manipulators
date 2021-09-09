@@ -27,6 +27,47 @@ def cascade_control(tiago_env, num_path_points, current_state, xy_traj) -> list:
 
     return dx
 
+def cep_cascade_control_n_points(current_position, current_velocity, graph_rrt_son, graph_rrt_father) -> list:
+    ''' # TODO: Return n closest points |  09.08
+        current_state:
+            current_state[0] -> current position [x, y]
+            current_state[1] -> current velocity [dx, dy]
+        return: velocity command dx, [vel_x, vel_y] or
+                acceleration command ddx [acc_x, acc_y] or
+                n acc commands [[acc_x_1, acc_y_1], [acc_x_2, acc_y_2], [acc_x_2, acc_y_2], ...]
+    '''
+
+    dx = [0] * 2  # y and x
+    ddx = [0] * 2
+    num = 3
+    ddx = [[0, 0] for _ in range(num)]
+
+    cur_dist_son, cur_dist_father = compute_cur_dist_graph_points(current_position, graph_rrt_son, graph_rrt_father)
+    closest_points = choose_n_closest_points_graph(current_position,  # TODO: Return n closest points | 09.02, 09.08
+                                                   cur_dist_son,
+                                                   cur_dist_father,
+                                                   graph_rrt_son, graph_rrt_father)
+    for i in range(num):
+        closest_point = closest_points[i]
+        cur_ddx = ddx[i]
+
+        # Calculate dx | P control
+        # for i in range(len(current_position)):  # TODO, change on 07.24
+        #     dx[i] = -kp * (current_position[i] - closest_point[i])
+        # sum_dx = math.hypot(dx[0], dx[1])
+        # for ii in range(2):
+        #     dx[ii] = dx[ii] / sum_dx
+
+        # Calculate ddx | PD control
+        for j in range(2):
+            cur_ddx[j] = kp * (closest_point[j] - current_position[j]) + kv * (0 - current_velocity[j])
+        sum_ddx = math.hypot(cur_ddx[0], cur_ddx[1])
+        for jj in range(2):
+            cur_ddx[jj] = cur_ddx[jj] / sum_ddx
+        ddx[i] = cur_ddx[:]
+
+    return ddx[:]
+
 def cep_cascade_control_rrt_tree(current_position, current_velocity, graph_rrt_son, graph_rrt_father) -> list:
     '''
         current_state:
@@ -39,28 +80,25 @@ def cep_cascade_control_rrt_tree(current_position, current_velocity, graph_rrt_s
     ddx = [0] * 2
 
     cur_dist_son, cur_dist_father = compute_cur_dist_graph_points(current_position, graph_rrt_son, graph_rrt_father)
-    closest_point = choose_min_dist_point_graph_batch_viz(current_position,  # TODO: Return n closest points | 09.02
+    closest_point = choose_min_dist_point_graph_batch_viz(current_position,  # TODO: Return n closest points | 09.02, 09.08
                                                    cur_dist_son,
                                                    cur_dist_father,
                                                    graph_rrt_son, graph_rrt_father)
 
+    # Calculate dx | P control
     for i in range(len(current_position)):  # TODO, change on 07.24
-        dx[i] = -k_d * (current_position[i] - closest_point[i])
+        dx[i] = -kp * (current_position[i] - closest_point[i])
     sum_dx = math.hypot(dx[0], dx[1])
     for ii in range(2):
         dx[ii] = dx[ii] / sum_dx
 
-    # for j in range(2):
-    #     ddx[j] = -ka * (current_velocity[j] - dx[j])
-
+    # Calculate ddx | PD control
     for j in range(2):
-        ddx[j] = kp * (closest_point[j] - current_position[j]) + kv * ( 0 - current_velocity[j])
-
+        ddx[j] = kp * (closest_point[j] - current_position[j]) + kv * (0 - current_velocity[j])
     sum_ddx = math.hypot(ddx[0], ddx[1])
     for jj in range(2):
         ddx[jj] = ddx[jj] / sum_ddx
-    # print("### dx: ", dx)
-    # print("### ddx: ", ddx)
+
     return ddx[:]
 
 def cascade_control_rrt_tree(tiago_env, current_state, graph_rrt_son, graph_rrt_father) -> list:

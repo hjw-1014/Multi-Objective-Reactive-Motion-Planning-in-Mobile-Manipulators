@@ -2,6 +2,8 @@ import numpy as np
 import math
 from copy import deepcopy
 from icecream import ic
+import decimal
+decimal.getcontext().rounding = "ROUND_HALF_UP"
 
 repulsive_threshold = 0.42  # 0.27+0.15
 cascade_threshold = 0.15
@@ -50,7 +52,7 @@ def compute_cur_dist_graph_points(cur_position, graph_rrt_son: np.array, graph_r
         dist_father = compute_euclidean_distance(cur_position, graph_rrt_father[i])
         current_distances_from_path_points_father.append(dist_father)
 
-    return current_distances_from_path_points_son, current_distances_from_path_points_father
+    return np.around(current_distances_from_path_points_son, 3).tolist(), np.around(current_distances_from_path_points_father, 3).tolist()
 
 
 def compute_current_distance_from_path_points(cur_position, xy_traj) -> list:
@@ -217,6 +219,57 @@ def choose_min_dist_point_graph_batch(tiago_env,
                 son_dist = cur_dist_father[son_dist_index]
 
         return graph_rrt_son[son_dist_index].tolist()
+
+def choose_n_closest_points_graph(cur_position: list,  # TODO: -> added on 08.05 | need to return n points 09.08
+                                cur_dist_son: list,
+                                cur_dist_father: list,
+                                graph_rrt_son: np.array,
+                                graph_rrt_father: np.array) -> (float, int):
+
+    closest_points = []
+    num = 3
+    cur_end_dist = math.hypot(cur_position[0]-end_point[0], cur_position[1]-end_point[1])
+
+    for i in range(num):
+        print(i)
+        if end_point_threshold <= cur_end_dist <= delta:
+            print("1")
+            closest_points.append(end_point)
+
+        elif cur_end_dist < end_point_threshold:
+            print('2')
+            closest_points.append(end_point)
+
+        elif cur_end_dist > delta:
+            print('3')
+            son_dist = min(cur_dist_son)
+            son_dist_index = cur_dist_son.index(son_dist)
+            cur_dist_son.pop(son_dist_index)
+            while son_dist < cascade_threshold:
+                print("444")
+                # TODO: Thinking how to move to the next point (Father node) which is not inside the cascade_threshold on 08.04 !!!!!!!!!!!!!
+                # TODO: Make a change on 08.05, works
+                father_node_dist = cur_dist_father[son_dist_index]
+                father_node = graph_rrt_father[son_dist_index].tolist()
+                father_end_dist = math.hypot(father_node[0] - end_point[0], father_node[1] - end_point[1])
+                if father_node_dist >= cascade_threshold:
+                    print("555")
+                    closest_points.append(father_node[:])
+                    break
+                elif father_node_dist < cascade_threshold:
+                    if father_end_dist < delta:
+                        print("666")
+                        closest_points.append(father_node[:])
+                        break
+                    #print('father_end_dist: ', father_end_dist)
+                    #print("father_node_dist: ", father_node_dist)
+                    son_dist_index = cur_dist_son.index(father_node_dist)
+                    son_dist = cur_dist_father[son_dist_index]
+            print("777")
+            closest_points.append(graph_rrt_son[son_dist_index].tolist())
+
+    return closest_points
+
 
 def choose_min_dist_point_graph_batch_viz(cur_position: list,  # TODO: -> added on 08.05 | need to return n points 09.02
                                 cur_dist_son: list,

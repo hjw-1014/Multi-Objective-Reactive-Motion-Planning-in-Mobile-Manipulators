@@ -32,12 +32,12 @@ Install the repository. Inside the repository
 
 * Test simple OSC only for left-arm control
 
-`` python /scripts/darias_energy_control/OSC/TIAGo_OnePoint_Baseline.py ``
+`` python scripts/darias_energy_control/OSC/TIAGo_OnePoint_Baseline.py ``
 
 
 * Test simple OSC for whole-body control(Left arm and base)
 
-`` python /scripts/darias_energy_control/OSC/TIAGo_OnePoint_with_holoBaseCXY.py ``
+`` python scripts/darias_energy_control/OSC/TIAGo_OnePoint_with_holoBaseCXY.py ``
 
 
 # Run test for CEP(Composable Energy Control)

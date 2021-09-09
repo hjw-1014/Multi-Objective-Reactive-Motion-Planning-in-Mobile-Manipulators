@@ -9,8 +9,6 @@ from cep.controllers import Multi_EBMControl, EBMControl, EnergyTree
 from cep import maps
 from cep import energies
 
-
-
 # GPU_ON = torch.cuda.is_available()
 GPU_ON = False
 if GPU_ON:
@@ -145,6 +143,21 @@ def cep_tiago_lefthand_base_pathplan():  # TODO: 08.15, 08.17, 08.18
     identity_map = maps.SimpleBase(dim=2)  # Keep x and y as the same
     ## Leaf and Tree ##
     base_goto_leaf = energies.PathPlanLeaf_lefthand_and_base()
+    base_energy_tree = EnergyTree(branches=[base_goto_leaf], map=identity_map).to(device)
+
+    #########################
+    q_branches = [base_energy_tree]
+    energy_tree = EnergyTree(branches=q_branches, map=base_map).to(device)
+    policy = EBMControl(energy_tree=energy_tree, device=device, optimization_steps=5, dt=0.005, n_particles=1000)
+    return policy
+
+def cep_tiago_lefthand_base_pathplan_np():  # TODO: 08.15, 08.17, 08.18, 09.08
+
+    # TODO: PathPlanLeaf
+    base_map = maps.PathplanMap(idx=2)  # Map R^10 to R^2
+    identity_map = maps.SimpleBase(dim=2)  # Keep x and y as the same
+    ## Leaf and Tree ##
+    base_goto_leaf = energies.PathPlanLeaf_lefthand_and_base_np()
     base_energy_tree = EnergyTree(branches=[base_goto_leaf], map=identity_map).to(device)
 
     #########################

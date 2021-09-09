@@ -21,6 +21,7 @@ class Tiago_LeftParallelHand_Base(): # TODO: 08.06
     ######################## Tiago with one parallel gripper hand ########################
 
     def __init__(self, reward_type=0, time_step=1./240., Target_pose=[1.5, 1.2, 0.8]):
+        p.connect(p.DIRECT)
         self.EE_link = "arm_7_link"
         self.EE_ID = 43
         self.Target_pos = Target_pose
