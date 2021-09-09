@@ -242,7 +242,7 @@ class PathPlanLeaf_lefthand_and_base(EnergyLeaf):
 
 class PathPlanLeaf_lefthand_and_base_np(EnergyLeaf):
 
-    def __init__(self, dim=2, Kp = 1., Kv = 1., var=torch.eye(2).float() * 5.):
+    def __init__(self, dim=2, Kp = 1., Kv = 1., var=torch.eye(2).float() * 1.):
 
         super(PathPlanLeaf_lefthand_and_base_np, self).__init__()
         self.dim = dim
@@ -263,9 +263,9 @@ class PathPlanLeaf_lefthand_and_base_np(EnergyLeaf):
         We compute the conditioning variables of our model to have a faster optimization
         '''
         xy = state[0]  # torch.Size([2]), x and y
-        xy_t = np.around(torch2numpy(xy).tolist())
+        xy_t = np.around(torch2numpy(xy), 3).tolist()
         v = state[1]  # torch.Size([2]), dx, dy
-        v_t = np.around(torch2numpy(v).tolist())
+        v_t = np.around(torch2numpy(v), 3).tolist()
 
         # TODO: NEED to set a multivariable gaussian distribution of dx. | added on 08.13, 08.17
         ###########################################
@@ -273,13 +273,11 @@ class PathPlanLeaf_lefthand_and_base_np(EnergyLeaf):
         ddx = cascade_control_dx.cascade_control_get_n_ddx(xy_t, v_t)  # TODO: Return n ddx from x points | 09.02
         ddx_t = torch.tensor(ddx)
 
-        #self.p_dx += tdist.MultivariateNormal(ddx_t, self.var)  # self.var->torch.size(2, 2)
-
-        # The summation of n multivariate gaussian distribution
+        # The N multivariate gaussian distribution
         num = len(ddx)
         for i in range(num):
-            cur_distr = tdist.MultivariateNormal(ddx_t[i], self.var * num)
-            self.p_dx.append(cur_distr)
+            cur_gaussian = tdist.MultivariateNormal(ddx_t[i], self.var)
+            self.p_dx.append(cur_gaussian)
 
     def log_prob(self, action):
         '''
@@ -290,7 +288,14 @@ class PathPlanLeaf_lefthand_and_base_np(EnergyLeaf):
         # TODO:
         result = 0
         action = action[:, :self.dim]  # torch.Size([1000, 2])
-        for i in range(3):
-            result += self.p_dx[i].log_prob(action)
+
+        # The summation of n multivariate gaussian distribution
+        num = 3
+        g0 = torch.unsqueeze(self.p_dx[0].log_prob(action), dim=1)
+        g1 = torch.unsqueeze(self.p_dx[1].log_prob(action), dim=1)
+        g2 = torch.unsqueeze(self.p_dx[2].log_prob(action), dim=1)
+        result = torch.logsumexp(torch.stack([g0, g1, g2], dim=2), dim=2).reshape(1000, )
+
         return result
+
 

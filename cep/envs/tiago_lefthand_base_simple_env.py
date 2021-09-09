@@ -88,7 +88,7 @@ class Tiago_LeftParallelHand_Base(): # TODO: 08.06
         #print('====RESET=====')
         if q0 is None:
             for i, q_i in enumerate(self.q_home):
-                q_i = q_i + np.random.randn() * 0.1  # Reset initial joint positions
+                q_i = q_i + np.random.randn() * 0.  # Reset initial joint positions
                 #print('## q_i ##', q_i)
                 p.resetJointState(self.robot, self.JOINT_ID[i], q_i)
             p.stepSimulation()

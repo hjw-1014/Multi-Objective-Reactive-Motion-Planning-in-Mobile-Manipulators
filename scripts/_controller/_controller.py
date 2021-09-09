@@ -27,7 +27,7 @@ def cascade_control(tiago_env, num_path_points, current_state, xy_traj) -> list:
 
     return dx
 
-def cep_cascade_control_n_points(current_position, current_velocity, graph_rrt_son, graph_rrt_father) -> list:
+def cep_cascade_control_n_points(current_position:list, current_velocity:list, graph_rrt_son, graph_rrt_father) -> list:
     ''' # TODO: Return n closest points |  09.08
         current_state:
             current_state[0] -> current position [x, y]
@@ -37,16 +37,16 @@ def cep_cascade_control_n_points(current_position, current_velocity, graph_rrt_s
                 n acc commands [[acc_x_1, acc_y_1], [acc_x_2, acc_y_2], [acc_x_2, acc_y_2], ...]
     '''
 
-    dx = [0] * 2  # y and x
-    ddx = [0] * 2
     num = 3
-    ddx = [[0, 0] for _ in range(num)]
+    ddx = [[0., 0.] for _ in range(num)]
+    v_des = [0., 0.]
 
     cur_dist_son, cur_dist_father = compute_cur_dist_graph_points(current_position, graph_rrt_son, graph_rrt_father)
     closest_points = choose_n_closest_points_graph(current_position,  # TODO: Return n closest points | 09.02, 09.08
                                                    cur_dist_son,
                                                    cur_dist_father,
                                                    graph_rrt_son, graph_rrt_father)
+    print("closest_points: ", closest_points)
     for i in range(num):
         closest_point = closest_points[i]
         cur_ddx = ddx[i]
@@ -60,13 +60,13 @@ def cep_cascade_control_n_points(current_position, current_velocity, graph_rrt_s
 
         # Calculate ddx | PD control
         for j in range(2):
-            cur_ddx[j] = kp * (closest_point[j] - current_position[j]) + kv * (0 - current_velocity[j])
+            cur_ddx[j] = kp * (closest_point[j] - current_position[j]) + kv * (0. - current_velocity[j])
         sum_ddx = math.hypot(cur_ddx[0], cur_ddx[1])
         for jj in range(2):
             cur_ddx[jj] = cur_ddx[jj] / sum_ddx
         ddx[i] = cur_ddx[:]
-
-    return ddx[:]
+    print("ddx:", ddx)
+    return ddx
 
 def cep_cascade_control_rrt_tree(current_position, current_velocity, graph_rrt_son, graph_rrt_father) -> list:
     '''
