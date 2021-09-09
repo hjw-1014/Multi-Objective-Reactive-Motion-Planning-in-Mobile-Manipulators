@@ -230,27 +230,27 @@ def choose_n_closest_points_graph(cur_position: list,  # TODO: -> added on 08.05
     '''
 
     closest_points = []
-    num = 3
+    num = 1
     cur_end_dist = math.hypot(cur_position[0] - end_point[0], cur_position[1] - end_point[1])
     cur_dist_son_np = np.asarray(cur_dist_son)
     cur_dist_father_np = np.asarray(cur_dist_father)
 
-    min_idices = find_k_closest_idx(cur_dist_son_np, k=3)
+    min_idices = find_k_closest_idx(cur_dist_son_np, k=num)
 
     for i in range(num):
-        #print(i)
+        print("###", i)
 
         son_dist_index = min_idices[i]
         if end_point_threshold <= cur_end_dist <= delta:
-            #print("111")
+            print("111")
             closest_points.append(end_point)
 
         elif cur_end_dist < end_point_threshold:
-            #print('222')
+            print('222')
             closest_points.append(end_point)
 
         elif cur_end_dist > delta:
-            #print('333')
+            print('333')
             #son_dist_index = np.argmin(cur_dist_son_np)
             son_dist = cur_dist_son_np[son_dist_index]  # Get the closest point
             son_node = graph_rrt_son[son_dist_index].tolist()
@@ -258,11 +258,14 @@ def choose_n_closest_points_graph(cur_position: list,  # TODO: -> added on 08.05
             #cur_dist_son_np[son_dist_index] = 100.
             print("son_dist: ", son_dist)
             if son_dist >= cascade_threshold:
-                #print("777")
+                print("777")
                 closest_points.append(son_node)
                 continue
             elif son_dist < cascade_threshold:
-                #print("444")
+                print("444")
+                if son_end_dist <= delta:
+                    closest_points.append(son_node)
+                    continue
                 # TODO: Thinking how to move to the next point (Father node) which is not inside the cascade_threshold on 08.04 !!!!!!!!!!!!!
                 # TODO: Make a change on 08.05, works
                 father_dist = cur_dist_father_np[son_dist_index]
@@ -271,12 +274,12 @@ def choose_n_closest_points_graph(cur_position: list,  # TODO: -> added on 08.05
                 father_end_dist = math.hypot(father_node[0] - end_point[0], father_node[1] - end_point[1])
                 #print("father_node_dist: ", father_node_dist)
                 if father_dist >= cascade_threshold:
-                    #print("555")
+                    print("555")
                     closest_points.append(father_node)
                     continue
                 while father_dist < cascade_threshold:
                     if father_end_dist <= delta:
-                        #print("666")
+                        print("666")
                         closest_points.append(father_node)
                         break
                     #print('father_end_dist: ', father_end_dist)
@@ -288,11 +291,13 @@ def choose_n_closest_points_graph(cur_position: list,  # TODO: -> added on 08.05
                     father_node = graph_rrt_father[son_dist_index].tolist()
                     #print("son_node", son_node)
                     father_end_dist = math.hypot(father_node[0] - end_point[0], father_node[1] - end_point[1])
+                    print("father_dist: ", father_dist)
                     if father_dist >= cascade_threshold:
-                        #print("888")
+                        print("888")
                         closest_points.append(father_node)
                         break
                     if father_end_dist <= delta:
+                        print("999")
                         closest_points.append(father_node)
                         break
 
@@ -515,11 +520,12 @@ def find_k_closest_idx(arr: np.array, k: int):
     '''
         return the indices of K closest points. -> List
     '''
-    arr_sort = sorted(arr)
+    arr_copy = deepcopy(arr)
+    arr_sort = sorted(arr_copy)
     k_points = arr_sort[:k]
     result = []
     for i in range(k):
-        idx = np.where(arr == k_points[i])[0][0]
+        idx = np.where(arr_copy == k_points[i])[0][0]
         result.append(idx)
 
     return result

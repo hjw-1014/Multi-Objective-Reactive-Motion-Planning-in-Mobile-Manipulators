@@ -290,11 +290,16 @@ class PathPlanLeaf_lefthand_and_base_np(EnergyLeaf):
         action = action[:, :self.dim]  # torch.Size([1000, 2])
 
         # The summation of n multivariate gaussian distribution
-        num = 3
-        g0 = torch.unsqueeze(self.p_dx[0].log_prob(action), dim=1)
-        g1 = torch.unsqueeze(self.p_dx[1].log_prob(action), dim=1)
-        g2 = torch.unsqueeze(self.p_dx[2].log_prob(action), dim=1)
-        result = torch.logsumexp(torch.stack([g0, g1, g2], dim=2), dim=2).reshape(1000, )
+        num = 1
+        g = []
+        for i in range(num):
+            g.append(torch.unsqueeze(self.p_dx[i].log_prob(action), dim=1))
+
+        result = torch.logsumexp(torch.stack(g, dim=2), dim=2).reshape(1000, )
+        # g0 = torch.unsqueeze(self.p_dx[0].log_prob(action), dim=1)
+        # g1 = torch.unsqueeze(self.p_dx[1].log_prob(action), dim=1)
+        # g2 = torch.unsqueeze(self.p_dx[2].log_prob(action), dim=1)
+        # result = torch.logsumexp(torch.stack([g0, g1, g2], dim=2), dim=2).reshape(1000, )
 
         return result
 

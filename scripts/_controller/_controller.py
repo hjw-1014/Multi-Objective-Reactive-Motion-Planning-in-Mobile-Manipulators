@@ -37,7 +37,7 @@ def cep_cascade_control_n_points(current_position:list, current_velocity:list, g
                 n acc commands [[acc_x_1, acc_y_1], [acc_x_2, acc_y_2], [acc_x_2, acc_y_2], ...]
     '''
 
-    num = 3
+    num = 1
     ddx = [[0., 0.] for _ in range(num)]
     v_des = [0., 0.]
 
@@ -64,7 +64,7 @@ def cep_cascade_control_n_points(current_position:list, current_velocity:list, g
         sum_ddx = math.hypot(cur_ddx[0], cur_ddx[1])
         for jj in range(2):
             cur_ddx[jj] = cur_ddx[jj] / sum_ddx
-        ddx[i] = cur_ddx[:]
+        ddx[i] = cur_ddx
     print("ddx:", ddx)
     return ddx
 
