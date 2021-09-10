@@ -40,7 +40,7 @@ def cascade_control_get_dx(xy: list, v_l: list):  ## TODO: added on 08.12, 08.17
 
     return ddx
 
-def cascade_control_get_n_ddx(xy: list, v_l: list):  ## TODO: added on 08.12, 08.17, 09.09
+def cascade_control_get_n_ddx(xy: list, v_l: list, num: int):  ## TODO: added on 08.12, 08.17, 09.09
 
     # TODO: Read json trajectory from moveit and rrt tree
     #traj, num_path_points = open_json('./_scripts_run/qtrjs.json')
@@ -54,6 +54,6 @@ def cascade_control_get_n_ddx(xy: list, v_l: list):  ## TODO: added on 08.12, 08
     graph_rrt_son, graph_rrt_father = split_son_father(graph_rrt)
 
     ### Based on the current state, calculate the velocity command / accelaration command
-    ddx = cep_cascade_control_n_points(xy, v_l, graph_rrt_son, graph_rrt_father)  # TODO: Return n ddx from x points | 09.02, 09.09
+    ddx = cep_cascade_control_n_points(xy, v_l, graph_rrt_son, graph_rrt_father, num)  # TODO: Return n ddx from x points | 09.02, 09.09
 
     return ddx

@@ -7,6 +7,9 @@ from .energy_leaf import EnergyLeaf
 from cep.utils import eul2rot, rot2eul, rot2quat
 from cep.liegroups.torch import SO3, SE3
 
+global num
+num = 1
+
 def torch2numpy(x):
     if x is None:
         print(x)
@@ -269,12 +272,11 @@ class PathPlanLeaf_lefthand_and_base_np(EnergyLeaf):
 
         # TODO: NEED to set a multivariable gaussian distribution of dx. | added on 08.13, 08.17
         ###########################################
-
-        ddx = cascade_control_dx.cascade_control_get_n_ddx(xy_t, v_t)  # TODO: Return n ddx from x points | 09.02
+        ddx = cascade_control_dx.cascade_control_get_n_ddx(xy_t, v_t, num)  # TODO: Return n ddx from x points | 09.02
         ddx_t = torch.tensor(ddx)
 
         # The N multivariate gaussian distribution
-        num = len(ddx)
+
         for i in range(num):
             cur_gaussian = tdist.MultivariateNormal(ddx_t[i], self.var)
             self.p_dx.append(cur_gaussian)
@@ -286,7 +288,6 @@ class PathPlanLeaf_lefthand_and_base_np(EnergyLeaf):
         '''
 
         # TODO:
-        result = 0
         action = action[:, :self.dim]  # torch.Size([1000, 2])
 
         # The summation of n multivariate gaussian distribution
@@ -296,6 +297,7 @@ class PathPlanLeaf_lefthand_and_base_np(EnergyLeaf):
             g.append(torch.unsqueeze(self.p_dx[i].log_prob(action), dim=1))
 
         result = torch.logsumexp(torch.stack(g, dim=2), dim=2).reshape(1000, )
+        #result = self.p_dx[0].log_prob(action)
         # g0 = torch.unsqueeze(self.p_dx[0].log_prob(action), dim=1)
         # g1 = torch.unsqueeze(self.p_dx[1].log_prob(action), dim=1)
         # g2 = torch.unsqueeze(self.p_dx[2].log_prob(action), dim=1)
