@@ -6,4 +6,5 @@ if __name__ == '__main__':
 
 	start_time = time.time()
 	tiago_2d.base_line()
+	#tiago_2d.save_gif()
 	print("--- %s seconds ---" % (time.time() - start_time))

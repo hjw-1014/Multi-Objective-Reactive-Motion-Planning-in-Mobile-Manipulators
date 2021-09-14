@@ -55,7 +55,7 @@ def cep_cascade_control_n_points(current_position:list, current_velocity:list, g
         # for ii in range(2):
         #     dx[ii] = dx[ii] / sum_dx
 
-        # Calculate ddx | PD control  #TODO: need to add repulsive force | 09.10
+        # Calculate ddx | PD control  # TODO: need to add repulsive force | 09.10
         for j in range(2):
             ddx[i][j] = kp * (closest_point[j] - current_position[j]) + kv * (0. - current_velocity[j])
         sum_ddx = math.hypot(ddx[i][0], ddx[i][1])
@@ -204,3 +204,22 @@ def cascade_control_all_nodes_rrtTree_viz(
     velocity_map_arr = np.asarray(velocity_map)
 
     return velocity_map_arr
+
+
+def cep_cascade_control_rrt_tree_pos(current_position, current_velocity, graph_rrt_son, graph_rrt_father) -> list:
+
+    """ # TODO: 09.13
+        current_state:
+            current_state[0] -> current position [x, y]
+            current_state[1] -> current velocity [dx, dy]
+        return: closest point(s), [pos_x, pos_y]
+    """
+
+    cur_dist_son, cur_dist_father = compute_cur_dist_graph_points(current_position, graph_rrt_son, graph_rrt_father)
+    closest_point = choose_min_dist_point_graph_batch_viz(current_position,
+                                                   cur_dist_son,
+                                                   cur_dist_father,
+                                                   graph_rrt_son, graph_rrt_father)
+    print("closest_point: ", closest_point)
+
+    return closest_point

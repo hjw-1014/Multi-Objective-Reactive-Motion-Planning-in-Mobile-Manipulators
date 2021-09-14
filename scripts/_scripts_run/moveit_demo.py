@@ -13,9 +13,9 @@ if __name__ == "__main__":
     robotId, joint_indexes = tiago_env.start_pybullet(activate_GUI=False) #TODO: Change here to start the GUI
 
     plot_moveit_traj(xy_traj)
-    while True:
-        tiago_env.visualize_trajectory(xy_traj)
-        p.stepSimulation()
+    # while True:
+    #     tiago_env.visualize_trajectory(xy_traj)
+    #     p.stepSimulation()
 
 
 

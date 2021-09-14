@@ -55,9 +55,9 @@ class Rrt:
                     # TODO: Extract all the nodes 08.03
                     nodes_list = self.utils.vertex_2_xy_list(self.vertex)
                     path = self.extract_path(node_new)
-                    self.utils.save_vertex_in_npy(self.vertex)
-                    self.utils.save_graph_in_npy(nodes_list)
-                    self.utils.save_path_in_npy(path)
+                    # self.utils.save_vertex_in_npy(self.vertex)
+                    # self.utils.save_graph_in_npy(nodes_list)
+                    # self.utils.save_path_in_npy(path)
                     return path, self.vertex, nodes_list
 
         return None

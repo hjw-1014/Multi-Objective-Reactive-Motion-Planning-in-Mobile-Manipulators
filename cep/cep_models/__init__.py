@@ -7,3 +7,5 @@ from .tiago_lefthand_base_models import jsc_and_goto_cep_simple_model_lefthandBa
 from .tiago_lefthand_base_models import cep_model_lefthandBase_taskgotoAndPathplan
 from .tiago_lefthand_base_models import cep_tiago_lefthand_base_pathplan
 from .tiago_lefthand_base_models import cep_tiago_lefthand_base_pathplan_np
+from .tiago_lefthand_base_models import cep_tiago_base_pathplan_x
+from .tiago_lefthand_base_models import *

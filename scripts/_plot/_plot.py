@@ -86,11 +86,6 @@ def plot_moveit_traj(xy_traj: list):
     center_size = 10
     marker_size = 5000
 
-    for i in range(lenth):
-        ax.scatter(xy_traj[i][0], xy_traj[i][1], s=center_size, alpha=1)
-        ax.scatter(xy_traj[i][0], xy_traj[i][1], s=marker_size, alpha=.05)
-        ax.plot(xy_traj[i][0], xy_traj[i][1])
-
     ax.grid(True)
 
     ax.set_xlim(-0.5, 1.5)
@@ -103,6 +98,13 @@ def plot_moveit_traj(xy_traj: list):
     left, bottom, width, height = (0.35, 0.35, 0.3, 0.3)
     ax.add_patch(Rectangle((left, bottom), width, height,
                            facecolor="black", alpha=0.5))
+
+    for i in range(lenth):
+        plt.cla()
+        ax.scatter(xy_traj[i][0], xy_traj[i][1], s=center_size, alpha=1)
+        ax.scatter(xy_traj[i][0], xy_traj[i][1], s=marker_size, alpha=.05)
+        ax.plot(xy_traj[i][0], xy_traj[i][1])
+        plt.pause(0.0001)
 
     plt.show()
 
