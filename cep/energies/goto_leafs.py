@@ -389,7 +389,7 @@ class PathPlanLeaf_pos(EnergyLeaf_x): # TODO: heatmap of position | add 09.13
         global count
         if count % 500 == 1:
             grid_map = self.gen_gridmap()
-            log_map = self.p_dx.log_prob(grid_map)
+            log_map = torch.exp(self.p_dx.log_prob(grid_map))
             fig = self.gen_heatmap(log_map=log_map, closest_point=self.closest_point)
             self.save_heatmap(fig, path)
         count += 1
