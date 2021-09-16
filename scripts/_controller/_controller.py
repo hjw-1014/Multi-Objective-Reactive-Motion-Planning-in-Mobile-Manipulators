@@ -223,3 +223,21 @@ def cep_cascade_control_rrt_tree_pos(current_position, current_velocity, graph_r
     print("closest_point: ", closest_point)
 
     return closest_point
+
+def cep_cascade_control_rrt_tree_n_pos(current_position, current_velocity, graph_rrt_son, graph_rrt_father, num) -> list:
+
+    """ # TODO: 09.13
+        current_state:
+            current_state[0] -> current position [x, y]
+            current_state[1] -> current velocity [dx, dy]
+        return: closest point(s), [pos_x, pos_y]
+    """
+
+    cur_dist_son, cur_dist_father = compute_cur_dist_graph_points(current_position, graph_rrt_son, graph_rrt_father)
+    closest_points = choose_n_closest_points_graph(current_position,
+                                                   cur_dist_son,
+                                                   cur_dist_father,
+                                                   graph_rrt_son, graph_rrt_father, num=num)
+    print("closest_points: ", closest_points)
+
+    return closest_points

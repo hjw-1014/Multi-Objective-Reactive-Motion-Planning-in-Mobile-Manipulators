@@ -340,11 +340,11 @@ def choose_n_closest_points_graph(cur_position: list,  # TODO: -> added on 08.05
                 father_end_dist = math.hypot(father_node[0] - end_point[0], father_node[1] - end_point[1])  # Get its father node distance from the end point
                 if father_node_dist >= cascade_threshold:
                     closest_points.append(father_node)
-                    return closest_points
+                    #return closest_points
                 elif father_node_dist < cascade_threshold:
                     if father_end_dist < delta:
                         closest_points.append(father_node)
-                        return closest_points
+                        #return closest_points
                     # print('father_end_dist: ', father_end_dist)
                     # print("father_node_dist: ", father_node_dist)
                     son_dist_index = cur_dist_son.index(father_node_dist)

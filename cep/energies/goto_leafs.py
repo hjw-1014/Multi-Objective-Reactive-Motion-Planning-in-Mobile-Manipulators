@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 import time
 
 global num
-num = 1
+num = 2
 
 global closest_points
 closest_points = []
@@ -354,7 +354,7 @@ class PathPlanLeaf_pos(EnergyLeaf_x): # TODO: heatmap of position | add 09.13
         # ddx = cascade_control_dx.cascade_control_get_dx(xy_t, v_t)
         # ddx_t = torch.tensor(ddx)
 
-        pos = cascade_control_dx.cascade_control_get_x(xy_t, v_t)
+        pos = cascade_control_dx.cascade_control_get_x(xy_t, v_t)  # TODO: Return N closest points
         pos_t = torch.tensor(pos)
 
         self.closest_point = pos
@@ -390,11 +390,186 @@ class PathPlanLeaf_pos(EnergyLeaf_x): # TODO: heatmap of position | add 09.13
         if count % 500 == 1:
             grid_map = self.gen_gridmap()
             log_map = torch.exp(self.p_dx.log_prob(grid_map))
-            fig = self.gen_heatmap(log_map=log_map, closest_point=self.closest_point)
+            fig = self.gen_heatmap(log_map=log_map, closest_point=self.closest_point, current_point=state[0])
             self.save_heatmap(fig, path)
         count += 1
 
         return self.p_dx.log_prob(q_t)  # torch.Size([1000])
+        # return self.p_dx.log_prob(action)  # torch.Size([1000])
+
+    def gen_gridmap(self):
+
+        """
+            Return a grid map with tensorsize([nc*nr, 2]) for heatmap generation
+        """
+
+        dx, dy = -0.01, 0.01
+
+        # generate 2 2d grids for the x & y bounds
+        y, x = np.mgrid[1.78:-0.78 + dx:dx, -0.78:1.78 + dy:dy]
+        ic(x)
+        ic(y)
+
+        nr = len(x)
+        nc = len(y)
+        grid_map = []
+        cur_grid = [0, 0]
+        for i in range(nr):
+            for j in range(nc):
+                cur_grid[0] = x[i][j]
+                cur_grid[1] = y[i][j]
+                grid_map.append(cur_grid)
+                cur_grid = [0, 0]
+
+        grid_map = torch.tensor(grid_map)
+
+        return grid_map
+
+    def gen_heatmap(self, log_map, closest_point, current_point):
+
+        """
+            log_map: torch.tensorsize([nc* nr, 2])
+        """
+        fig, ax = plt.subplots(1, 1)  # TODO: Initialize fig
+        dx, dy = -0.01, 0.01
+
+        # generate 2 2d grids for the x & y bounds
+        y, x = np.mgrid[1.78:-0.78 + dx:dx, -0.78:1.78 + dy:dy]
+
+        nr = len(x)
+        nc = len(y)
+
+        log_map = log_map.reshape((nr, nc))
+
+        log_max, log_min = log_map.max(), log_map.min()
+
+        # Mark the goal point
+        goal_circle = plt.Circle((1.2, 1.0), 0.01, color='r', fill=True)
+        ax.text(1.2, 1.0, s='goal', fontsize=9.)
+        ax.add_patch(goal_circle)
+
+        # Mark the current point
+        current_circle = plt.Circle((current_point[0], current_point[1]), 0.01, color='y', fill=True)
+        ax.text(current_point[0], current_point[1], s='current', fontsize=9.)
+        ax.add_patch(current_circle)
+
+        # Mark the closest point
+        closest_circle = plt.Circle((closest_point[0], closest_point[1]), 0.01, color='g', fill=True)
+        ax.text(closest_point[0], closest_point[1], s='closest', fontsize=9.)
+        ax.add_patch(closest_circle)
+
+        c = ax.pcolor(x, y, log_map, cmap='RdBu', vmin=log_min, vmax=log_max)
+        ax.set_title('Closest point heatmap')
+
+        fig.colorbar(c, ax=ax)
+
+        fig.tight_layout()
+        plt.show()
+
+        return fig
+
+    def create_dir(self):
+
+        t = time.strftime("%Y-%m-%d-%H_%M_%S", time.localtime())
+
+        base_dir = os.path.abspath(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+        heatmap_dir = os.path.join(base_dir, "Results_figure/heatmap/")
+        path = os.path.join(heatmap_dir, t)
+        os.mkdir(path)
+
+        return path
+
+    def save_heatmap(self, fig, path):
+
+        t = time.strftime("%Y-%m-%d-%H_%M_%S", time.localtime())
+
+        fig.savefig(path+'/heatmap_{}.png'.format(t), dpi=300)
+
+class PathPlanLeaf_n_pos(EnergyLeaf_x):  # TODO: heatmap of position | add 09.15
+
+    def __init__(self, dim=2, Kp=1., Kv=1., var=torch.eye(2).float() * 1.):
+
+        super(PathPlanLeaf_n_pos, self).__init__()
+        self.dim = dim
+
+        self.Kp = Kp
+        # self.register_buffer('Kp', Kp)
+
+        self.Kv = Kv
+        # self.register_buffer('Kv', Kv)
+
+        self.var = var
+
+        ## Multivariate Gaussian distribution ##
+        self.p_dx = []
+
+        self.closest_point = None
+
+    def set_context(self, state):
+        '''
+        We compute the conditioning variables of our model to have a faster optimization
+        '''
+        xy = state[0]  # torch.Size([2]), x and y
+        xy_t = torch2numpy(xy).tolist()
+        v = state[1]  # torch.Size([2]), dx, dy
+        v_t = torch2numpy(v).tolist()
+
+        # ddx = cascade_control_dx.cascade_control_get_dx(xy_t, v_t)
+        # ddx_t = torch.tensor(ddx)
+
+        pos_n = cascade_control_dx.cascade_control_get_n_x(xy_t, v_t, num=2)  # TODO: Return N closest points
+        pos_t = torch.tensor(pos_n)
+
+        self.closest_point = pos_n
+
+        closest_points.append(pos_n)
+
+        # N closest points ===>>> N gaussian distributions
+        for i in range(len(pos_n)):
+            cur_gaussian = tdist.MultivariateNormal(pos_t[i], self.var)
+            self.p_dx.append(cur_gaussian)
+
+
+    def log_prob(self, action, state):
+        """
+        Target Energy is a energy function that will provide the desired velocity given the current state p(\dot{x} | x)
+        We will model it with a gaussian distribution
+        """
+
+        # TODO: add euler discretization | 09.13
+        action = action[:, :self.dim]  # torch.Size([1000, 2])
+
+        q_t = state[0]  # torch.Size([2]), x and y
+        dq_t = state[1]  # torch.Size([2]), dx, dy
+
+        ddq_t = action
+        dq_t = dq_t + ddq_t * 1. / 240.
+        q_t = q_t + dq_t * 1. / 240.
+
+        # TODO: add heatmap | 09.13
+        global path
+        global CREATE_DIR
+        if not CREATE_DIR:
+            path = self.create_dir()
+            CREATE_DIR = True
+
+        global count
+        # if count % 500 == 1:
+        #     print("self.closest_point: ", self.closest_point)
+        #     for j in range(len(self.closest_point)):
+        #         print("### j:", j)
+        #         grid_map = self.gen_gridmap()
+        #         log_map = torch.exp(self.p_dx[j].log_prob(grid_map))
+        #         fig = self.gen_heatmap(log_map=log_map, closest_point=self.closest_point[j])
+        #         self.save_heatmap(fig, path)
+        # count += 1
+
+        g = []
+        for i in range(num):
+            g.append(torch.unsqueeze(self.p_dx[i].log_prob(action), dim=1))
+
+        result = torch.logsumexp(torch.stack(g, dim=2), dim=2).reshape(1000, )
+        return result
         # return self.p_dx.log_prob(action)  # torch.Size([1000])
 
     def gen_gridmap(self):
