@@ -290,7 +290,7 @@ class PathPlanLeaf_lefthand_and_base_np(EnergyLeaf):
 
         # TODO: NEED to set a multivariable gaussian distribution of dx. | added on 08.13, 08.17
         ###########################################
-        ddx = cascade_control_dx.cascade_control_get_n_ddx(xy_t, v_t, num)  # TODO: Return n ddx from x points | 09.02
+        ddx = cascade_control_dx.cascade_control_get_n_ddx(xy_t, v_t, num=2)  # TODO: Return n ddx from x points | 09.02
         ddx_t = torch.tensor(ddx)
 
         # The N multivariate gaussian distribution
@@ -309,7 +309,7 @@ class PathPlanLeaf_lefthand_and_base_np(EnergyLeaf):
         action = action[:, :self.dim]  # torch.Size([1000, 2])
 
         # The summation of n multivariate gaussian distribution
-        num = 1
+        num = 2
         g = []
         for i in range(num):
             g.append(torch.unsqueeze(self.p_dx[i].log_prob(action), dim=1))
@@ -552,6 +552,7 @@ class PathPlanLeaf_n_pos(EnergyLeaf_x):  # TODO: heatmap of position | add 09.15
         dq_t = dq_t + ddq_t * 1. / 240.
         q_t = q_t + dq_t * 1. / 240.
 
+        ##########################################
         # TODO: add heatmap | 09.13
         global path
         global CREATE_DIR
@@ -560,15 +561,17 @@ class PathPlanLeaf_n_pos(EnergyLeaf_x):  # TODO: heatmap of position | add 09.15
             CREATE_DIR = True
 
         global count
-        # if count % 500 == 1:
-        #     print("self.closest_point: ", self.closest_point)
-        #     for j in range(len(self.closest_point)):
-        #         print("### j:", j)
-        #         grid_map = self.gen_gridmap()
-        #         log_map = torch.exp(self.p_dx[j].log_prob(grid_map))
-        #         fig = self.gen_heatmap(log_map=log_map, closest_point=self.closest_point[j])
-        #         self.save_heatmap(fig, path)
-        # count += 1
+        gg = []
+        if count % 1500 == 1:
+            print("self.closest_point: ", self.closest_point)
+            grid_map = self.gen_gridmap()
+            for i in range(num):
+                gg.append(torch.unsqueeze(self.p_dx[i].log_prob(grid_map), dim=1))
+            log_map = torch.logsumexp(torch.stack(gg, dim=2), dim=2).reshape(len(grid_map), )
+            fig = self.gen_heatmap(log_map=log_map, closest_point=self.closest_point, current_point=state[0])
+            self.save_heatmap(fig, path)
+        count += 1
+        ###########################################
 
         g = []
         for i in range(num):
@@ -606,7 +609,7 @@ class PathPlanLeaf_n_pos(EnergyLeaf_x):  # TODO: heatmap of position | add 09.15
 
         return grid_map
 
-    def gen_heatmap(self, log_map, closest_point):
+    def gen_heatmap(self, log_map, closest_point, current_point):
 
         """
             log_map: torch.tensorsize([nc* nr, 2])
@@ -626,11 +629,26 @@ class PathPlanLeaf_n_pos(EnergyLeaf_x):  # TODO: heatmap of position | add 09.15
 
         # Mark the goal point
         goal_circle = plt.Circle((1.2, 1.0), 0.01, color='r', fill=True)
+        ax.text(1.2, 1.0, s='goal', fontsize=8.)
         ax.add_patch(goal_circle)
 
+        # Mark the current point
+        current_circle = plt.Circle((current_point[0], current_point[1]), 0.01, color='y', fill=True)
+        #ax.text(current_point[0], current_point[1], s='cur', fontsize=8.)
+        ax.add_patch(current_circle)
+
         # Mark the closest point
-        closest_circle = plt.Circle((closest_point[0], closest_point[1]), 0.01, color='g', fill=True)
-        ax.add_patch(closest_circle)
+        for i in range(len(self.closest_point)):
+            closest_circle = plt.Circle((closest_point[i][0], closest_point[i][1]), 0.01, color='g', fill=True)
+            ax.text(closest_point[i][0], closest_point[i][1], s='closest', fontsize=8.)
+            ax.add_patch(closest_circle)
+
+        # Mark the arrow
+        for i in range(len(self.closest_point)):
+            delta_x, delta_y = closest_point[i][0] - current_point[0], closest_point[i][1] - current_point[1]
+            delta = math.sqrt(pow(delta_x, 2) + pow(delta_y, 2))
+            ax.arrow(current_point[0], current_point[1], dx=delta_x / delta * 0.06, dy=delta_y / delta * 0.05, width=0.0005,
+                     head_width=0.03, color='y')
 
         c = ax.pcolor(x, y, log_map, cmap='RdBu', vmin=log_min, vmax=log_max)
         ax.set_title('Closest point heatmap')

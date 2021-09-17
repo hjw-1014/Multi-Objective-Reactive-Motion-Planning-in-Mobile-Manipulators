@@ -305,23 +305,24 @@ def choose_min_dist_point_graph_batch(tiago_env,
 #     return closest_points
 
 def choose_n_closest_points_graph(cur_position: list,  # TODO: -> added on 08.05 | need to return n points 09.10
-                                cur_dist_son: list,
-                                cur_dist_father: list,
-                                graph_rrt_son: np.array,
-                                graph_rrt_father: np.array,
-                                num: int) -> (float, int):
+                                  cur_dist_son: list,
+                                  cur_dist_father: list,
+                                  graph_rrt_son: np.array,
+                                  graph_rrt_father: np.array,
+                                  num: int) -> (float, int):
     '''
         Return: closest_points: List[List[float, float]] -> N closest points from current position
     '''
 
     closest_points = []
-    cur_end_dist = math.hypot(cur_position[0] - end_point[0], cur_position[1] - end_point[1])
+    cur_end_dist = math.hypot(cur_position[0] - end_point[0], cur_position[1] - end_point[1])  # Get current distance from end point
     cur_dist_son_np = np.asarray(cur_dist_son)
     cur_dist_father_np = np.asarray(cur_dist_father)
 
-    min_idices = find_k_closest_idx(cur_dist_son_np, k=num)
+    min_indices = find_k_closest_idx(cur_dist_son_np, k=num)  # Get the N closest points' indices
+    print("min_indices: ", min_indices)
 
-    for i in range(num):
+    for i in range(num):  # Transverse for N times
         print("###", i)
         if end_point_threshold <= cur_end_dist <= delta:  # Check if current position is within one step of the robot movement
             closest_points.append(end_point)
@@ -330,7 +331,7 @@ def choose_n_closest_points_graph(cur_position: list,  # TODO: -> added on 08.05
             closest_points.append(end_point)
             continue
         elif cur_end_dist > delta:  # If current position is far away from the end point
-            son_dist_index = min_idices[i]
+            son_dist_index = min_indices[i]
             son_dist = cur_dist_son[son_dist_index]  # Get the closest point along the rrt tree
             while son_dist < cascade_threshold:  # If it's inside the cascade region
                 # TODO: Thinking how to move to the next point (Father node) which is not inside the cascade_threshold on 08.04 !!!!!!!!!!!!!
@@ -340,16 +341,71 @@ def choose_n_closest_points_graph(cur_position: list,  # TODO: -> added on 08.05
                 father_end_dist = math.hypot(father_node[0] - end_point[0], father_node[1] - end_point[1])  # Get its father node distance from the end point
                 if father_node_dist >= cascade_threshold:
                     closest_points.append(father_node)
+                    break
                     #return closest_points
                 else:
                     if father_end_dist < delta:
                         closest_points.append(father_node)
+                        break
                         #return closest_points
                     # print('father_end_dist: ', father_end_dist)
                     # print("father_node_dist: ", father_node_dist)
                     son_dist_index = cur_dist_son.index(father_node_dist)
                     son_dist = cur_dist_father[son_dist_index]
-            if son_dist < cascade_threshold:
+            if son_dist >= cascade_threshold:
+                closest_points.append(graph_rrt_son[son_dist_index].tolist())  # If the closest point is outside the cascade region, then directly return this closest point
+
+    return closest_points
+
+def choose_n_closest_points_graph(cur_position: list,  # TODO: -> added on 08.05 | need to return n points 09.10
+                                  cur_dist_son: list,
+                                  cur_dist_father: list,
+                                  graph_rrt_son: np.array,
+                                  graph_rrt_father: np.array,
+                                  num: int) -> (float, int):
+    '''
+        Return: closest_points: List[List[float, float]] -> N closest points from current position
+    '''
+
+    closest_points = []
+    cur_end_dist = math.hypot(cur_position[0] - end_point[0], cur_position[1] - end_point[1])  # Get current distance from end point
+    cur_dist_son_np = np.asarray(cur_dist_son)
+    cur_dist_father_np = np.asarray(cur_dist_father)
+
+    min_indices = find_k_closest_idx(cur_dist_son_np, k=num)  # Get the N closest points' indices
+    print("min_indices: ", min_indices)
+
+    for i in range(num):  # Transverse for N times
+        print("###", i)
+        if end_point_threshold <= cur_end_dist <= delta:  # Check if current position is within one step of the robot movement
+            closest_points.append(end_point)
+            continue
+        elif cur_end_dist < end_point_threshold:  # Check if current position is close to the end point within admitted threshold=0.02
+            closest_points.append(end_point)
+            continue
+        elif cur_end_dist > delta:  # If current position is far away from the end point
+            son_dist_index = min_indices[i]
+            son_dist = cur_dist_son[son_dist_index]  # Get the closest point along the rrt tree
+            while son_dist < cascade_threshold:  # If it's inside the cascade region
+                # TODO: Thinking how to move to the next point (Father node) which is not inside the cascade_threshold on 08.04 !!!!!!!!!!!!!
+                # TODO: Make a change on 08.05, works
+                father_node_dist = cur_dist_father[son_dist_index]  # Get its father node distance from current position
+                father_node = graph_rrt_father[son_dist_index].tolist()  # Get its father node
+                father_end_dist = math.hypot(father_node[0] - end_point[0], father_node[1] - end_point[1])  # Get its father node distance from the end point
+                if father_node_dist >= cascade_threshold:
+                    closest_points.append(father_node)
+                    break
+                    #return closest_points
+                else:
+                    if father_end_dist < delta:
+                        closest_points.append(father_node)
+                        break
+                        #return closest_points
+                    # print('father_end_dist: ', father_end_dist)
+                    # print("father_node_dist: ", father_node_dist)
+                    son_dist_index = cur_dist_son.index(father_node_dist)
+                    son_dist = cur_dist_father[son_dist_index]
+            if son_dist >= cascade_threshold:
                 closest_points.append(graph_rrt_son[son_dist_index].tolist())  # If the closest point is outside the cascade region, then directly return this closest point
 
     return closest_points
