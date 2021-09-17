@@ -341,7 +341,7 @@ def choose_n_closest_points_graph(cur_position: list,  # TODO: -> added on 08.05
                 if father_node_dist >= cascade_threshold:
                     closest_points.append(father_node)
                     #return closest_points
-                elif father_node_dist < cascade_threshold:
+                else:
                     if father_end_dist < delta:
                         closest_points.append(father_node)
                         #return closest_points
@@ -349,8 +349,8 @@ def choose_n_closest_points_graph(cur_position: list,  # TODO: -> added on 08.05
                     # print("father_node_dist: ", father_node_dist)
                     son_dist_index = cur_dist_son.index(father_node_dist)
                     son_dist = cur_dist_father[son_dist_index]
-
-            closest_points.append(graph_rrt_son[son_dist_index].tolist())  # If the closest point is outside the cascade region, then directly return this closest point
+            if son_dist < cascade_threshold:
+                closest_points.append(graph_rrt_son[son_dist_index].tolist())  # If the closest point is outside the cascade region, then directly return this closest point
 
     return closest_points
 
@@ -574,15 +574,15 @@ def velocity_matrix_2_UV(self) -> list:
     return U_list, V_list
 
 def find_k_closest_idx(arr: np.array, k: int):
-    '''
+    """
         return the indices of K closest points. -> List
-    '''
+    """
     arr_copy = deepcopy(arr)
     arr_sort = sorted(arr_copy)
     k_points = arr_sort[:k]
     result = []
     for i in range(k):
-        idx = np.where(arr_copy == k_points[i])[0][0]
+        idx = np.where(abs(arr_copy - k_points[i]) <= 0.0001)[0][0]
         result.append(idx)
 
     return result

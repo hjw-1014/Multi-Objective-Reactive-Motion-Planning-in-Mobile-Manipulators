@@ -1,3 +1,4 @@
+import math
 import os
 
 import torch
@@ -445,18 +446,23 @@ class PathPlanLeaf_pos(EnergyLeaf_x): # TODO: heatmap of position | add 09.13
 
         # Mark the goal point
         goal_circle = plt.Circle((1.2, 1.0), 0.01, color='r', fill=True)
-        ax.text(1.2, 1.0, s='goal', fontsize=9.)
+        ax.text(1.2, 1.0, s='goal', fontsize=8.)
         ax.add_patch(goal_circle)
 
         # Mark the current point
         current_circle = plt.Circle((current_point[0], current_point[1]), 0.01, color='y', fill=True)
-        ax.text(current_point[0], current_point[1], s='current', fontsize=9.)
+        ax.text(current_point[0], current_point[1], s='current', fontsize=8.)
         ax.add_patch(current_circle)
 
         # Mark the closest point
         closest_circle = plt.Circle((closest_point[0], closest_point[1]), 0.01, color='g', fill=True)
-        ax.text(closest_point[0], closest_point[1], s='closest', fontsize=9.)
+        ax.text(closest_point[0], closest_point[1], s='closest', fontsize=8.)
         ax.add_patch(closest_circle)
+
+        # Mark the arrow
+        delta_x, delta_y = closest_point[0]-current_point[0], closest_point[1]-current_point[1]
+        delta = math.sqrt(pow(delta_x, 2)+pow(delta_y, 2))
+        ax.arrow(current_point[0], current_point[1], dx=delta_x/delta * 0.08, dy=delta_y/delta * 0.08, width=0.001, head_width=0.03, color='y')
 
         c = ax.pcolor(x, y, log_map, cmap='RdBu', vmin=log_min, vmax=log_max)
         ax.set_title('Closest point heatmap')
