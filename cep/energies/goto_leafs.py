@@ -380,6 +380,7 @@ class PathPlanLeaf_pos(EnergyLeaf_x): # TODO: heatmap of position | add 09.13
         dq_t = dq_t + ddq_t * 1./240.
         q_t = q_t + dq_t * 1./240.
 
+        ##########################################
         # TODO: add heatmap | 09.13
         global path
         global CREATE_DIR
@@ -394,6 +395,7 @@ class PathPlanLeaf_pos(EnergyLeaf_x): # TODO: heatmap of position | add 09.13
             fig = self.gen_heatmap(log_map=log_map, closest_point=self.closest_point, current_point=state[0])
             self.save_heatmap(fig, path)
         count += 1
+        ##########################################
 
         return self.p_dx.log_prob(q_t)  # torch.Size([1000])
         # return self.p_dx.log_prob(action)  # torch.Size([1000])
@@ -491,6 +493,7 @@ class PathPlanLeaf_pos(EnergyLeaf_x): # TODO: heatmap of position | add 09.13
 
         fig.savefig(path+'/heatmap_{}.png'.format(t), dpi=300)
 
+
 class PathPlanLeaf_n_pos(EnergyLeaf_x):  # TODO: heatmap of position | add 09.15
 
     def __init__(self, dim=2, Kp=1., Kv=1., var=torch.eye(2).float() * 1.):
@@ -562,12 +565,12 @@ class PathPlanLeaf_n_pos(EnergyLeaf_x):  # TODO: heatmap of position | add 09.15
 
         global count
         gg = []
-        if count % 1500 == 1:
+        if count % 2000 == 1:
             print("self.closest_point: ", self.closest_point)
             grid_map = self.gen_gridmap()
             for i in range(num):
                 gg.append(torch.unsqueeze(self.p_dx[i].log_prob(grid_map), dim=1))
-            log_map = torch.logsumexp(torch.stack(gg, dim=2), dim=2).reshape(len(grid_map), )
+            log_map = torch.exp(torch.logsumexp(torch.stack(gg, dim=2), dim=2)).reshape(len(grid_map),)
             fig = self.gen_heatmap(log_map=log_map, closest_point=self.closest_point, current_point=state[0])
             self.save_heatmap(fig, path)
         count += 1
@@ -575,11 +578,11 @@ class PathPlanLeaf_n_pos(EnergyLeaf_x):  # TODO: heatmap of position | add 09.15
 
         g = []
         for i in range(num):
-            g.append(torch.unsqueeze(self.p_dx[i].log_prob(action), dim=1))
+            g.append(torch.unsqueeze(self.p_dx[i].log_prob(q_t), dim=1))
 
-        result = torch.logsumexp(torch.stack(g, dim=2), dim=2).reshape(1000, )
+        result = torch.exp(torch.logsumexp(torch.stack(g, dim=2), dim=2)).reshape(1000, )
+
         return result
-        # return self.p_dx.log_prob(action)  # torch.Size([1000])
 
     def gen_gridmap(self):
 

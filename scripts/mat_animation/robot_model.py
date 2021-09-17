@@ -8,6 +8,9 @@ from math import sqrt, cos, sin, tan, pi
 
 import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib.patches import Rectangle
+from matplotlib import animation, rc
+from IPython.display import HTML, Image
 
 # Define robot configuration
 radius = 0.27
@@ -46,41 +49,99 @@ class data_linewidth_plot():
         self.timer.add_callback(lambda : self.fig.canvas.draw_idle())
         self.timer.start()
 
-def plot_robot(ax, robot_x, robot_y, radius):
+class Plotting:
+    def __init__(self, robot_x_list=None, robot_y_list=None):
 
-    robot_color = 'blue'
-    robot_circle = plt.Circle((robot_x, robot_y), radius, color=robot_color,  fill=False)
-    ax.add_patch(robot_circle)
+        self.robot = None
+        self.robot_x_list = robot_x_list
+        self.robot_y_list = robot_y_list
 
-def plot_des(ax, des_x, des_y, radius):
+    def plot_robot(self, ax, robot_x, robot_y, radius):
 
-    desire_cicle = plt.Circle((des_x, des_y), radius, color='g', fill=False)
-    ax.add_patch(desire_cicle)
+        robot_color = 'blue'
+        robot_circle = plt.Circle((robot_x, robot_y), radius, color=robot_color,  fill=False)
+        ax.add_patch(robot_circle)
 
-fig, ax = plt.subplots(figsize=(9, 9))
+    def plot_des(self, ax, des_x, des_y, radius):
 
-plot_des(ax, des_x, des_y, radius)
+        desire_cicle = plt.Circle((des_x, des_y), radius, color='g', fill=False)
+        ax.add_patch(desire_cicle)
 
-robot_x_list = []
-robot_y_list = []
+    def plot_animation(self):
 
-for i in range(100):
-    x = robot_x + 0.005 * i
-    y = robot_y + 0.005 * i
-    robot_x_list.append(x)
-    robot_y_list.append(y)
+        fig, ax = plt.subplots(figsize=(9, 9))
 
-for i in range(100):
-    plt.cla()
-    # for stopping simulation with the esc key.
-    plt.gcf().canvas.mpl_connect('key_release_event',
-                                 lambda event: [exit(0) if event.key == 'escape' else None])
-    ax.set_xlim(-1, 2)
-    ax.set_ylim(-1, 2)
-    plot_robot(ax, robot_x_list[i], robot_y_list[i], radius)
-    plt.pause(0.000001)
+        robot_x_list = self.robot_x_list
+        robot_y_list = self.robot_y_list
 
-l = data_linewidth_plot([0., 0.2], [0., 0.2], ax=ax, label='some 1 data unit wide line',
-                        linewidth=0.01, alpha=1.)
-#plot_robot(ax, robot_x, robot_y, radius)
-plt.show()
+        for _ in range(3):
+            for i in range(0, 4000, 40):
+
+                plt.cla()
+
+                # for stopping simulation with the esc key.
+                plt.gcf().canvas.mpl_connect('key_release_event',
+                                             lambda event: [exit(0) if event.key == 'escape' else None])
+                ax.set_xlim(-1, 2)
+                ax.set_ylim(-1, 2)
+
+                ax.grid(True)
+
+                self.plot_robot(ax, robot_x_list[i], robot_y_list[i], radius)
+
+                robot_circle = plt.Circle((robot_x_list[i], robot_y_list[i]), radius=0.01, color='y', fill=True)
+                ax.text(robot_x_list[i], robot_y_list[i], s='cur', fontsize=8.)
+                ax.add_patch(robot_circle)
+
+                self.plot_des(ax, des_x, des_y, radius)
+
+                start_circle = plt.Circle((-0.1, -0.1), 0.01, color='g', fill=True)
+                ax.text(-0.1, -0.1, s='start', fontsize=8.)
+                ax.add_patch(start_circle)
+
+                goal_circle = plt.Circle((1.2, 1.0), 0.01, color='r', fill=True)
+                ax.text(1.2, 1.0, s='goal', fontsize=8.)
+                ax.add_patch(goal_circle)
+
+                ax.add_patch(Rectangle((0.35, 0.35), 0.3, 0.3, facecolor="black", alpha=0.5))
+
+                plt.pause(1e-4)
+
+                #l = data_linewidth_plot([0., 0.2], [0., 0.2], ax=ax, label='some 1 data unit wide line',
+                #                    linewidth=0.01, alpha=1.)
+
+            #plt.show()
+
+    def animate(self, i, ax):
+
+        line, = ax.plot([], [], lw=2)
+        x = np.linspace(0, 2, 1000)
+        y = np.sin(2 * np.pi * (x - 0.01 * i))
+        line.set_data(x, y)
+
+        return (line,)
+
+    def save_gif(self, fig, ax):
+
+        anim = animation.FuncAnimation(fig, self.animate(ax),
+                                       frames=100, interval=20, blit=True)
+        anim.save("test.gif", writer='imagemagick', fps=60)
+
+
+if __name__ == "__main__":
+
+    fig, ax = plt.subplots()
+
+    robot_x_list = []
+    robot_y_list = []
+    robot_x = 0.
+    robot_y = 0.
+    for i in range(100):
+        x = robot_x + 0.005 * i
+        y = robot_y + 0.005 * i
+        robot_x_list.append(x)
+        robot_y_list.append(y)
+
+    plotting = Plotting(robot_x_list, robot_y_list)
+    #plotting.save_gif(fig, ax)
+    plotting.plot_animation()

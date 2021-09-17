@@ -289,6 +289,7 @@ class EBMControl_x(): # TODO: added on 09.13
         white_noise = torch.randn(self.n_particles, self.dim).to(self.device)
         for i in range(self.optimization_steps):
             t0 = time.time()
+            # TODO: Sample from action(ddq)
             action = torch.matmul(std, white_noise.T).T + mu  # Random sample, torch.Size([1000, 7])
 
             t1 = time.time()

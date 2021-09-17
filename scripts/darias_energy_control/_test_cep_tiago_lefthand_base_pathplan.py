@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 from cep.envs import Tiago_LeftParallelHand_Base
 from cep.cep_models import cep_tiago_lefthand_base_pathplan
 import torch
+from mat_animation import Plotting
 
 joint_limit_buffers = 0.02
 joint_limits = np.array([2.5, 2.5, 3.1416, 2.75, 1.57, 3.53, 2.35, 2.09, 1.57, 2.09]) - joint_limit_buffers
@@ -99,8 +100,8 @@ def experiment():
     policy = CEPPolicy(dt=time_step)
     ################
 
-    n_trials = 10
-    horizon = 10000
+    n_trials = 1
+    horizon = 4000
     c = 0
     s = 0
     REWARD = 0
@@ -110,7 +111,8 @@ def experiment():
         state = env.reset()
         p.addUserDebugLine([0., 0., -0.189], [1.5, 0., -0.189], [1., 0., 0.])
 
-        q_list = []
+        robot_x_list = []
+        robot_y_list = []
         for i in range(horizon):
             init = time.time()
 
@@ -118,9 +120,12 @@ def experiment():
             a = policy.policy(state)
             state, reward, done, success, q_vals = env.step(a)
             #print(state)
-            # TODO: Record joint values 07.10
-            #q_list.append(q_vals)
-            #############################
+
+            ###################################
+            # TODO: Record robot x and y values | 09.16
+            robot_x_list.append(state[0][0])
+            robot_y_list.append(state[0][1])
+            ###################################
 
             end = time.time()
             time.sleep(np.clip(time_step - (end - init), 0, time_step))
@@ -132,6 +137,16 @@ def experiment():
         print('Distance:',  REWARD)
         print('End position: ', END_POSITION)
         print('Desired position', env.Target_pos)
+
+        ##################################
+        # TODO: Matplot animation version | 09.16
+        print("len(robot_x_list): ", len(robot_x_list))
+        print("robot_x_list: ", robot_x_list)
+        print("robot_y_list: ", robot_y_list)
+        plotting = Plotting(robot_x_list=robot_x_list, robot_y_list=robot_y_list)
+        plotting.plot_animation()
+        ##################################
+
         #plot_joints(q_list, horizon)
     p.disconnect()
 
