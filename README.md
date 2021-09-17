@@ -71,6 +71,8 @@ Install the repository. Inside the repository
 
 ![Heatmap for closest point](https://github.com/hjw-1014/Multi-Objective-Reactive-Motion-Planning-in-Mobile-Manipulators/blob/devel/Results_figure/heatmap/2021-09-17-16_43_24/heatmap_2021-09-17-16_43_52.png)
 
+![Heatmap for closest point](https://github.com/hjw-1014/Multi-Objective-Reactive-Motion-Planning-in-Mobile-Manipulators/blob/devel/Results_figure/heatmap/2021-09-17-16_43_24/heatmap_2021-09-17-16_44_09.png)
+
 * Heatmap for closest point
 
 # TODO list
