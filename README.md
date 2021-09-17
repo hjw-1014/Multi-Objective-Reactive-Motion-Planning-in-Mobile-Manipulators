@@ -58,6 +58,9 @@ Install the repository. Inside the repository
 
 # Result pictures
 
+![Cascade control algorithm](https://github.com/hjw-1014/Multi-Objective-Reactive-Motion-Planning-in-Mobile-Manipulators/blob/devel/Cascade_control_.jpeg)
+* Cascade control
+
 ![RRT tree](https://github.com/hjw-1014/Multi-Objective-Reactive-Motion-Planning-in-Mobile-Manipulators/blob/main/scripts/_scripts_run/figures/rrt_tree_0705_1.png)
 * RRT tree
  
