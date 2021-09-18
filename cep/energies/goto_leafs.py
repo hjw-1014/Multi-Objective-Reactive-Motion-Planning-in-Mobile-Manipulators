@@ -323,9 +323,10 @@ class PathPlanLeaf_lefthand_and_base_np(EnergyLeaf):
 
         return result
 
+
 class PathPlanLeaf_pos(EnergyLeaf_x): # TODO: heatmap of position | add 09.13
 
-    def __init__(self, dim=2, Kp = 1., Kv = 1., var=torch.eye(2).float() * 5.):
+    def __init__(self, dim=2, Kp = 1., Kv = 1., var=torch.eye(2).float() * 1.):
 
         super(PathPlanLeaf_pos, self).__init__()
         self.dim = dim
@@ -355,14 +356,14 @@ class PathPlanLeaf_pos(EnergyLeaf_x): # TODO: heatmap of position | add 09.13
         # ddx = cascade_control_dx.cascade_control_get_dx(xy_t, v_t)
         # ddx_t = torch.tensor(ddx)
 
-        pos = cascade_control_dx.cascade_control_get_x(xy_t, v_t)  # TODO: Return N closest points
+        pos = cascade_control_dx.cascade_control_get_x(xy_t, v_t)  # TODO: Return 1 closest point
         pos_t = torch.tensor(pos)
 
         self.closest_point = pos
 
         closest_points.append(pos)
 
-        self.p_dx = tdist.MultivariateNormal(pos_t, self.var)
+        self.p_dx = tdist.MultivariateNormal(pos_t, self.var)  # TODO: Define a gaussian distribution
 
     def log_prob(self, action, state):
         """
@@ -376,11 +377,11 @@ class PathPlanLeaf_pos(EnergyLeaf_x): # TODO: heatmap of position | add 09.13
         q_t = state[0]  # torch.Size([2]), x and y
         dq_t = state[1]  # torch.Size([2]), dx, dy
 
+        ##########################################
         ddq_t = action
         dq_t = dq_t + ddq_t * 1./240.
         q_t = q_t + dq_t * 1./240.
 
-        ##########################################
         # TODO: add heatmap | 09.13
         global path
         global CREATE_DIR
@@ -389,7 +390,7 @@ class PathPlanLeaf_pos(EnergyLeaf_x): # TODO: heatmap of position | add 09.13
             CREATE_DIR = True
 
         global count
-        if count % 500 == 1:
+        if count % 1500 == 1:
             grid_map = self.gen_gridmap()
             log_map = torch.exp(self.p_dx.log_prob(grid_map))
             fig = self.gen_heatmap(log_map=log_map, closest_point=self.closest_point, current_point=state[0])
@@ -398,7 +399,6 @@ class PathPlanLeaf_pos(EnergyLeaf_x): # TODO: heatmap of position | add 09.13
         ##########################################
 
         return self.p_dx.log_prob(q_t)  # torch.Size([1000])
-        # return self.p_dx.log_prob(action)  # torch.Size([1000])
 
     def gen_gridmap(self):
 
@@ -464,7 +464,7 @@ class PathPlanLeaf_pos(EnergyLeaf_x): # TODO: heatmap of position | add 09.13
         # Mark the arrow
         delta_x, delta_y = closest_point[0]-current_point[0], closest_point[1]-current_point[1]
         delta = math.sqrt(pow(delta_x, 2)+pow(delta_y, 2))
-        ax.arrow(current_point[0], current_point[1], dx=delta_x/delta * 0.08, dy=delta_y/delta * 0.08, width=0.001, head_width=0.03, color='y')
+        ax.arrow(current_point[0], current_point[1], dx=delta_x/delta * 0.08, dy=delta_y/delta * 0.08, width=0.001, head_width=0.025, color='y')
 
         c = ax.pcolor(x, y, log_map, cmap='RdBu', vmin=log_min, vmax=log_max)
         ax.set_title('Closest point heatmap')
