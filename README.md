@@ -58,8 +58,11 @@ Install the repository. Inside the repository
 
 # Result pictures
 
-![Cascade control algorithm](https://github.com/hjw-1014/Multi-Objective-Reactive-Motion-Planning-in-Mobile-Manipulators/blob/devel/Cascade_control_.jpeg)
+![Cascade contrl algorithm](https://github.com/hjw-1014/Multi-Objective-Reactive-Motion-Planning-in-Mobile-Manipulators/blob/devel/cascade_control.jpeg)
 * Cascade control
+
+![CEP bayesian nextwork example](https://github.com/hjw-1014/Multi-Objective-Reactive-Motion-Planning-in-Mobile-Manipulators/blob/devel/CEP_bayesian_network.jpeg)
+* CEP bayesian network for TaskGoto and PathPlan energy components
 
 ![RRT tree](https://github.com/hjw-1014/Multi-Objective-Reactive-Motion-Planning-in-Mobile-Manipulators/blob/main/scripts/_scripts_run/figures/rrt_tree_0705_1.png)
 * RRT tree
