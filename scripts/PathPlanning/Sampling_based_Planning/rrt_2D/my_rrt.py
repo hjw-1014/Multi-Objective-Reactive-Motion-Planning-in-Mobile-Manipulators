@@ -109,7 +109,7 @@ def main():
 
     start_time = time.time()
 
-    rrt = Rrt(x_start, x_goal, 5, 0.01, 10000)
+    rrt = Rrt(x_start, x_goal, 5, 0.001, 10000)
     path, graph, nodes_son_father_list = rrt.planning()
 
     print("--- %s seconds ---" % (time.time() - start_time))

@@ -4,13 +4,14 @@ import torch.distributions as td
 import matplotlib.pyplot as plt
 from icecream import ic
 
-g1 = td.Normal(torch.tensor([0.0]), torch.tensor([1.]))
-g2 = td.Normal(torch.tensor([5.0]), torch.tensor([1.]))
-ls = torch.linspace(-10, 10, 201)
-print(ls)
+g1 = td.Normal(torch.tensor([0.0, 0.0]), torch.tensor([1., 1.]))
+g2 = td.Normal(torch.tensor([5.0, 5.0]), torch.tensor([1., 1.]))
+ls1 = torch.linspace(-10, 10, 201)
+ls2 = torch.linspace(-10, 10, 201)
+print(ls1)
 
-g1_t = g1.log_prob(ls)
-g2_t = g2.log_prob(ls)
+g1_t = g1.log_prob(ls1)
+g2_t = g2.log_prob(ls2)
 g12_t = torch.exp(g1_t + g2_t)
 
 #g12_s = torch.exp(g1_t) + torch.exp(g2_t)

@@ -551,11 +551,11 @@ class PathPlanLeaf_n_pos(EnergyLeaf_x):  # TODO: heatmap of position | add 09.15
         q_t = state[0]  # torch.Size([2]), x and y
         dq_t = state[1]  # torch.Size([2]), dx, dy
 
+        ##########################################
         ddq_t = action
         dq_t = dq_t + ddq_t * 1. / 240.
         q_t = q_t + dq_t * 1. / 240.
 
-        ##########################################
         # TODO: add heatmap | 09.13
         global path
         global CREATE_DIR
@@ -567,8 +567,8 @@ class PathPlanLeaf_n_pos(EnergyLeaf_x):  # TODO: heatmap of position | add 09.15
         gg = []
         if count % 2000 == 1:
             print("self.closest_point: ", self.closest_point)
-            grid_map = self.gen_gridmap()
             for i in range(num):
+                grid_map = self.gen_gridmap()
                 gg.append(torch.unsqueeze(self.p_dx[i].log_prob(grid_map), dim=1))
             log_map = torch.exp(torch.logsumexp(torch.stack(gg, dim=2), dim=2)).reshape(len(grid_map),)
             fig = self.gen_heatmap(log_map=log_map, closest_point=self.closest_point, current_point=state[0])
@@ -583,6 +583,9 @@ class PathPlanLeaf_n_pos(EnergyLeaf_x):  # TODO: heatmap of position | add 09.15
         result = torch.exp(torch.logsumexp(torch.stack(g, dim=2), dim=2)).reshape(1000, )
 
         return result
+    def plot_multi_gaussian(self):
+
+        pass
 
     def gen_gridmap(self):
 
