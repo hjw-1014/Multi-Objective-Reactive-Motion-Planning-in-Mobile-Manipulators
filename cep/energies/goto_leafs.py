@@ -323,7 +323,6 @@ class PathPlanLeaf_lefthand_and_base_np(EnergyLeaf):
 
         return result
 
-
 class PathPlanLeaf_pos(EnergyLeaf_x): # TODO: heatmap of position | add 09.13
 
     def __init__(self, dim=2, Kp = 1., Kv = 1., var=torch.eye(2).float() * 1.):
@@ -492,7 +491,6 @@ class PathPlanLeaf_pos(EnergyLeaf_x): # TODO: heatmap of position | add 09.13
         t = time.strftime("%Y-%m-%d-%H_%M_%S", time.localtime())
 
         fig.savefig(path+'/heatmap_{}.png'.format(t), dpi=300)
-
 
 class PathPlanLeaf_n_pos(EnergyLeaf_x):  # TODO: heatmap of position | add 09.15
 
@@ -683,4 +681,48 @@ class PathPlanLeaf_n_pos(EnergyLeaf_x):  # TODO: heatmap of position | add 09.15
 
         fig.savefig(path+'/heatmap_{}.png'.format(t), dpi=300)
 
+class PathPlanLeaf_trackfather(EnergyLeaf):
 
+    def __init__(self, dim=2, Kp = 1., Kv = 1., var=torch.eye(2).float() * 5.):
+
+        super(PathPlanLeaf_trackfather, self).__init__()
+        self.dim = dim
+
+        self.Kp = Kp
+        #self.register_buffer('Kp', Kp)
+
+        self.Kv = Kv
+        #self.register_buffer('Kv', Kv)
+
+        self.var = var
+
+        ## Multivariate Gaussian distribution ##
+        self.p_dx = None
+
+    def set_context(self, state):
+        '''
+        We compute the conditioning variables of our model to have a faster optimization
+        '''
+        xy = state[0]  # torch.Size([2]), x and y
+        xy_t = torch2numpy(xy).tolist()
+        v = state[1]  # torch.Size([2]), dx, dy
+        v_t = torch2numpy(v).tolist()
+
+        # TODO: NEED to set a multivariable gaussian distribution of dx. | added on 08.13, 08.17
+        ###########################################
+
+        ddx = cascade_control_dx.track_father_get_ddx(xy_t, v_t)  # TODO: Return n ddx from x points | 09.02
+        ddx_t = torch.tensor(ddx)
+
+        self.p_dx = tdist.MultivariateNormal(ddx_t, self.var)
+
+    def log_prob(self, action):
+        '''
+        Target Energy is a energy function that will provide the desired velocity given the current state p(\dot{x} | x)
+        We will model it with a gaussian distribution
+        '''
+
+        # TODO:
+        action = action[:, :self.dim]  # torch.Size([1000, 2])
+
+        return self.p_dx.log_prob(action)  # torch.Size([1000])

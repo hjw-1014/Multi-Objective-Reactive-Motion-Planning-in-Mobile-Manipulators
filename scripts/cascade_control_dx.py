@@ -93,3 +93,19 @@ def cascade_control_get_n_ddx(xy: list, v_l: list, num: int):  ## TODO: added on
     ddx = cep_cascade_control_n_points(xy, v_l, graph_rrt_son, graph_rrt_father, num)  # TODO: Return n ddx from x points | 09.02, 09.09
 
     return ddx
+
+def track_father_get_ddx(xy: list, v_l: list):  ## TODO: added on 09.13
+
+    # TODO: Read json trajectory from moveit and rrt tree
+    rrt_path = np.load('path_rrt.npy') / 100  # numpy.ndarray
+    rrt_path = np.around(rrt_path, 3)
+
+    graph_rrt = load_rrt_nodes_list("graph_rrt.npy") / 100  # numpy.ndarray(np.array)
+    graph_rrt = np.around(graph_rrt, 3)
+    #rrt_vertex = load_rrt_vertex("vertex_rrt.npy")
+    graph_rrt_son, graph_rrt_father = split_son_father(graph_rrt)
+
+    # Based on the current state, calculate the acceleration command
+    ddx = cep_track_father_rrt_tree(xy, v_l, graph_rrt_son, graph_rrt_father)  # TODO: Return 1 ddx from 1 points | 09.20
+
+    return ddx

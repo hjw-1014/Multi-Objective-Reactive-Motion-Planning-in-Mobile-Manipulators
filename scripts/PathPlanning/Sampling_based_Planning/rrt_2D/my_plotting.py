@@ -123,4 +123,7 @@ class Plotting:
         if len(path) != 0:
             plt.plot([x[0] for x in path], [x[1] for x in path], '-r', linewidth=2)
             plt.pause(0.01)
+        base_dir = os.path.abspath(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))))
+        npy_dir = os.path.join(base_dir, "Results_npy/")
+        plt.savefig(npy_dir+"/rrt_tree.jpg")
         plt.show()

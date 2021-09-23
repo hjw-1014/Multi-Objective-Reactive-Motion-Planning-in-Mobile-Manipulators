@@ -10,13 +10,19 @@ import sys
 from icecream import ic
 from copy import deepcopy
 import json
+import time
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)) +
                 "/../../Sampling_based_Planning/")
 
 from Sampling_based_Planning.rrt_2D import my_env
-from Sampling_based_Planning.rrt_2D.my_rrt import Node
+#from Sampling_based_Planning.rrt_2D.my_rrt import Node
 
+class Node:
+    def __init__(self, n: list):
+        self.x = n[0]
+        self.y = n[1]
+        self.parent = None
 
 class Utils:
     def __init__(self):
@@ -151,7 +157,7 @@ class Utils:
         num_nodes = len(vertex)
 
         for i in range(num_nodes):
-            if not vertex[i].parent:
+            if not vertex[i].parent:  # Just for start_point=(120, 100)
                 node_arr[0][0] = 120
                 node_arr[0][1] = 100
                 node_arr[1][0] = 120
@@ -175,23 +181,33 @@ class Utils:
             json.dump(nodes_list, file_object)
 
     @staticmethod
-    def save_graph_in_npy(nodes_list: list):
+    def save_graph_in_npy(nodes_list: list, t, save_path):
 
-        np.save("graph_rrt.npy", nodes_list)
+        np.save(save_path+"/graph_rrt_{}.npy".format(t), nodes_list)
 
         print("Save graph in graph_rrt.npy!!!")
 
 
     @staticmethod
-    def save_vertex_in_npy(nodes_list: list):
+    def save_vertex_in_npy(nodes_list: list, t, save_path):
 
-        np.save("vertex_rrt.npy", nodes_list)
+        np.save(save_path+"/vertex_rrt_{}.npy".format(t), nodes_list)
 
         print("Save vertex in vertex_rrt.npy!!!")
 
     @staticmethod
-    def save_path_in_npy(path: list):
+    def save_path_in_npy(path: list, t, save_path):
 
-        np.save("path_rrt.npy", path)
+        np.save(save_path+"/path_rrt_{}.npy".format(t), path)
 
         print("Save path in path_rrt.npy!!!")
+
+    @staticmethod
+    def create_dir(t):
+
+        base_dir = os.path.abspath(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))))
+        npy_dir = os.path.join(base_dir, "Results_npy/")
+        path = os.path.join(npy_dir, t)
+        os.mkdir(path)
+
+        return path

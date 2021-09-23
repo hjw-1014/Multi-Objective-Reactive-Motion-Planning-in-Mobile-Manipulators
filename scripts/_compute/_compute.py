@@ -642,3 +642,38 @@ def find_k_closest_idx(arr: np.array, k: int):
         result.append(idx)
 
     return result
+
+
+def track_father_baseline(cur_position,  # TODO: Return n closest points | 09.02, 09.08
+                           cur_dist_son,
+                           cur_dist_father,
+                           graph_rrt_son,
+                           graph_rrt_father,
+                           K=1):
+
+    cur_end_dist = math.hypot(cur_position[0]-end_point[0], cur_position[1]-end_point[1])
+
+    if end_point_threshold <= cur_end_dist <= delta: # Check if current position is within one step of the robot movement
+        return end_point
+
+    elif cur_end_dist < end_point_threshold: # Check if current position is close to the end point within admitted threshold=0.02
+        return end_point
+
+    else:  # If current position is far away from the end point
+        son_dist = min(cur_dist_son)  # Get the closest point along the rrt tree
+        son_dist_index = cur_dist_son.index(son_dist)  # Get its index
+        son_node = graph_rrt_son[son_dist_index]
+        for _ in range(5):
+            father_node_dist = cur_dist_father[son_dist_index]  # Get its father node distance from current position
+            father_node = graph_rrt_father[son_dist_index].tolist()   # Get its father node
+            father_end_dist = math.hypot(father_node[0] - end_point[0], father_node[1] - end_point[1])  # Get its father node distance from the end point
+            if father_end_dist <= delta:
+                return father_node
+            else:
+                #print('father_end_dist: ', father_end_dist)
+                #print("father_node_dist: ", father_node_dist)
+                son_dist_index = cur_dist_son.index(father_node_dist)
+                #son_dist = cur_dist_father[son_dist_index]
+
+        return father_node
+

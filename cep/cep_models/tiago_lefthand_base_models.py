@@ -195,3 +195,19 @@ def cep_tiago_base_pathplan_n_x():  # TODO: 09.16
     energy_tree = EnergyTree_x(branches=q_branches, map=base_map).to(device)
     policy = EBMControl_x(energy_tree=energy_tree, device=device, optimization_steps=5, dt=0.005, n_particles=1000)
     return policy
+
+
+def cep_tiago_pathplan_trackfather():  # TODO: 09.20
+
+    # TODO: PathPlanLeaf
+    base_map = maps.PathplanMap(idx=2)  # Map R^10 to R^2
+    identity_map = maps.SimpleBase(dim=2)  # Keep x and y as the same
+    ## Leaf and Tree ##
+    base_goto_leaf = energies.PathPlanLeaf_trackfather()
+    base_energy_tree = EnergyTree(branches=[base_goto_leaf], map=identity_map).to(device)
+
+    #########################
+    q_branches = [base_energy_tree]
+    energy_tree = EnergyTree(branches=q_branches, map=base_map).to(device)
+    policy = EBMControl(energy_tree=energy_tree, device=device, optimization_steps=5, dt=0.005, n_particles=1000)
+    return policy

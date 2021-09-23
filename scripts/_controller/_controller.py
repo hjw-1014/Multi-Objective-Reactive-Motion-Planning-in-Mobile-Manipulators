@@ -241,3 +241,38 @@ def cep_cascade_control_rrt_tree_n_pos(current_position, current_velocity, graph
     print("closest_points: ", closest_points)
 
     return closest_points
+
+def cep_track_father_rrt_tree(current_position, current_velocity, graph_rrt_son, graph_rrt_father) -> list: # TODO: added 09.20
+    '''
+        current_state:
+            current_state[0] -> current position [x, y]
+            current_state[1] -> current velocity [dx, dy]
+        return: velocity command dx, [vel_x, vel_y]
+    '''
+
+    dx = [0] * 2  # y and x
+    ddx = [0] * 2
+
+    cur_dist_son, cur_dist_father = compute_cur_dist_graph_points(current_position, graph_rrt_son, graph_rrt_father)
+    closest_point = track_father_baseline(current_position,  # TODO: Return n closest points | 09.02, 09.08
+                                                   cur_dist_son,
+                                                   cur_dist_father,
+                                                   graph_rrt_son,
+                                                   graph_rrt_father)
+    print("closest_point: ", closest_point)
+
+    # Calculate dx | P control
+    for i in range(len(current_position)):  # TODO, change on 07.24
+        dx[i] = -kp * (current_position[i] - closest_point[i])
+    sum_dx = math.hypot(dx[0], dx[1])
+    for ii in range(2):
+        dx[ii] = dx[ii] / sum_dx
+
+    # Calculate ddx | PD control
+    for j in range(2):
+        ddx[j] = kp * (closest_point[j] - current_position[j]) + kv * (0 - current_velocity[j])
+    sum_ddx = math.hypot(ddx[0], ddx[1])
+    for jj in range(2):
+        ddx[jj] = ddx[jj] / sum_ddx
+
+    return ddx[:]

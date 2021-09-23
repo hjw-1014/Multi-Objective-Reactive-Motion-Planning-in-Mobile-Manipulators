@@ -51,13 +51,17 @@ class Rrt:
 
                 if dist <= self.step_len and not self.utils.is_collision(node_new, self.s_goal):
                     self.new_state(node_new, self.s_goal)
+                    print('### iteration: {}'.format(i))
 
                     # TODO: Extract all the nodes 08.03
+                    t = time.strftime("%Y-%m-%d-%H_%M_%S", time.localtime())
+                    save_path = self.utils.create_dir(t)
                     nodes_list = self.utils.vertex_2_xy_list(self.vertex)
                     path = self.extract_path(node_new)
-                    # self.utils.save_vertex_in_npy(self.vertex)
-                    # self.utils.save_graph_in_npy(nodes_list)
-                    # self.utils.save_path_in_npy(path)
+                    self.utils.save_vertex_in_npy(self.vertex, t, save_path)
+                    self.utils.save_graph_in_npy(nodes_list, t, save_path)
+                    self.utils.save_path_in_npy(path, t, save_path)
+
                     return path, self.vertex, nodes_list
 
         return None
@@ -109,7 +113,7 @@ def main():
 
     start_time = time.time()
 
-    rrt = Rrt(x_start, x_goal, 5, 0.001, 10000)
+    rrt = Rrt(x_start, x_goal, 5, 1e-5, 100000)
     path, graph, nodes_son_father_list = rrt.planning()
 
     print("--- %s seconds ---" % (time.time() - start_time))
