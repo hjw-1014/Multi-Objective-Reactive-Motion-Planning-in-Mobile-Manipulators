@@ -242,7 +242,7 @@ def cep_cascade_control_rrt_tree_n_pos(current_position, current_velocity, graph
 
     return closest_points
 
-def cep_track_father_rrt_tree(current_position, current_velocity, graph_rrt_son, graph_rrt_father) -> list: # TODO: added 09.20
+def cep_track_father_rrt_tree(current_position, current_velocity, graph_rrt_son, graph_rrt_father, K) -> list: # TODO: added 09.20
     '''
         current_state:
             current_state[0] -> current position [x, y]
@@ -250,29 +250,55 @@ def cep_track_father_rrt_tree(current_position, current_velocity, graph_rrt_son,
         return: velocity command dx, [vel_x, vel_y]
     '''
 
-    dx = [0] * 2  # y and x
-    ddx = [0] * 2
-
     cur_dist_son, cur_dist_father = compute_cur_dist_graph_points(current_position, graph_rrt_son, graph_rrt_father)
-    closest_point = track_father_baseline(current_position,  # TODO: Return n closest points | 09.02, 09.08
-                                                   cur_dist_son,
-                                                   cur_dist_father,
-                                                   graph_rrt_son,
-                                                   graph_rrt_father)
-    print("closest_point: ", closest_point)
+    if K == 1:
+        closest_point = track_father_baseline(current_position,  # TODO: Return n closest points | 09.02, 09.08
+                                               cur_dist_son,
+                                               cur_dist_father,
+                                               graph_rrt_son,
+                                               graph_rrt_father,
+                                               K=K)
+        # Calculate dx | P control
+        ddx = [0] * 2
 
-    # Calculate dx | P control
-    for i in range(len(current_position)):  # TODO, change on 07.24
-        dx[i] = -kp * (current_position[i] - closest_point[i])
-    sum_dx = math.hypot(dx[0], dx[1])
-    for ii in range(2):
-        dx[ii] = dx[ii] / sum_dx
+        # Calculate ddx | PD control
+        for j in range(2):
+            ddx[j] = kp * (closest_point[j] - current_position[j]) + kv * (0 - current_velocity[j])
+        sum_ddx = math.hypot(ddx[0], ddx[1])
+        for jj in range(2):
+            ddx[jj] = ddx[jj] / sum_ddx
 
-    # Calculate ddx | PD control
-    for j in range(2):
-        ddx[j] = kp * (closest_point[j] - current_position[j]) + kv * (0 - current_velocity[j])
-    sum_ddx = math.hypot(ddx[0], ddx[1])
-    for jj in range(2):
-        ddx[jj] = ddx[jj] / sum_ddx
+        return ddx[:]
 
-    return ddx[:]
+    else:
+        closest_points = track_father_baseline(current_position,
+                                              cur_dist_son,
+                                              cur_dist_father,
+                                              graph_rrt_son,
+                                              graph_rrt_father,
+                                              K=K)
+        num = len(closest_points)
+        ddx = [[0., 0.] for _ in range(num)]
+
+        for i in range(num):
+            closest_point = closest_points[i]
+
+            # Calculate dx | P control
+            # for i in range(len(current_position)):  # TODO, change on 07.24
+            #     dx[i] = -kp * (current_position[i] - closest_point[i])
+            # sum_dx = math.hypot(dx[0], dx[1])
+            # for ii in range(2):
+            #     dx[ii] = dx[ii] / sum_dx
+
+            # Calculate ddx | PD control  # TODO: need to add repulsive force | 09.10
+            for j in range(2):
+                ddx[i][j] = kp * (closest_point[j] - current_position[j]) + kv * (0. - current_velocity[j])
+            sum_ddx = math.hypot(ddx[i][0], ddx[i][1])
+            for jj in range(2):
+                ddx[i][jj] /= sum_ddx
+
+        print("closest_points: ", closest_points)
+        print("ddx: ", ddx)
+        return ddx[:]
+
+

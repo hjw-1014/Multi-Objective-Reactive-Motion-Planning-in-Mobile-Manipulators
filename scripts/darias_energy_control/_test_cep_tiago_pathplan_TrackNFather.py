@@ -4,7 +4,7 @@ import time
 import matplotlib.pyplot as plt
 
 from cep.envs import Tiago_LeftParallelHand_Base
-from cep.cep_models import cep_tiago_pathplan_trackfather
+from cep.cep_models import cep_tiago_pathplan_track_Nfather
 import torch
 from mat_animation import Plotting
 
@@ -18,7 +18,7 @@ class CEPPolicy:
         self.dt = dt
         self.dtype = dtype
 
-        self.controller = cep_tiago_pathplan_trackfather()
+        self.controller = cep_tiago_pathplan_track_Nfather(K=1)
 
     def policy(self, state):
         joint_poses = state[0, :2]
