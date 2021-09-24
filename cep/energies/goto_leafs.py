@@ -684,7 +684,7 @@ class PathPlanLeaf_n_pos(EnergyLeaf_x):  # TODO: heatmap of position | add 09.15
 
 class PathPlanLeaf_trackfather(EnergyLeaf):
 
-    def __init__(self, dim=2, Kp=1., Kv=1., var=torch.eye(2).float() * 5.):
+    def __init__(self, dim=2, Kp=1., Kv=1., var=torch.eye(2).float() * 0.1):
         super(PathPlanLeaf_trackfather, self).__init__()
         self.dim = dim
 
@@ -729,7 +729,7 @@ class PathPlanLeaf_trackfather(EnergyLeaf):
 
 class PathPlanLeaf_track_Nfather(EnergyLeaf): # TODO: added on 09.23
 
-    def __init__(self, K, dim=2, Kp = 1., Kv = 1., var=torch.eye(2).float() * 5.):
+    def __init__(self, K, dim=2, Kp = 1., Kv = 1., var=torch.eye(2).float() * .1):
 
         super(PathPlanLeaf_track_Nfather, self).__init__()
         self.dim = dim
@@ -747,22 +747,34 @@ class PathPlanLeaf_track_Nfather(EnergyLeaf): # TODO: added on 09.23
 
         self.K = K
 
+        self.params = None
+
     def set_context(self, state):
         '''
         We compute the conditioning variables of our model to have a faster optimization
         '''
         xy = state[0]  # torch.Size([2]), x and y
-        xy_t = torch2numpy(xy).tolist()
+        xy_l = torch2numpy(xy).tolist()
         v = state[1]  # torch.Size([2]), dx, dy
-        v_t = torch2numpy(v).tolist()
+        v_l = torch2numpy(v).tolist()
 
         # TODO: NEED to set a multivariable gaussian distribution of dx. | added on 08.13, 08.17
         ###########################################
 
-        ddx = cascade_control_dx.track_father_get_n_ddx(xy_t, v_t, K=self.K)  # TODO: Return n ddx from x points | 09.22
+        ddx, x_goal_dist = cascade_control_dx.track_father_get_n_ddx(xy_l, v_l, K=self.K)  # TODO: Return K ddx from x points | 09.22
         ddx_t = torch.tensor(ddx)
 
-        self.p_dx = tdist.MultivariateNormal(ddx_t, self.var)
+        # max_idx = int(torch.argmax(x_goal_dist))
+        # self.params = [0.] * len(x_goal_dist)
+        # self.params[max_idx] = 1.
+
+        self.params = x_goal_dist
+
+        # N closest points ===>>> N gaussian distributions
+        for i in range(len(ddx_t)):
+            cur_gaussian = tdist.MultivariateNormal(ddx_t[i], self.var)
+            self.p_dx.append(cur_gaussian)
+
 
     def log_prob(self, action):
         '''
@@ -773,4 +785,13 @@ class PathPlanLeaf_track_Nfather(EnergyLeaf): # TODO: added on 09.23
         # TODO:
         action = action[:, :self.dim]  # torch.Size([1000, 2])
 
-        return self.p_dx.log_prob(action)  # torch.Size([1000])
+        # g = []
+        # for i in range(num):
+        #     g.append(torch.unsqueeze(self.p_dx[i].log_prob(action), dim=1))
+        # result = torch.exp(torch.logsumexp(torch.stack(g, dim=2), dim=2)).reshape(5000, )
+
+        result = self.p_dx[0].log_prob(action) * self.params[0] + \
+                 self.p_dx[1].log_prob(action) * self.params[1]
+                 #self.p_dx[2].log_prob(action) * self.params[2]
+
+        return result  # torch.Size([1000])

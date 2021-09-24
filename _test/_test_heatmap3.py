@@ -134,7 +134,7 @@ def gen_heatmap(log_map, closest_point, current_point):
 # ax.set_title('pcolorfast')
 # fig.colorbar(c, ax=ax)
 
-pos_n = torch.tensor([[0., 0.], [0.5, 0.5]])
+pos_n = torch.tensor([[-0.3, -0.3], [1.5, 1.5]])
 p_dx = []
 var = torch.eye(2).float() * 1.
 
@@ -143,8 +143,8 @@ for i in range(len(pos_n)):
     p_dx.append(cur_gaussian)
 
 gg = []
-closest_point = [[0., 0], [0.5, 0.5]]
-current_point = [0.1, 0.1]
+closest_point = pos_n
+current_point = [0.3, 0.3]
 for i in range(len(pos_n)):
     grid_map = gen_gridmap()
     gg.append(torch.unsqueeze(p_dx[i].log_prob(grid_map), dim=1))

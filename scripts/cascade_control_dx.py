@@ -122,5 +122,6 @@ def track_father_get_n_ddx(xy: list, v_l: list, K:int):  ## TODO: added on 09.23
     graph_rrt_son, graph_rrt_father = split_son_father(graph_rrt)
 
     # Based on the current state, calculate the acceleration command
-    ddx = cep_track_father_rrt_tree(xy, v_l, graph_rrt_son, graph_rrt_father, K=K)  # TODO: Return n ddx from n points | 09.23
-    return ddx
+    ddx, x_goal_dist = cep_track_father_rrt_tree(xy, v_l, graph_rrt_son, graph_rrt_father, K=K)  # TODO: Return n ddx from n points | 09.23
+
+    return ddx, x_goal_dist

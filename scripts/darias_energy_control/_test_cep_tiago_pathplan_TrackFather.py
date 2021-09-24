@@ -91,7 +91,7 @@ def experiment():
         print("len(robot_x_list): ", len(robot_x_list))
         print("robot_x_list: ", robot_x_list)
         print("robot_y_list: ", robot_y_list)
-        plotting = Plotting(robot_x_list=robot_x_list, robot_y_list=robot_y_list)
+        plotting = Plotting(robot_x_list=robot_x_list, robot_y_list=robot_y_list, horizon=horizon)
         plotting.plot_animation()
         ##################################
 

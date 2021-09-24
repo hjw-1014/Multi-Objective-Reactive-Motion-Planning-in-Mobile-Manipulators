@@ -1,5 +1,6 @@
 import numpy as np
 from _compute import *
+import torch
 
 k_d = 1.
 ka = 0.1
@@ -242,15 +243,18 @@ def cep_cascade_control_rrt_tree_n_pos(current_position, current_velocity, graph
 
     return closest_points
 
-def cep_track_father_rrt_tree(current_position, current_velocity, graph_rrt_son, graph_rrt_father, K) -> list: # TODO: added 09.20
-    '''
+
+def cep_track_father_rrt_tree(current_position, current_velocity, graph_rrt_son, graph_rrt_father, K): # TODO: added 09.20
+
+    """
         current_state:
             current_state[0] -> current position [x, y]
             current_state[1] -> current velocity [dx, dy]
-        return: velocity command dx, [vel_x, vel_y]
-    '''
+        return: acceleration command ddx, params for closest points
+    """
 
     cur_dist_son, cur_dist_father = compute_cur_dist_graph_points(current_position, graph_rrt_son, graph_rrt_father)
+
     if K == 1:
         closest_point = track_father_baseline(current_position,  # TODO: Return n closest points | 09.02, 09.08
                                                cur_dist_son,
@@ -277,18 +281,17 @@ def cep_track_father_rrt_tree(current_position, current_velocity, graph_rrt_son,
                                               graph_rrt_son,
                                               graph_rrt_father,
                                               K=K)
+        print("closest_points: ", closest_points)
         num = len(closest_points)
         ddx = [[0., 0.] for _ in range(num)]
+        x_dist_goal = []
 
         for i in range(num):
             closest_point = closest_points[i]
 
-            # Calculate dx | P control
-            # for i in range(len(current_position)):  # TODO, change on 07.24
-            #     dx[i] = -kp * (current_position[i] - closest_point[i])
-            # sum_dx = math.hypot(dx[0], dx[1])
-            # for ii in range(2):
-            #     dx[ii] = dx[ii] / sum_dx
+            # Calculate the distance from goal point for each closest point# TODO: need to add repulsive force | 09.23
+            cur_x_dist = math.hypot(end_point[0] - closest_point[0], end_point[1] - closest_point[1])
+            x_dist_goal.append(cur_x_dist)
 
             # Calculate ddx | PD control  # TODO: need to add repulsive force | 09.10
             for j in range(2):
@@ -298,7 +301,15 @@ def cep_track_father_rrt_tree(current_position, current_velocity, graph_rrt_son,
                 ddx[i][jj] /= sum_ddx
 
         print("closest_points: ", closest_points)
-        print("ddx: ", ddx)
-        return ddx[:]
+
+        # TODO: Softmax | 09.23
+        softmax_sum = 0
+        x_dist_goal_t = torch.tensor(x_dist_goal)
+        for i in range(num):
+            softmax_sum += torch.exp(x_dist_goal_t[i])
+        for j in range(num):
+            x_dist_goal_t[j] = (softmax_sum - torch.exp(x_dist_goal_t[j])) / softmax_sum
+
+        return ddx[:], x_dist_goal_t
 
 

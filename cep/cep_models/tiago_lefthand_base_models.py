@@ -196,7 +196,6 @@ def cep_tiago_base_pathplan_n_x():  # TODO: 09.16
     policy = EBMControl_x(energy_tree=energy_tree, device=device, optimization_steps=5, dt=0.005, n_particles=1000)
     return policy
 
-
 def cep_tiago_pathplan_trackfather():  # TODO: 09.23
 
     # TODO: PathPlanLeaf
@@ -224,5 +223,5 @@ def cep_tiago_pathplan_track_Nfather(K):  # TODO: 09.23
     #########################
     q_branches = [base_energy_tree]
     energy_tree = EnergyTree(branches=q_branches, map=base_map).to(device)
-    policy = EBMControl(energy_tree=energy_tree, device=device, optimization_steps=5, dt=0.005, n_particles=1000)
+    policy = EBMControl(energy_tree=energy_tree, device=device, optimization_steps=10, dt=0.005, n_particles=5000)
     return policy

@@ -18,7 +18,7 @@ class CEPPolicy:
         self.dt = dt
         self.dtype = dtype
 
-        self.controller = cep_tiago_pathplan_track_Nfather(K=1)
+        self.controller = cep_tiago_pathplan_track_Nfather(K=2)
 
     def policy(self, state):
         joint_poses = state[0, :2]
@@ -49,7 +49,7 @@ def experiment():
     ################
 
     n_trials = 1
-    horizon = 4000
+    horizon = 1000
     c = 0
     s = 0
     REWARD = 0
@@ -91,7 +91,7 @@ def experiment():
         print("len(robot_x_list): ", len(robot_x_list))
         print("robot_x_list: ", robot_x_list)
         print("robot_y_list: ", robot_y_list)
-        plotting = Plotting(robot_x_list=robot_x_list, robot_y_list=robot_y_list)
+        plotting = Plotting(robot_x_list=robot_x_list, robot_y_list=robot_y_list, horizon=horizon)
         plotting.plot_animation()
         ##################################
 

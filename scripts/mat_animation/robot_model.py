@@ -50,11 +50,12 @@ class data_linewidth_plot():
         self.timer.start()
 
 class Plotting:
-    def __init__(self, robot_x_list=None, robot_y_list=None):
+    def __init__(self, robot_x_list=None, robot_y_list=None, horizon=None):
 
         self.robot = None
         self.robot_x_list = robot_x_list
         self.robot_y_list = robot_y_list
+        self.horizon = horizon
 
     def plot_robot(self, ax, robot_x, robot_y, radius):
 
@@ -75,7 +76,7 @@ class Plotting:
         robot_y_list = self.robot_y_list
 
         for _ in range(3):
-            for i in range(0, 4000, 40):
+            for i in range(0, self.horizon, int(self.horizon/100)):
 
                 plt.cla()
 

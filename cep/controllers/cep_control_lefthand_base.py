@@ -194,9 +194,9 @@ class EnergyTree(nn.Module):
             self.map = map
 
         if i_temperatures is None:
-            #i_temperatures = torch.ones(len(branches)) #TODO: Change parameters
+            self.i_temperatures = torch.ones(len(branches)) #TODO: Change parameters
             #self.i_temperatures = torch.tensor((1.0, 5.))
-            self.i_temperatures = torch.tensor((0.2, 1.0))  # TaskGoto, PathPlan
+            #self.i_temperatures = torch.tensor((0.2, 1.0))  # TaskGoto, PathPlan
         #self.i_temperatures = nn.Parameter(i_temperatures)
         self.branches = nn.ModuleList(branches)
 
