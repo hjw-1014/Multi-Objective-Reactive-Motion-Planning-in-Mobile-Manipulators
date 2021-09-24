@@ -1,3 +1,5 @@
+import math
+
 import pybullet as p
 import numpy as np
 import os
@@ -24,7 +26,10 @@ class Tiago_LeftParallelHand_Base(): # TODO: 08.06
         p.connect(p.DIRECT)
         self.EE_link = "arm_7_link"
         self.EE_ID = 43
+        self.Base_X_ID = 0
+        self.Base_Y_ID = 1
         self.Target_pos = Target_pose
+        self.Base_position = [1.2, 1.0, 0.0]
         self.name_base_link = "world"
         self.JOINT_ID = [0, 1, 2, 34, 35, 36, 37, 38, 39, 40]
         self.link_names = ['X', 'Y', 'R', "arm_1_link", "arm_2_link", "arm_3_link", "arm_4_link", "arm_5_link", "arm_6_link", self.EE_link]
@@ -141,6 +146,8 @@ class Tiago_LeftParallelHand_Base(): # TODO: 08.06
 
         obs = np.concatenate((self.q, self.dq), 1)
 
+        d = self._compute_distance()
+
         r = self._compute_reward()
 
         done = self._check_done(r)
@@ -150,7 +157,7 @@ class Tiago_LeftParallelHand_Base(): # TODO: 08.06
         q_vals = self.getPosVelJoints()
         #print('joint positions: ', self.getPosVelJoints())
 
-        return obs, r, done, success, q_vals
+        return obs, d, done, success, q_vals
 
     # AAL: make sure the initial configuration is not in self-collision
     def check_collision(self):
@@ -169,13 +176,22 @@ class Tiago_LeftParallelHand_Base(): # TODO: 08.06
 
         return end_pos
 
+    def _compute_distance(self):
+
+        cur_x = np.array(p.getLinkState(self.robot, self.Base_X_ID)[0])
+        cur_y = np.array(p.getLinkState(self.robot, self.Base_Y_ID)[0])
+        #print('current position: ', cur_pos)
+        dist = math.hypot(cur_x[0] - self.Base_position[0], cur_y[0] - self.Base_position[1])
+
+        return dist
+
     def _compute_reward(self):
 
         cur_pos = np.array(p.getLinkState(self.robot, self.EE_ID)[0])
         #print('current position: ', cur_pos)
-        dist = np.sqrt(np.sum(np.power(np.abs(cur_pos - self.Target_pos), 2)))
+        rwd = np.sqrt(np.sum(np.power(np.abs(cur_pos - self.Base_position), 2)))
 
-        return dist
+        return rwd
 
     def _check_done(self, r):
         return False

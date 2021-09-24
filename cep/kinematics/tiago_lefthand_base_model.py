@@ -12,7 +12,7 @@ class TiagoRobot_lefthand_Base(Robot): # TODO: Done
     def __init__(self):
         super(TiagoRobot_lefthand_Base, self).__init__(urdf_file=urdf_filename, link_name_list=link_names)
 
-        #check if it's successful loading
+        # # check if it's successful loading
         # p.connect(p.GUI)
         # robot = p.loadURDF(urdf_filename)
         # num_joints = p.getNumJoints(robot)

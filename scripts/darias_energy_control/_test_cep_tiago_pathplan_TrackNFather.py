@@ -61,6 +61,7 @@ def experiment():
 
         robot_x_list = []
         robot_y_list = []
+        dist_list = []
         for i in range(horizon):
             init = time.time()
 
@@ -73,6 +74,7 @@ def experiment():
             # TODO: Record robot x and y values | 09.16
             robot_x_list.append(state[0][0])
             robot_y_list.append(state[0][1])
+            dist_list.append(reward)
             ###################################
 
             end = time.time()
@@ -91,8 +93,9 @@ def experiment():
         print("len(robot_x_list): ", len(robot_x_list))
         print("robot_x_list: ", robot_x_list)
         print("robot_y_list: ", robot_y_list)
-        plotting = Plotting(robot_x_list=robot_x_list, robot_y_list=robot_y_list, horizon=horizon)
+        plotting = Plotting(robot_x_list=robot_x_list, robot_y_list=robot_y_list, dist_list=dist_list, horizon=horizon)
         plotting.plot_animation()
+        plotting.plot_fig()
         ##################################
 
         #plot_joints(q_list, horizon)

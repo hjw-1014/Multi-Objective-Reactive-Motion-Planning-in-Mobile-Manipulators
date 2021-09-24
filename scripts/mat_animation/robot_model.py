@@ -50,12 +50,13 @@ class data_linewidth_plot():
         self.timer.start()
 
 class Plotting:
-    def __init__(self, robot_x_list=None, robot_y_list=None, horizon=None):
+    def __init__(self, robot_x_list=None, robot_y_list=None, dist_list=None,horizon=None):
 
         self.robot = None
         self.robot_x_list = robot_x_list
         self.robot_y_list = robot_y_list
         self.horizon = horizon
+        self.dist_list = dist_list
 
     def plot_robot(self, ax, robot_x, robot_y, radius):
 
@@ -112,6 +113,16 @@ class Plotting:
                 #                    linewidth=0.01, alpha=1.)
 
             #plt.show()
+
+    def plot_fig(self):
+
+        fig, ax = plt.subplots(1, 3, figsize=(9, 9))
+        l = len(self.robot_x_list)
+        x = np.linspace(0, self.horizon, l)
+        ax[0].plot(x, self.robot_x_list)
+        ax[1].plot(x, self.robot_y_list)
+        ax[2].plot(x, self.dist_list)
+        plt.show()
 
     def animate(self, i, ax):
 

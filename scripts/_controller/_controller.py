@@ -4,7 +4,7 @@ import torch
 
 k_d = 1.
 ka = 0.1
-kp = 1.
+kp = 1
 kv = 1.
 def cascade_control(tiago_env, num_path_points, current_state, xy_traj) -> list:
     '''
@@ -281,26 +281,38 @@ def cep_track_father_rrt_tree(current_position, current_velocity, graph_rrt_son,
                                               graph_rrt_son,
                                               graph_rrt_father,
                                               K=K)
-        print("closest_points: ", closest_points)
+        #print("closest_points: ", closest_points)
         num = len(closest_points)
         ddx = [[0., 0.] for _ in range(num)]
+        dx = [[0, 0] for _ in range(num)]
         x_dist_goal = []
 
         for i in range(num):
             closest_point = closest_points[i]
+
+            # Calculate dx | P control
+            for m in range(num):  # TODO, change on 07.24
+                dx[i][m] = -kp * (current_position[m] - closest_point[m])
+            sum_dx = math.hypot(dx[i][0], dx[i][1])
+            for ii in range(2):
+                dx[i][ii] /= sum_dx
 
             # Calculate the distance from goal point for each closest point# TODO: need to add repulsive force | 09.23
             cur_x_dist = math.hypot(end_point[0] - closest_point[0], end_point[1] - closest_point[1])
             x_dist_goal.append(cur_x_dist)
 
             # Calculate ddx | PD control  # TODO: need to add repulsive force | 09.10
-            for j in range(2):
+            for j in range(num):
                 ddx[i][j] = kp * (closest_point[j] - current_position[j]) + kv * (0. - current_velocity[j])
             sum_ddx = math.hypot(ddx[i][0], ddx[i][1])
-            for jj in range(2):
+            for jj in range(num):
                 ddx[i][jj] /= sum_ddx
 
+            closest_point = [0., 0.]
+
         print("closest_points: ", closest_points)
+        print("ddx: ", ddx)
+        print("dx: ", dx)
 
         # TODO: Softmax | 09.23
         softmax_sum = 0

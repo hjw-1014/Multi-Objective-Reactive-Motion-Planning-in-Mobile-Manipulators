@@ -601,6 +601,13 @@ def track_father_baseline(cur_position,  # TODO: Return n closest points | 09.02
 
     cur_end_dist = math.hypot(cur_position[0] - end_point[0], cur_position[1] - end_point[1])
 
+    #############################
+    # TODO: change this number to be adaptive | 09.24
+    track_num = 10
+    # 0. <= cur_end_dist <= 2.0
+
+    #############################
+
     if K == 1:
 
         if end_point_threshold <= cur_end_dist <= delta: # Check if current position is within one step of the robot movement
@@ -613,7 +620,7 @@ def track_father_baseline(cur_position,  # TODO: Return n closest points | 09.02
             son_dist = min(cur_dist_son)  # Get the closest point along the rrt tree
             son_dist_index = cur_dist_son.index(son_dist)  # Get its index
             son_node = graph_rrt_son[son_dist_index]
-            for _ in range(10):  # TODO: change this number to be adaptive | 09.24
+            for _ in range(track_num):  # TODO: change this number to be adaptive | 09.24
                 father_node_dist = cur_dist_father[son_dist_index]  # Get its father node distance from current position
                 father_node = graph_rrt_father[son_dist_index].tolist()   # Get its father node
                 father_end_dist = math.hypot(father_node[0] - end_point[0], father_node[1] - end_point[1])  # Get its father node distance from the end point
@@ -640,18 +647,21 @@ def track_father_baseline(cur_position,  # TODO: Return n closest points | 09.02
                 closest_points.append(end_point)
                 continue
             else:
+                node_record = []  # TODO: Record the nodes for this search loop | 09.24
                 son_idx = min_indices[i]  # Get its index
                 son_dist = cur_dist_son[son_idx]  # Get the closest point along the rrt tree
                 son_node = graph_rrt_son[son_idx]
                 for j in range(100):  # TODO: change this number to be adaptive, revelvant with the distance from goal point | 09.24
                     father_node_dist = cur_dist_father[son_idx]  # Get its father node distance from current position
                     father_node = graph_rrt_father[son_idx].tolist()  # Get its father node
+                    node_record.append(father_node)
                     father_end_dist = math.hypot(father_node[0] - end_point[0], father_node[1] - end_point[1])  # Get its father node distance from the end point
-                    if j == 9:
+                    if j == 99:
                         closest_points.append(father_node)
                         break
                     if father_end_dist <= delta:
                         closest_points.append(end_point)
+                        node_record.append(end_point)
                         break
                     else:
                         son_idx = cur_dist_son.index(father_node_dist)
