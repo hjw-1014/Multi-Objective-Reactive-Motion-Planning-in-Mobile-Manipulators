@@ -51,13 +51,13 @@ class Tiago_LeftParallelHand_Base(): # TODO: 08.06
         # TODO: add 08.18
         p.addUserDebugLine([0., 0., 0.], [1.2, 1.0, 0.], lineColorRGB=[1., 0., 0.])
 
-        p.loadURDF('cube_small.urdf', np.array([0.5, 0.5, 0.15]),  # TODO: Put an object in target postion
+        self.Box = p.loadURDF('cube_small.urdf', np.array([0.5, 0.5, 0.15]),  # TODO: Put an object in target postion
                    p.getQuaternionFromEuler([0, 0, 0]), globalScaling=6,
                    useFixedBase=True)
         ##############################################################
 
         ############## Robot Initial State #################
-        self.q_home = [-0.1, -0.1, 0., 0.5, 0., 0., 0., 0., 0., 0.]
+        self.q_home = [-0.1, -0.1, 0., 0., 0., 0., 0., 0., 0., 0.]
         self.qlimits = [[-5.0, 5.0],
                         [-5.0, 5.0],
                         [-3.1416,  3.1416],
@@ -93,7 +93,7 @@ class Tiago_LeftParallelHand_Base(): # TODO: 08.06
         #print('====RESET=====')
         if q0 is None:
             for i, q_i in enumerate(self.q_home):
-                q_i = q_i + np.random.randn() * 0.  # Reset initial joint positions
+                q_i = q_i + np.random.rand(1) * 0.3  # Reset initial joint positions
                 #print('## q_i ##', q_i)
                 p.resetJointState(self.robot, self.JOINT_ID[i], q_i)
             p.stepSimulation()
@@ -102,13 +102,13 @@ class Tiago_LeftParallelHand_Base(): # TODO: 08.06
                 #print('## else: q_i ##', q_i)
                 p.resetJointState(self.robot, self.JOINT_ID[i], q_i)
             p.stepSimulation()
-
         q = np.array(
             [[p.getJointState(self.robot, 0)[0], p.getJointState(self.robot, 1)[0], p.getJointState(self.robot, 2)[0],
               p.getJointState(self.robot, 34)[0], p.getJointState(self.robot, 35)[0], p.getJointState(self.robot, 36)[0],
               p.getJointState(self.robot, 37)[0], p.getJointState(self.robot, 38)[0],
               p.getJointState(self.robot, 39)[0], p.getJointState(self.robot, 40)[0]]])
 
+        print("### Start point: ", q)
         # Fixed the dimensions for the returned state
         return np.concatenate((q, np.zeros_like(q)), 1)  # (7, 2)
 
@@ -146,21 +146,23 @@ class Tiago_LeftParallelHand_Base(): # TODO: 08.06
 
         obs = np.concatenate((self.q, self.dq), 1)
 
-        d = self._compute_distance()
+        d = self._compute_base_distance()
 
         r = self._compute_reward()
 
-        done = self._check_done(r)
+        done = self._check_done()
 
-        success = self._check_success(r)
+        success = self._check_success()
+
+        col = self._check_base_collision()
 
         q_vals = self.getPosVelJoints()
         #print('joint positions: ', self.getPosVelJoints())
 
-        return obs, d, done, success, q_vals
+        return obs, d, done, success, col
 
     # AAL: make sure the initial configuration is not in self-collision
-    def check_collision(self):
+    def check_self_collision(self):
         closest_points = p.getClosestPoints(self.robot, self.robot, self.max_obj_dist_init)
 
         n_links = p.getNumJoints(self.robot) - 1
@@ -176,12 +178,12 @@ class Tiago_LeftParallelHand_Base(): # TODO: 08.06
 
         return end_pos
 
-    def _compute_distance(self):
+    def _compute_base_distance(self):
 
         cur_x = np.array(p.getLinkState(self.robot, self.Base_X_ID)[0])
         cur_y = np.array(p.getLinkState(self.robot, self.Base_Y_ID)[0])
         #print('current position: ', cur_pos)
-        dist = math.hypot(cur_x[0] - self.Base_position[0], cur_y[0] - self.Base_position[1])
+        dist = math.hypot(cur_x[0] - self.Base_position[0], cur_y[1] - self.Base_position[1])
 
         return dist
 
@@ -193,11 +195,15 @@ class Tiago_LeftParallelHand_Base(): # TODO: 08.06
 
         return rwd
 
-    def _check_done(self, r):
+    def _check_done(self):
+        if self._compute_base_distance() <= self.max_obj_dist_init and not self._check_base_collision():
+            return True
         return False
 
-    def _check_success(self, r):
+    def _check_success(self):
         success = False
+        if self._compute_base_distance() <= self.max_obj_dist_init:
+            success = True
         return success
 
     def getPosVelJoints(self):  # Function to get the position/velocity of all joints from pybullet
@@ -207,3 +213,12 @@ class Tiago_LeftParallelHand_Base(): # TODO: 08.06
         joint_pos = np.vstack((np.array([[jointStates[i_joint][0] for i_joint in range(len(jointStates))]]).transpose()))
         link_pos = p.getLinkState(self.robot, self.EE_ID)
         return joint_pos, link_pos
+
+    def _check_base_collision(self):
+
+        closest_points = p.getClosestPoints(bodyA=self.robot, bodyB=self.Box, distance=self.max_obj_dist_init)
+
+        if len(closest_points) > 0:
+            print('WARNING: Robot collides with Box!!!')
+            return True
+        return False

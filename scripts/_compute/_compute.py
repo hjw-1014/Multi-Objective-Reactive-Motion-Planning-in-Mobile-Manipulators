@@ -603,7 +603,8 @@ def track_father_baseline(cur_position,  # TODO: Return n closest points | 09.02
 
     #############################
     # TODO: change this number to be adaptive | 09.24
-    track_num = 10
+    maximum_distance = 2.15  # Average distance from goal point
+    track_num = 10 + int(cur_end_dist/maximum_distance) * 40
     # 0. <= cur_end_dist <= 2.0
 
     #############################

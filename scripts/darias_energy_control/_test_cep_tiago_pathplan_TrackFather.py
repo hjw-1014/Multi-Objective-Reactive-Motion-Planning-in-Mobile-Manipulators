@@ -10,6 +10,7 @@ from mat_animation import Plotting
 
 joint_limit_buffers = 0.02
 joint_limits = np.array([2.5, 2.5, 3.1416, 2.75, 1.57, 3.53, 2.35, 2.09, 1.57, 2.09]) - joint_limit_buffers
+BASE_THRESHOLD = 0.01
 
 device = torch.device('cpu')
 
@@ -17,7 +18,6 @@ class CEPPolicy:
     def __init__(self, dt=1/240., dtype='float64'):
         self.dt = dt
         self.dtype = dtype
-
         self.controller = cep_tiago_pathplan_trackfather()
 
     def policy(self, state):
@@ -62,44 +62,73 @@ def experiment():
         robot_x_list = []
         robot_y_list = []
         dist_list = []
-        for i in range(horizon):
-            init = time.time()
 
+        FLAG_FIRS_TIME_CHECK_COL = True
+        FLAG_FIRS_TIME_CHECK_SUC = True
+        FLAG_FIRS_TIME_CHECK_DONE = True
+        SUCCESS = False
+        COLLISION = False
+        DONE = False
+        TIME_USED = 0.
+
+        start_exp = time.time()
+        for i in range(horizon):
+            print("### iteration: ", i)
+            init = time.time()
             #### Get Control Action (Position Control)####
             a = policy.policy(state)
-            state, reward, done, success, q_vals = env.step(a)
-            #print(state)
-
+            state, base_dist, done, success, col = env.step(a)
             ###################################
+
+            # TODO: Check collision and success | 09.29
+            if FLAG_FIRS_TIME_CHECK_COL:
+                if col:
+                    COLLISION = True
+                    FLAG_FIRS_TIME_CHECK_COL = False
+            if FLAG_FIRS_TIME_CHECK_SUC:
+                if success:
+                    SUCCESS = True
+                    FLAG_FIRS_TIME_CHECK_SUC = False
+            if FLAG_FIRS_TIME_CHECK_DONE:
+                if done:
+                    DONE = 1
+                    FLAG_FIRS_TIME_CHECK_DONE = False
+            ###################################
+
             # TODO: Record robot x and y values | 09.16
             robot_x_list.append(state[0][0])
             robot_y_list.append(state[0][1])
-            dist_list.append(reward)
-
+            dist_list.append(base_dist)
             ###################################
 
             end = time.time()
             time.sleep(np.clip(time_step - (end - init), 0, time_step))
 
-            if i == (horizon-1):
-                REWARD = reward
+            if i == (horizon-1) or base_dist <= BASE_THRESHOLD:
+                end_exp = time.time()
+                TIME_USED = end_exp - start_exp
+                Distance = base_dist
+
                 END_POSITION = env.check_endPosition()
-        print('Position state: ', state[0])
-        print('Distance:',  REWARD)
-        print('End position: ', END_POSITION)
-        print('Desired position', env.Target_pos)
+                print('Position state: ', state[0])
+                print('Distance:',  Distance)
+                print('End position: ', END_POSITION)
+                print('Desired position', env.Target_pos)
+                print("### SUCCESS: ", SUCCESS)
+                print("### COLLISION: ", COLLISION)
+                print("###: DONE", DONE)
+                print("### TIME_USED: ", TIME_USED)
 
-        ##################################
-        # TODO: Matplot animation version | 09.16
-        print("len(robot_x_list): ", len(robot_x_list))
-        print("robot_x_list: ", robot_x_list)
-        print("robot_y_list: ", robot_y_list)
-        plotting = Plotting(robot_x_list=robot_x_list, robot_y_list=robot_y_list, dist_list=dist_list, horizon=horizon)
-        plotting.plot_fig()
-        plotting.plot_animation()
-        ##################################
+                ##################################
+                # TODO: Matplot animation version | 09.16
+                print("len(robot_x_list): ", len(robot_x_list))
+                print("robot_x_list: ", robot_x_list)
+                print("robot_y_list: ", robot_y_list)
+                plotting = Plotting(robot_x_list=robot_x_list, robot_y_list=robot_y_list, dist_list=dist_list, horizon=i)
+                plotting.plot_fig()
+                plotting.plot_animation()
+                ##################################
 
-        #plot_joints(q_list, horizon)
     p.disconnect()
 
 

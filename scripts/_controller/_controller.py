@@ -82,7 +82,7 @@ def cep_cascade_control_rrt_tree(current_position, current_velocity, graph_rrt_s
                                                    cur_dist_son,
                                                    cur_dist_father,
                                                    graph_rrt_son, graph_rrt_father)
-    print("closest_point: ", closest_point)
+    #print("closest_point: ", closest_point)
 
     # Calculate dx | P control
     for i in range(len(current_position)):  # TODO, change on 07.24

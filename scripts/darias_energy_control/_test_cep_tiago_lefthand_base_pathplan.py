@@ -101,13 +101,12 @@ def experiment():
     ################
 
     n_trials = 1
-    horizon = 4000
+    horizon = 8000
     c = 0
     s = 0
     REWARD = 0
     END_POSITION = None
     for itr in range(n_trials):
-        print('###Iteration: {}'.format(itr))
         state = env.reset()
         p.addUserDebugLine([0., 0., -0.189], [1.5, 0., -0.189], [1., 0., 0.])
 
@@ -115,7 +114,7 @@ def experiment():
         robot_y_list = []
         for i in range(horizon):
             init = time.time()
-
+            print('###Iteration: ', i)
             #### Get Control Action (Position Control)####
             a = policy.policy(state)
             state, reward, done, success, q_vals = env.step(a)
@@ -133,18 +132,20 @@ def experiment():
             if i == (horizon-1):
                 REWARD = reward
                 END_POSITION = env.check_endPosition()
-        print('Position state: ', state[0])
-        print('Distance:',  REWARD)
-        print('End position: ', END_POSITION)
-        print('Desired position', env.Target_pos)
+                print('Position state: ', state[0])
+                print('Distance:',  REWARD)
+                print('End position: ', END_POSITION)
+                print('Desired position', env.Target_pos)
 
-        ##################################
-        # TODO: Matplot animation version | 09.16
-        print("len(robot_x_list): ", len(robot_x_list))
-        print("robot_x_list: ", robot_x_list)
-        print("robot_y_list: ", robot_y_list)
-        plotting = Plotting(robot_x_list=robot_x_list, robot_y_list=robot_y_list)
-        plotting.plot_animation()
+                ##################################
+                # TODO: Matplot animation version | 09.16
+                print("len(robot_x_list): ", len(robot_x_list))
+                print("robot_x_list: ", robot_x_list)
+                print("robot_y_list: ", robot_y_list)
+
+                plotting = Plotting(robot_x_list=robot_x_list, robot_y_list=robot_y_list, horizon=i)
+                plotting.plot_animation()
+                break
         ##################################
 
         #plot_joints(q_list, horizon)
