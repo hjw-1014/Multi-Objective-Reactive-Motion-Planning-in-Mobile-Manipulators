@@ -53,7 +53,7 @@ def experiment(CEP_Policy):
     ################
 
     n_trials = 100
-    horizon = 5000
+    horizon = 6000
     c = 0
     s = 0
     END_POSITION = None
@@ -93,7 +93,7 @@ def experiment(CEP_Policy):
                     SUCCESS = 1
                     FLAG_FIRS_TIME_CHECK_SUC = False
             if FLAG_FIRS_TIME_CHECK_DONE:
-                if done:
+                if not COLLISION and SUCCESS:
                     DONE = 1
                     FLAG_FIRS_TIME_CHECK_DONE = False
             ###################################
@@ -173,8 +173,8 @@ def plot(success_list, collision_list, time_used_list, iter_list, test_cep_model
 
 def plot_suc_col(success_list, collision_list, time_used_list, iter_list, test_cep_models): # TODO: added | 09.30
 
-    test_cep_models = ['track father', 'cascade control']
-    label = ['success', 'collision', 'iteration times']
+    test_cep_models = ['cascade_control', 'track_father']
+    label = ['success rate', 'collision rate', 'iteration times']
     x = np.arange(2)  # the label locations
     width = 0.32  # the width of the bars
     w = 0.16
