@@ -11,7 +11,7 @@ from icecream import ic
 from copy import deepcopy
 import json
 import time
-
+from collections import defaultdict
 sys.path.append(os.path.dirname(os.path.abspath(__file__)) +
                 "/../../Sampling_based_Planning/")
 
@@ -185,7 +185,7 @@ class Utils:
 
         np.save(save_path+"/graph_rrt_{}.npy".format(t), nodes_list)
 
-        print("Save graph in graph_rrt.npy!!!")
+        print("Save graph in graph_rrt_0921.npy!!!")
 
 
     @staticmethod
@@ -203,6 +203,13 @@ class Utils:
         print("Save path in path_rrt.npy!!!")
 
     @staticmethod
+    def save_cost2go_in_npy(path: list, t, save_path):
+
+        np.save(save_path+"/cost2go_{}.npy".format(t), path)
+
+        print("Save path in cost2go.npy!!!")
+
+    @staticmethod
     def create_dir(t):
 
         base_dir = os.path.abspath(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))))
@@ -211,3 +218,35 @@ class Utils:
         os.mkdir(path)
 
         return path
+
+    @staticmethod
+    def deep_first_search(vertices):
+        pass
+
+    @staticmethod
+    def calculate_cost_to_go(vertices):  # TODO: added | 10.01
+        """
+            Return a hashtable, key is the position of the node, value is cost-to-go cost.
+        """
+        cost2go_map = defaultdict()
+        node_list = []
+        cost_list = []
+        for node in vertices:
+            count = 1
+            #cur_xy = np.zeros((1, 2))
+            cur_xy = (node.x, node.y)
+            node_list.append(cur_xy)
+            if not node.parent:
+                cost_list.append(count)
+                cost2go_map[cur_xy] = count
+                continue
+            else:
+                while node.parent:
+                    count += 1
+                    node = node.parent
+                cost2go_map[cur_xy] = count
+                cost_list.append(count)
+
+        #cost2go_map[node_list] = cost_list
+
+        return cost2go_map

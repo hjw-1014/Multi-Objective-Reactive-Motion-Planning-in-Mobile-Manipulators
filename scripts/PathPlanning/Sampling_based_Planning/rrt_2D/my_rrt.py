@@ -61,8 +61,9 @@ class Rrt:
                     self.utils.save_vertex_in_npy(self.vertex, t, save_path)
                     self.utils.save_graph_in_npy(nodes_list, t, save_path)
                     self.utils.save_path_in_npy(path, t, save_path)
-
-                    return path, self.vertex, nodes_list
+                    cost2go_map = self.utils.calculate_cost_to_go(self.vertex)
+                    self.utils.save_cost2go_in_npy(cost2go_map, t, save_path)
+                    return path, self.vertex, nodes_list, cost2go_map
 
         return None
 
@@ -114,8 +115,10 @@ def main():
     start_time = time.time()
 
     rrt = Rrt(x_start, x_goal, 5, 1e-5, 100000)
-    path, graph, nodes_son_father_list = rrt.planning()
-
+    path, graph, nodes_son_father_list, cost2go_map = rrt.planning()
+    # print(cost2go_map)
+    # print(len(cost2go_map))
+    # print(len(nodes_son_father_list))
     print("--- %s seconds ---" % (time.time() - start_time))
 
     if path:

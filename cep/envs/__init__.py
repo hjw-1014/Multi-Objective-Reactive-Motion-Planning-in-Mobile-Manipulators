@@ -1,3 +1,4 @@
 from .darias_and_hand_simple_env import DariasHandSimple
 from .tiago_only_hand_simple_env import TiagoOneParallelHand
 from .tiago_lefthand_base_simple_env import Tiago_LeftParallelHand_Base
+from .tiago_base_env import TiagoOnlyBase

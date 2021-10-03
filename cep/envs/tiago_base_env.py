@@ -10,29 +10,27 @@ from gym import error, spaces
 def solve_euler(q, dq, dt):
     return q+dq*dt
 
-class Tiago_LeftParallelHand_Base(): # TODO: 08.06
+class TiagoOnlyBase(): # TODO: 10.02
 
     """
-    Tiago with one parallel gripper and base Simple Environment.
+    Tiago with base Simple Environment.
     Environment to evaluate the quality of prior composition for obstacle avoidance + Goto Target
-    State dim 14; 10 q / 10 dq;
-    Action dim (10,2); 10 q_des/ 10 dq_des
+    State dim 14; 2 q / 2 dq;
+    Action dim (2,2); 2 q_des/ 2 dq_des
 
     """
 
     ######################## Tiago with one parallel gripper hand ########################
 
-    def __init__(self, reward_type=0, time_step=1./240., Target_pose=[1.5, 1.2, 0.8]):
-        p.connect(p.DIRECT)
-        self.EE_link = "arm_7_link"
-        self.EE_ID = 43
+    def __init__(self, reward_type=0, time_step=1./10., Target_pose=[1.5, 1.2, 0.8]):
+        p.connect(p.GUI_SERVER)
         self.Base_X_ID = 0
         self.Base_Y_ID = 1
         self.Target_pos = Target_pose
         self.Base_position = [1.2, 1.0, 0.0]
         self.name_base_link = "world"
-        self.JOINT_ID = [0, 1, 2, 34, 35, 36, 37, 38, 39, 40]
-        self.link_names = ['X', 'Y', 'R', "arm_1_link", "arm_2_link", "arm_3_link", "arm_4_link", "arm_5_link", "arm_6_link", self.EE_link]
+        self.JOINT_ID = [0, 1]
+        self.link_names = ['X', 'Y']
 
         p.setPhysicsEngineParameter(numSolverIterations=150)
         p.setTimeStep(time_step)
@@ -40,7 +38,7 @@ class Tiago_LeftParallelHand_Base(): # TODO: 08.06
 
         p.setAdditionalSearchPath(pybullet_data.getDataPath())
         basename = os.path.dirname(os.path.abspath(__file__ + '/../../'))
-        self.robot_file = os.path.join(basename, "robots/tiago/tiago_single_with_holoBaseCXY.urdf")
+        self.robot_file = os.path.join(basename, "robots/tiago/tiago_only_base.urdf")
 
         self.robot = p.loadURDF(self.robot_file, flags=p.URDF_USE_SELF_COLLISION_EXCLUDE_PARENT)
 
@@ -57,20 +55,12 @@ class Tiago_LeftParallelHand_Base(): # TODO: 08.06
         ##############################################################
 
         ############## Robot Initial State #################
-        self.q_home = [-0.1, -0.1, 0., 0., 0., 0., 0., 0., 0., 0.]
-        self.qlimits = [[-5.0, 5.0],
-                        [-5.0, 5.0],
-                        [-3.1416,  3.1416],
-                        [0.0, 2.74889357189],
-                        [-1.57079632679, 1.0908307825],
-                        [-3.53429173529, 1.57079632679],
-                        [-0.392699081699, 2.35619449019],
-                        [-2.09439510239, 2.09439510239],
-                        [-1.57079632679, 1.57079632679],
-                        [-2.09439510239, 2.09439510239]]
+        self.q_home = [-0.15, -0.15]
+        self.qlimits = [[-3.0, 3.0],
+                        [-3.0, 3.0]]
 
         ## Observation-Action Space ##
-        self.action_space = spaces.Box(-10, 10, shape=(10,), dtype='float32')
+        self.action_space = spaces.Box(-10, 10, shape=(2,), dtype='float32')
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(18,), dtype='float32')  # TODO: Shape???
 
         self.max_obj_dist_init = 0.01
@@ -78,7 +68,7 @@ class Tiago_LeftParallelHand_Base(): # TODO: 08.06
         self.reward_type = reward_type
 
         ## VARIABLES ##
-        self.DYNAMICS_ON = False
+        self.DYNAMICS_ON = 0
 
         ## Threshold ##
         self.break_threshold = 0.08
@@ -102,53 +92,49 @@ class Tiago_LeftParallelHand_Base(): # TODO: 08.06
                 #print('## else: q_i ##', q_i)
                 p.resetJointState(self.robot, self.JOINT_ID[i], q_i)
             p.stepSimulation()
-        q = np.array(
-            [[p.getJointState(self.robot, 0)[0], p.getJointState(self.robot, 1)[0], p.getJointState(self.robot, 2)[0],
-              p.getJointState(self.robot, 34)[0], p.getJointState(self.robot, 35)[0], p.getJointState(self.robot, 36)[0],
-              p.getJointState(self.robot, 37)[0], p.getJointState(self.robot, 38)[0],
-              p.getJointState(self.robot, 39)[0], p.getJointState(self.robot, 40)[0]]])
+        q = np.array([[p.getJointState(self.robot, 0)[0], p.getJointState(self.robot, 1)[0]]])
 
         print("### Start point: ", q)
         # Fixed the dimensions for the returned state
-        return np.concatenate((q, np.zeros_like(q)), 1)  # (1, 20)
+        return np.concatenate((q, np.zeros_like(q)), 1)  # (1, 4)
 
-    def step(self, action):
+    def step(self, action, state):
         #print('===== start step =====')
         a_p = action[0]  # Position
         a_v = action[1]  # Velocity
 
-        for i, q_i in enumerate(a_p):
+        delta = 1./10.
+        pos = state[0][:2]
+        v = state[0][2:]
+
+        new_v = action * delta + v
+        new_q = new_v * delta + pos
+        for i, q_i in enumerate(new_q):
             #print('======= Set joint motor contorl ========')
             if self.DYNAMICS_ON:  # Use setJointMotorControl or resetJointState to control q
                 #print('1step')
                 p.setJointMotorControl2(self.robot, self.JOINT_ID[i], p.POSITION_CONTROL, targetPosition=q_i,
-                                        targetVelocity=a_v[i],
+                                        #targetVelocity=a_v[i],
                                         force=p.getJointInfo(self.robot, self.JOINT_ID[i])[10])
             else:
                 #print('q_i', q_i)
                 #print('2step')
                 p.resetJointState(self.robot, self.JOINT_ID[i], q_i)
 
-        self.q = np.array(
-            [[p.getJointState(self.robot, 0)[0], p.getJointState(self.robot, 1)[0], p.getJointState(self.robot, 2)[0],
-              p.getJointState(self.robot, 34)[0], p.getJointState(self.robot, 35)[0], p.getJointState(self.robot, 36)[0],
-              p.getJointState(self.robot, 37)[0], p.getJointState(self.robot, 38)[0],
-              p.getJointState(self.robot, 39)[0], p.getJointState(self.robot, 40)[0]]])
+        self.q = np.array([[p.getJointState(self.robot, 0)[0], p.getJointState(self.robot, 1)[0]]])
 
         if self.DYNAMICS_ON:
             self.dq = np.array(
-                [[p.getJointState(self.robot, 0)[0], p.getJointState(self.robot, 1)[0], p.getJointState(self.robot, 2)[0],
-                  p.getJointState(self.robot, 34)[0], p.getJointState(self.robot, 35)[0], p.getJointState(self.robot, 36)[0],
-                  p.getJointState(self.robot, 37)[0], p.getJointState(self.robot, 38)[0],
-                  p.getJointState(self.robot, 39)[0], p.getJointState(self.robot, 40)[0]]])
+                [[p.getJointState(self.robot, 0)[0], p.getJointState(self.robot, 1)[0]]])
         else:
-            self.dq = a_v[None, :]
+            #self.dq = a_v[None, :]
+            self.dq = new_v.reshape(1, 2)
 
         obs = np.concatenate((self.q, self.dq), 1)
 
         d = self._compute_base_distance()
 
-        r = self._compute_reward()
+        #r = self._compute_reward()
 
         done = self._check_done()
 
@@ -156,7 +142,7 @@ class Tiago_LeftParallelHand_Base(): # TODO: 08.06
 
         col = self._check_base_collision()
 
-        q_vals = self.getPosVelJoints()
+        #q_vals = self.getPosVelJoints()
         #print('joint positions: ', self.getPosVelJoints())
 
         return obs, d, done, success, col
