@@ -22,7 +22,7 @@ class TiagoOnlyBase(): # TODO: 10.02
 
     ######################## Tiago with one parallel gripper hand ########################
 
-    def __init__(self, reward_type=0, time_step=1./10., Target_pose=[1.5, 1.2, 0.8]):
+    def __init__(self, reward_type=0, time_step=1./240., Target_pose=[1.5, 1.2, 0.8]):
         p.connect(p.GUI_SERVER)
         self.Base_X_ID = 0
         self.Base_Y_ID = 1
@@ -31,6 +31,7 @@ class TiagoOnlyBase(): # TODO: 10.02
         self.name_base_link = "world"
         self.JOINT_ID = [0, 1]
         self.link_names = ['X', 'Y']
+        self.delta = time_step
 
         p.setPhysicsEngineParameter(numSolverIterations=150)
         p.setTimeStep(time_step)
@@ -103,12 +104,13 @@ class TiagoOnlyBase(): # TODO: 10.02
         a_p = action[0]  # Position
         a_v = action[1]  # Velocity
 
-        delta = 1./10.
+
         pos = state[0][:2]
         v = state[0][2:]
 
-        new_v = action * delta + v
-        new_q = new_v * delta + pos
+        new_v = action * self.delta + v
+        new_q = new_v * self.delta + pos
+
         for i, q_i in enumerate(new_q):
             #print('======= Set joint motor contorl ========')
             if self.DYNAMICS_ON:  # Use setJointMotorControl or resetJointState to control q
@@ -121,7 +123,8 @@ class TiagoOnlyBase(): # TODO: 10.02
                 #print('2step')
                 p.resetJointState(self.robot, self.JOINT_ID[i], q_i)
 
-        self.q = np.array([[p.getJointState(self.robot, 0)[0], p.getJointState(self.robot, 1)[0]]])
+        #self.q = np.array([[p.getJointState(self.robot, 0)[0], p.getJointState(self.robot, 1)[0]]])
+        self.q = new_q.reshape(1, 2)
 
         if self.DYNAMICS_ON:
             self.dq = np.array(
