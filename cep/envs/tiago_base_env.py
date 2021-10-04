@@ -5,6 +5,7 @@ import numpy as np
 import os
 
 import pybullet_data
+import torch
 from gym import error, spaces
 
 def solve_euler(q, dq, dt):
@@ -82,19 +83,21 @@ class TiagoOnlyBase(): # TODO: 10.02
     def reset(self, q0=None):
         # Initialize Pybullet Environment
         #print('====RESET=====')
+        q_init = torch.zeros((1, 2))
         if q0 is None:
             for i, q_i in enumerate(self.q_home):
                 q_i = q_i + np.random.rand(1) * 0.3  # Reset initial joint positions
                 #print('## q_i ##', q_i)
                 p.resetJointState(self.robot, self.JOINT_ID[i], q_i)
+                q_init[0][i] = q_i[0]
             p.stepSimulation()
         else:
             for i, q_i in enumerate(q0):
                 #print('## else: q_i ##', q_i)
                 p.resetJointState(self.robot, self.JOINT_ID[i], q_i)
             p.stepSimulation()
-        q = np.array([[p.getJointState(self.robot, 0)[0], p.getJointState(self.robot, 1)[0]]])
-
+        #q = np.array([[p.getJointState(self.robot, 0)[0], p.getJointState(self.robot, 1)[0]]])
+        q = q_init
         print("### Start point: ", q)
         # Fixed the dimensions for the returned state
         return np.concatenate((q, np.zeros_like(q)), 1)  # (1, 4)
