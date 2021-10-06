@@ -1,58 +1,99 @@
 """
-
-tiago+ robot model for CEP
-
+    Tiago Gym-like Env using Matlibplot
 """
-
-from math import sqrt, cos, sin, tan, pi
 
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.patches import Rectangle
 from matplotlib import animation, rc
 from IPython.display import HTML, Image
+import math
 
-# Define robot configuration
-radius = 0.27
-robot_x = 0.
-robot_y = 0.
-des_x = 1.2
-des_y = 1.0
 
-class data_linewidth_plot():
-    def __init__(self, x, y, **kwargs):
-        self.ax = kwargs.pop("ax", plt.gca())
-        self.fig = self.ax.get_figure()
-        self.lw_data = kwargs.pop("linewidth", 1)
-        self.lw = 1
-        self.fig.canvas.draw()
+class MatTiagoEnv:
 
-        self.ppd = 72./self.fig.dpi
-        self.trans = self.ax.transData.transform
-        self.linehandle, = self.ax.plot([],[],**kwargs)
-        if "label" in kwargs: kwargs.pop("label")
-        self.line, = self.ax.plot(x, y, **kwargs)
-        self.line.set_color(self.linehandle.get_color())
-        self._resize()
-        self.cid = self.fig.canvas.mpl_connect('draw_event', self._resize)
+    def __init__(self, delta=1./50.):
 
-    def _resize(self, event=None):
-        lw =  ((self.trans((1, self.lw_data))-self.trans((0, 0)))*self.ppd)[1]
-        if lw != self.lw:
-            self.line.set_linewidth(lw)
-            self.lw = lw
-            self._redraw_later()
+        self.obstacle = None
+        self.START_POINT = np.array([-0.1, -0.1])
+        self.END_POINT = np.array([1.2, 1.0])
+        self.BOUND_X = np.array([0.07, 0.93])  # np.array([[X_MIN, X_MAX]])
+        self.BOUND_Y = np.array([0.07, 0.93])
+        self.robot_radius = 0.28
+        self.vel_init = np.array([0., 0.])
 
-    def _redraw_later(self):
-        self.timer = self.fig.canvas.new_timer(interval=10)
-        self.timer.single_shot = True
-        self.timer.add_callback(lambda : self.fig.canvas.draw_idle())
-        self.timer.start()
+        self.cur_pos = None
+        self.cur_vel = None
+
+        self.delta = delta
+        self.THRESHOLD = 0.01
+
+    def reset(self):
+
+        self.cur_pos = self.START_POINT
+        self.cur_vel = self.vel_init
+
+        # TODO: State is position and velocity
+        # init_state =  np.concatenate([self.cur_pos, self.cur_vel]).reshape(-1, 1)
+
+        # TODO: State is position
+        init_state = self.cur_pos
+
+        return init_state
+
+    def step(self, action: np.array):
+        """
+            Dynamics: Given a Action (acceleration or velocity), return the next state (position and velocity)
+        """
+
+        # TODO: Action is acceleration
+        # self.cur_vel += self.delta * action
+        # self.cur_pos += self.delta * self.cur_vel
+        # obs = np.concatenate([self.cur_pos, self.cur_vel])
+
+        # TODO: Action is velocity
+        self.cur_pos += self.delta * action
+        obs = self.cur_pos
+
+        reward = self.check_reward()
+        dist = self.cal_dist()
+        done = self.check_done()
+        col = self.check_collision()
+
+
+
+        return obs, dist, reward, done, col
+
+    def check_done(self):
+        if self.check_arrive() and not self.check_collision():
+            return True
+        return False
+
+    def check_arrive(self):
+        if math.fabs(self.cal_dist()) <= self.THRESHOLD:
+            return True
+        return False
+
+    def check_collision(self):
+        if self.BOUND_X[0] <= self.cur_pos[0] <= self.BOUND_X[1] and self.BOUND_Y[0] <= self.cur_pos[1] <= self.BOUND_Y[1]:
+            return True
+        return False
+
+    def check_reward(self):
+
+        return 0
+
+    def cal_dist(self):
+        return math.hypot(self.cur_pos[0] - self.END_POINT[0], self.cur_pos[1] - self.END_POINT[1])
+
 
 class Plotting:
     def __init__(self, robot_x_list=None, robot_y_list=None, dist_list=None, horizon=None):
 
         self.robot = None
+        self.radius = 0.28
+        self.des_x = 1.2
+        self.des_y = 1.0
         self.robot_x_list = robot_x_list
         self.robot_y_list = robot_y_list
         self.horizon = horizon
@@ -88,15 +129,14 @@ class Plotting:
                 ax.set_ylim(-1, 2)
 
                 ax.grid(True)
-                ax.grid(which='major', alpha=0.5)
 
-                self.plot_robot(ax, robot_x_list[i], robot_y_list[i], radius)
+                self.plot_robot(ax, robot_x_list[i], robot_y_list[i], self.radius)
 
                 robot_circle = plt.Circle((robot_x_list[i], robot_y_list[i]), radius=0.01, color='y', fill=True)
                 ax.text(robot_x_list[i], robot_y_list[i], s='cur', fontsize=8.)
                 ax.add_patch(robot_circle)
 
-                self.plot_des(ax, des_x, des_y, radius)
+                self.plot_des(ax, self.des_x, self.des_y, self.radius)
 
                 start_circle = plt.Circle((-0.1, -0.1), 0.01, color='g', fill=True)
                 ax.text(-0.1, -0.1, s='start', fontsize=8.)
@@ -122,10 +162,8 @@ class Plotting:
         x = np.linspace(0, self.horizon, l)
         ax[0].plot(x, self.robot_x_list)
         ax[0].set_title("Base position X")
-        ax[0].plot(x, np.ones(len(self.robot_x_list)) * des_x)
         ax[1].plot(x, self.robot_y_list)
         ax[1].set_title("Base position Y")
-        ax[1].plot(x, np.ones(len(self.robot_x_list)) * des_y)
         ax[2].plot(x, self.dist_list)
         ax[2].set_title("Base distance from goal")
         plt.show()
@@ -144,22 +182,3 @@ class Plotting:
         anim = animation.FuncAnimation(fig, self.animate(ax),
                                        frames=100, interval=20, blit=True)
         anim.save("test.gif", writer='imagemagick', fps=60)
-
-
-if __name__ == "__main__":
-
-    fig, ax = plt.subplots()
-
-    robot_x_list = []
-    robot_y_list = []
-    robot_x = 0.
-    robot_y = 0.
-    for i in range(100):
-        x = robot_x + 0.005 * i
-        y = robot_y + 0.005 * i
-        robot_x_list.append(x)
-        robot_y_list.append(y)
-
-    plotting = Plotting(robot_x_list, robot_y_list, horizon=4000)
-    #plotting.save_gif(fig, ax)
-    plotting.plot_animation()
