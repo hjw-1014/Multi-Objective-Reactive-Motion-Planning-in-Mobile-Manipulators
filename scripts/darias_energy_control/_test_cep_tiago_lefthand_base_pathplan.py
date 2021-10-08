@@ -139,9 +139,9 @@ def experiment():
 
                 ##################################
                 # TODO: Matplot animation version | 09.16
-                print("len(robot_x_list): ", len(robot_x_list))
-                print("robot_x_list: ", robot_x_list)
-                print("robot_y_list: ", robot_y_list)
+                # print("len(robot_x_list): ", len(robot_x_list))
+                # print("robot_x_list: ", robot_x_list)
+                # print("robot_y_list: ", robot_y_list)
 
                 plotting = Plotting(robot_x_list=robot_x_list, robot_y_list=robot_y_list, horizon=i)
                 plotting.plot_animation()
