@@ -76,7 +76,7 @@ class Plotting:
         robot_x_list = self.robot_x_list
         robot_y_list = self.robot_y_list
 
-        for _ in range(2):
+        for _ in range(10):
             for i in range(0, self.horizon, int(self.horizon/100)):
 
                 plt.cla()
@@ -108,7 +108,7 @@ class Plotting:
 
                 ax.add_patch(Rectangle((0.35, 0.35), 0.3, 0.3, facecolor="black", alpha=0.5))
 
-                plt.pause(1e-1)
+                plt.pause(1e-2)
 
                 #l = data_linewidth_plot([0., 0.2], [0., 0.2], ax=ax, label='some 1 data unit wide line',
                 #                    linewidth=0.01, alpha=1.)
