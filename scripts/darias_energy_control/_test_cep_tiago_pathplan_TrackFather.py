@@ -121,9 +121,9 @@ def experiment():
 
                 ##################################
                 # TODO: Matplot animation version | 09.16
-                print("len(robot_x_list): ", len(robot_x_list))
-                print("robot_x_list: ", robot_x_list)
-                print("robot_y_list: ", robot_y_list)
+                # print("len(robot_x_list): ", len(robot_x_list))
+                # print("robot_x_list: ", robot_x_list)
+                # print("robot_y_list: ", robot_y_list)
                 plotting = Plotting(robot_x_list=robot_x_list, robot_y_list=robot_y_list, dist_list=dist_list, horizon=i)
                 plotting.plot_fig()
                 plotting.plot_animation()
@@ -133,7 +133,7 @@ def experiment():
 
 
 if __name__ == '__main__':
-    p.connect(p.GUI_SERVER, 1234,
+    p.connect(p.DIRECT, 1234,
               options='--background_color_red=1. --background_color_green=1. --background_color_blue=1.')
     p.resetDebugVisualizerCamera(2.2, 55.6, -47.4, [0.04, 0.06, 0.31])
     experiment()
