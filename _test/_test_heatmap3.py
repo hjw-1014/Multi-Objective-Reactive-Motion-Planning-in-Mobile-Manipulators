@@ -46,19 +46,19 @@ def gen_heatmap(log_map, closest_point, current_point):
     log_max, log_min = log_map.max(), log_map.min()
 
     # Mark the goal point
-    goal_circle = plt.Circle((1.2, 1.0), 0.01, color='r', fill=True)
-    ax.text(1.2, 1.0, s='goal', fontsize=8.)
-    ax.add_patch(goal_circle)
+    # goal_circle = plt.Circle((1.2, 1.0), 0.01, color='r', fill=True)
+    # ax.text(1.2, 1.0, s='goal', fontsize=8.)
+    # ax.add_patch(goal_circle)
 
     # Mark the current point
     current_circle = plt.Circle((current_point[0], current_point[1]), 0.01, color='y', fill=True)
-    # ax.text(current_point[0], current_point[1], s='cur', fontsize=8.)
+    ax.text(current_point[0], current_point[1], s='Current', fontsize=14.)
     ax.add_patch(current_circle)
 
     # Mark the closest point
     for i in range(len(closest_point)):
         closest_circle = plt.Circle((closest_point[i][0], closest_point[i][1]), 0.01, color='g', fill=True)
-        ax.text(closest_point[i][0], closest_point[i][1], s='closest', fontsize=8.)
+        ax.text(closest_point[i][0], closest_point[i][1], s='Closest', fontsize=14.)
         ax.add_patch(closest_circle)
 
     # Mark the arrow
@@ -135,6 +135,8 @@ def gen_heatmap(log_map, closest_point, current_point):
 # fig.colorbar(c, ax=ax)
 
 pos_n = torch.tensor([[-0.3, -0.3], [1.5, 1.5]])
+pos_n = torch.tensor([[1.5, 1.5]])
+pos_n = torch.tensor([[-0.3, -0.3]])
 p_dx = []
 var = torch.eye(2).float() * 1.
 
@@ -144,7 +146,7 @@ for i in range(len(pos_n)):
 
 gg = []
 closest_point = pos_n
-current_point = [0.3, 0.3]
+current_point = [-0.15, 1.1]
 for i in range(len(pos_n)):
     grid_map = gen_gridmap()
     gg.append(torch.unsqueeze(p_dx[i].log_prob(grid_map), dim=1))
