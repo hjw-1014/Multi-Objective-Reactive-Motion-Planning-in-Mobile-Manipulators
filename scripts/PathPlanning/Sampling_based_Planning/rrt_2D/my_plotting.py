@@ -72,10 +72,18 @@ class Plotting:
         #             facecolor='gray',
         #             fill=True
         #         )
-        #     )
+        #     ),
 
         plt.plot(self.xI[0], self.xI[1], "bs", linewidth=3)
         plt.plot(self.xG[0], self.xG[1], "gs", linewidth=3)
+
+        plt.plot(50, -48, "rs", linewidth=3.)
+        circle = plt.Circle((50, -48), 15, fill=False)
+        ax.add_artist(circle)
+
+        plt.plot(-60, 150, "rs", linewidth=3.)
+        circle = plt.Circle((-60, 150), 15, fill=False)
+        ax.add_artist(circle)
 
         plt.title(name)
         plt.axis("equal")
@@ -123,6 +131,7 @@ class Plotting:
         if len(path) != 0:
             plt.plot([x[0] for x in path], [x[1] for x in path], '-r', linewidth=2)
             plt.pause(0.01)
+            plt.plot(30, 30)
         base_dir = os.path.abspath(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))))
         npy_dir = os.path.join(base_dir, "Results_npy/")
         plt.savefig(npy_dir+"/rrt_tree.jpg")

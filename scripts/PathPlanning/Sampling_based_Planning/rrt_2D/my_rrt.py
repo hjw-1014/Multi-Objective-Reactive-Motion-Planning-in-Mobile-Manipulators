@@ -114,7 +114,7 @@ def main():
 
     start_time = time.time()
 
-    rrt = Rrt(x_start, x_goal, 5, 1e-4, 100000)
+    rrt = Rrt(x_start, x_goal, 5, 1e-5, 100000)
     path, graph, nodes_son_father_list, cost2go_map = rrt.planning()
     # print(cost2go_map)
     # print(len(cost2go_map))
