@@ -77,12 +77,12 @@ class Plotting:
         plt.plot(self.xI[0], self.xI[1], "bs", linewidth=3)
         plt.plot(self.xG[0], self.xG[1], "gs", linewidth=3)
 
-        plt.plot(50, -48, "rs", linewidth=3.)
-        circle = plt.Circle((50, -48), 15, fill=False)
-        ax.add_artist(circle)
+        # plt.plot(50, -48, "rs", linewidth=3.)
+        # circle = plt.Circle((50, -48), 15, fill=False)
+        # ax.add_artist(circle)
 
-        plt.plot(-60, 150, "rs", linewidth=3.)
-        circle = plt.Circle((-60, 150), 15, fill=False)
+        plt.plot(-58, 152, "rs", linewidth=3.)
+        circle = plt.Circle((-58, 152), 15, fill=False)
         ax.add_artist(circle)
 
         plt.title(name)
