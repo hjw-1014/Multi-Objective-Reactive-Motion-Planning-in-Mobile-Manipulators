@@ -95,7 +95,7 @@ def experiment():
             end = time.time()
             time.sleep(np.clip(time_step - (end - init), 0, time_step))
 
-            if i == (horizon-1):
+            if i == (horizon-1) or ee_dist <= 0.01:
                 # REWARD = base_dist
                 # END_POSITION = env.check_endPosition()
                 # ee_dist = env._compute_reward()
@@ -178,7 +178,7 @@ def experiment():
 
 
 if __name__ == '__main__':
-    p.connect(p.GUI_SERVER, 1234,
+    p.connect(p.DIRECT, 1234,
               options='--background_color_red=1. --background_color_green=1. --background_color_blue=1.')
     p.resetDebugVisualizerCamera(2.2, 55.6, -47.4, [0.04, 0.06, 0.31])
     experiment()

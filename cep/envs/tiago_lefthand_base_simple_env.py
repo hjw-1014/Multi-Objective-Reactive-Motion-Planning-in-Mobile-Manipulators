@@ -30,6 +30,7 @@ class Tiago_LeftParallelHand_Base(): # TODO: 08.06
         self.Base_Y_ID = 1
         self.Target_pos = Target_pose
         self.Base_position = [1.2, 1.0, 0.0]
+        self.END_POS = [1.5, 1.2, 0.8]
         self.name_base_link = "world"
         self.JOINT_ID = [0, 1, 2, 34, 35, 36, 37, 38, 39, 40]
         self.link_names = ['X', 'Y', 'R', "arm_1_link", "arm_2_link", "arm_3_link", "arm_4_link", "arm_5_link", "arm_6_link", self.EE_link]
@@ -191,7 +192,7 @@ class Tiago_LeftParallelHand_Base(): # TODO: 08.06
 
         cur_pos = np.array(p.getLinkState(self.robot, self.EE_ID)[0])
         #print('current position: ', cur_pos)
-        rwd = np.sqrt(np.sum(np.power(np.abs(cur_pos - self.Base_position), 2)))
+        rwd = np.sqrt(np.sum(np.power(np.abs(cur_pos - self.END_POS), 2)))
 
         return rwd
 
