@@ -101,7 +101,7 @@ def experiment():
     ################
 
     n_trials = 1
-    horizon = 8000
+    horizon = 6000
     c = 0
     s = 0
     REWARD = 0
@@ -112,25 +112,28 @@ def experiment():
 
         robot_x_list = []
         robot_y_list = []
+        dist_list = []
+
         for i in range(horizon):
             init = time.time()
             print('###Iteration: ', i)
             #### Get Control Action (Position Control)####
             a = policy.policy(state)
-            state, reward, done, success, q_vals = env.step(a)
+            state, base_dist, done, success, q_vals = env.step(a)
             #print(state)
 
             ###################################
             # TODO: Record robot x and y values | 09.16
             robot_x_list.append(state[0][0])
             robot_y_list.append(state[0][1])
+            dist_list.append(base_dist)
             ###################################
 
             end = time.time()
             time.sleep(np.clip(time_step - (end - init), 0, time_step))
 
             if i == (horizon-1):
-                REWARD = reward
+                REWARD = base_dist
                 END_POSITION = env.check_endPosition()
                 print('Position state: ', state[0])
                 print('Distance:',  REWARD)
@@ -143,7 +146,9 @@ def experiment():
                 # print("robot_x_list: ", robot_x_list)
                 # print("robot_y_list: ", robot_y_list)
 
-                plotting = Plotting(robot_x_list=robot_x_list, robot_y_list=robot_y_list, horizon=i)
+                plotting = Plotting(robot_x_list=robot_x_list, robot_y_list=robot_y_list, dist_list=dist_list,horizon=i)
+                plotting.plot_fig()
+                plotting.plot_path(robot_x_list=robot_x_list, robot_y_list=robot_y_list)
                 plotting.plot_animation()
                 break
         ##################################
@@ -153,7 +158,7 @@ def experiment():
 
 
 if __name__ == '__main__':
-    p.connect(p.GUI_SERVER, 1234,
+    p.connect(p.DIRECT, 1234,
               options='--background_color_red=1. --background_color_green=1. --background_color_blue=1.')
     p.resetDebugVisualizerCamera(2.2, 55.6, -47.4, [0.04, 0.06, 0.31])
     experiment()

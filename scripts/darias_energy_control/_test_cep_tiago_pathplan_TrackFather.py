@@ -57,8 +57,6 @@ def experiment():
     for itr in range(n_trials):
         print('###Iteration: {}'.format(itr))
         state = env.reset()
-        p.addUserDebugLine([0., 0., -0.189], [1.5, 0., -0.189], [1., 0., 0.])
-
         robot_x_list = []
         robot_y_list = []
         dist_list = []
@@ -126,6 +124,7 @@ def experiment():
                 # print("robot_y_list: ", robot_y_list)
                 plotting = Plotting(robot_x_list=robot_x_list, robot_y_list=robot_y_list, dist_list=dist_list, horizon=i)
                 plotting.plot_fig()
+                plotting.plot_path(robot_x_list, robot_y_list)
                 plotting.plot_animation()
                 ##################################
 

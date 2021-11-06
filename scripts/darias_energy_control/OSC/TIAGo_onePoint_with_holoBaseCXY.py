@@ -253,11 +253,11 @@ def start_pybullet():  # load Tiago in Pybullet
     joint_indexes = [0, 1, 2, 34, 35, 36, 37, 38, 39, 40]
 
     Num_Joints = p.getNumJoints(robotId)
-    print('p.getNumJoints(robotId)', p.getNumJoints(robotId))
-    for i in range(Num_Joints):
-        print('p.getJointState(robotId, {})'.format(i), p.getJointState(robotId, i))
-    for i in range(Num_Joints):
-        print('p.getJointInfo(robotId, {})'.format(i), p.getJointInfo(robotId, i))
+    # print('p.getNumJoints(robotId)', p.getNumJoints(robotId))
+    # for i in range(Num_Joints):
+    #     print('p.getJointState(robotId, {})'.format(i), p.getJointState(robotId, i))
+    # for i in range(Num_Joints):
+    #     print('p.getJointInfo(robotId, {})'.format(i), p.getJointInfo(robotId, i))
 
     return robotId, planeId, joint_indexes
 
@@ -849,8 +849,8 @@ if __name__ == '__main__':
         # err = np.linalg.norm(pin.log6(dMi).vector)
         err = abs(np.sum(robot.data.oMf[EE_idx].translation - x_desired.translation))
         distance = np.sqrt(np.sum(np.power(np.abs(robot.data.oMf[EE_idx].translation - x_desired.translation), 2)))
-        print('position error: ', err)
-        print('Distance: ', distance)
+        # print('position error: ', err)
+        # print('Distance: ', distance)
 
         # TODO: RECORD error
         error_values.append(err)
@@ -867,8 +867,8 @@ if __name__ == '__main__':
 
     # # TODO: Plot
     #plot_mu(mu_values, number_iteration)
-    #plot_joints(joint_values, joint_pos_values, number_iteration)
-    #plot_error(error_values, number_iteration)
+    plot_joints(joint_values, joint_pos_values, number_iteration)
+    plot_error(error_values, number_iteration)
     plot_euclidiean_dist(dist_values, number_iteration)
     plot_xyz(x_values, y_values, z_values, number_iteration)
 

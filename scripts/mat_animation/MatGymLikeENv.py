@@ -26,7 +26,7 @@ class MatTiagoEnv:
         self.cur_vel = None
 
         self.delta = delta
-        self.THRESHOLD = 0.01
+        self.THRESHOLD = 0.05
 
     def reset(self):
 
