@@ -135,7 +135,7 @@ class Plotting:
         ax[2].set_title("Distance from goal")
         plt.show()
 
-    def plot_fig_wholebody(self, des_x=1.5, des_y=1.2, des_z=0.8):
+    def plot_fig_wholebody(self, des_x=1.7, des_y=1.1, des_z=0.8):
         fig, ax = plt.subplots(1, 4, figsize=(9, 9))
         l = len(self.robot_x_list)
         x = np.linspace(0, self.horizon, l)

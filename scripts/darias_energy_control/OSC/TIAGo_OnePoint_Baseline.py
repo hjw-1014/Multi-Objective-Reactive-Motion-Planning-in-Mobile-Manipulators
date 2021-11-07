@@ -193,7 +193,7 @@ def start_pybullet(): # load Tiago in Pybullet
     startOrientation = [0., 0., 0.]
     robotId = p.loadURDF(urdf_filename, startPos, p.getQuaternionFromEuler([0., 0., 0.]), useFixedBase=1)
 
-    p.loadURDF('sphere_1cm.urdf', np.array([0.8, 0., 0.8]), # TODO: Put an object in target postion
+    p.loadURDF('sphere_1cm.urdf', np.array([0.5, 0.1, 0.8]), # TODO: Put an object in target postion
                p.getQuaternionFromEuler([0, 0, 0]),
                useFixedBase=True)
 
@@ -500,7 +500,7 @@ print('robot.model: ', robot.model)
 # TODO: Set the desired points
 qua = pin.Quaternion(0., 0., 0., 1.)
 start_point = np.array([0.1, -0.7, 0.7])  # 0.10805 -0.7345  0.7065
-end_point = np.array([0.8, 0., 0.8])
+end_point = np.array([0.5, 0.1, 0.8])
 
 x_desired = pin.SE3(qua, end_point)  # TODO: set desired position and orientation
 x_desired.rotation = np.eye(3)
@@ -547,6 +547,12 @@ if __name__ == '__main__':
     joint_pos_values = []
     mu_values = []
     dist_values = []
+
+    X_list = []
+    Y_list = []
+    Z_list = []
+    D_list = []
+
 
     # TODO: Start update loop
     for ii in range(number_iteration):

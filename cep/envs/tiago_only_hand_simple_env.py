@@ -23,7 +23,7 @@ class TiagoOneParallelHand(): # TODO: 06.12
     def __init__(self, reward_type=0, time_step=1./240.):
         self.EE_link = "arm_7_link"
         self.EE_ID = 37
-        self.Target_pos = [0.7, 0.2, 0.9]
+        self.Target_pos = [0.3, 0.2, 0.8]
         self.name_base_link = "world"
         self.JOINT_ID = [31, 32, 33, 34, 35, 36, 37]
         self.link_names = ["arm_1_link", "arm_2_link", "arm_3_link", "arm_4_link", "arm_5_link", "arm_6_link", self.EE_link]

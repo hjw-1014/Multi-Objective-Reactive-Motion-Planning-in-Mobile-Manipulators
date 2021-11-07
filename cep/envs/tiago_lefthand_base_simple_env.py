@@ -30,7 +30,7 @@ class Tiago_LeftParallelHand_Base(): # TODO: 08.06
         self.Base_Y_ID = 1
         self.Target_pos = Target_pose
         self.Base_position = [1.2, 1.0, 0.0]
-        self.END_POS = [1.5, 1.2, 0.8]
+        self.END_POS = [1.7, 1.1, 0.8]
         self.name_base_link = "world"
         self.JOINT_ID = [0, 1, 2, 34, 35, 36, 37, 38, 39, 40]
         self.link_names = ['X', 'Y', 'R', "arm_1_link", "arm_2_link", "arm_3_link", "arm_4_link", "arm_5_link", "arm_6_link", self.EE_link]
@@ -45,7 +45,7 @@ class Tiago_LeftParallelHand_Base(): # TODO: 08.06
 
         self.robot = p.loadURDF(self.robot_file, flags=p.URDF_USE_SELF_COLLISION_EXCLUDE_PARENT)
 
-        self.ballId = p.loadURDF('sphere_1cm.urdf', [1.5, 1.2, 0.8], p.getQuaternionFromEuler([0., 0., 0.]))
+        self.ballId = p.loadURDF('sphere_1cm.urdf', [1.7, 1.1, 0.8], p.getQuaternionFromEuler([0., 0., 0.]))
         joint_num = p.getNumJoints(self.robot)
         #print("joint_num ", joint_num)
 
@@ -82,7 +82,7 @@ class Tiago_LeftParallelHand_Base(): # TODO: 08.06
         self.DYNAMICS_ON = False
 
         ## Threshold ##
-        self.break_threshold = 0.08
+        self.break_threshold = 0.05
         self.success_threshold = 0.02
 
     @property

@@ -97,14 +97,14 @@ def cep_model_lefthandBase_taskgotoAndPathplan():  ## TODO: Added on 08.12, 08.1
     fk_map = maps.FK_ALL_lefthand_base(tiago_kin)
     pick_map = maps.SelectionMap(idx=9)
     ## End Effector Branch ##
-    b = torch.Tensor([1.5, 1.2, 0.8])
+    b = torch.Tensor([1.7, 1.1, 0.8])
     R = eul2rot(torch.Tensor([0., 0., 0.]))
     H = torch.eye(4)
     H[:3, :3] = R
     H[:3, -1] = b
     A = torch.eye(6)
     ## Leaf and Tree ##
-    ee_goto_leaf = energies.TaskGoToLeaf(dim=6, b=b, A=A, R=H, var=torch.eye(6)*0.1)
+    ee_goto_leaf = energies.TaskGoToLeaf(dim=6, b=b, A=A, R=H, var=torch.eye(6) * 0.01)
     ee_energy_tree = EnergyTree(branches=[ee_goto_leaf], map=pick_map)
     q_branches = [ee_energy_tree]
     task_energy_tree = EnergyTree(branches=q_branches, map=fk_map).to(device)
@@ -119,7 +119,7 @@ def cep_model_lefthandBase_taskgotoAndPathplan():  ## TODO: Added on 08.12, 08.1
     base_map = maps.PathplanMap(idx=2)  # Map R^10 to R^2
     identity_map = maps.SimpleBase(dim=2)  # Keep x and y as the same
     ## Leaf and Tree ##
-    base_goto_leaf = energies.PathPlanLeaf_lefthand_and_base(var=torch.eye(2).float() * 0.1)
+    base_goto_leaf = energies.PathPlanLeaf_lefthand_and_base(var=torch.eye(2).float() * 10.)
     base_energy_tree = EnergyTree(branches=[base_goto_leaf], map=identity_map).to(device)
 
     #########################
