@@ -268,7 +268,7 @@ def joint_control(robot, q, K: int, dt: float):
 
 def start_pybullet():  # load Tiago in Pybullet
 
-    physicsClient = p.connect(p.GUI)  # or p.DIRECT for non-graphical version
+    physicsClient = p.connect(p.DIRECT)  # or p.DIRECT for non-graphical version
     p.setAdditionalSearchPath(pybullet_data.getDataPath())
     p.resetSimulation(p.RESET_USE_DEFORMABLE_WORLD)
     p.setGravity(0, 0, -9.81)
@@ -725,7 +725,7 @@ DISRANCE = 0.01
 # load Tiago from pybullet
 robotId, planeId, joint_indexes = start_pybullet()
 
-q_des = np.ones((robot.nq,)) * 0.5  # joint control desired q
+#q_des = np.ones((robot.nq,)) * 0.5  # joint control desired q
 
 q_home = [-0.1, -0.1, 0., 0., 0., 0., 0., 0., 0., 0.]
 # for jj in range(len(joint_indexes)):  # TODO: PYBULLET set joint positions
@@ -736,8 +736,8 @@ for i, q_i in enumerate(q_home):
     q_ii = q_i + np.random.rand(1) * 0.3  # Reset initial joint positions
     p.resetJointState(robotId, joint_indexes[i], q_ii)
 
-n_trials = 5
-number_iteration = 300
+n_trials = 200
+number_iteration = 500
 
 if __name__ == '__main__':
 
@@ -775,7 +775,7 @@ if __name__ == '__main__':
             print("============= Start Update ", x_desired, '=============', ii, "th =============")
 
             # TODO: Check the initial 11 q values in Pinocchio
-            print('1 q: ', q)
+            #print('1 q: ', q)
 
             # TODO: Check the initial  10 joint states in PYBULLET
             check_joint_states = getPosVelJoints(robotId, joint_indexes)
