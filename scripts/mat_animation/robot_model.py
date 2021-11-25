@@ -77,7 +77,7 @@ class Plotting:
         robot_x_list = self.robot_x_list
         robot_y_list = self.robot_y_list
 
-        for _ in range(10):
+        for _ in range(1):
             for i in range(0, self.horizon, int(self.horizon/100)):
 
                 plt.cla()
