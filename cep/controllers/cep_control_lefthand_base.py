@@ -94,7 +94,7 @@ class Multi_EBMControl():
             # for et in self.energy_tree:
             #     self.log_p_dq += et.log_prob(action)
 
-            self.log_p_dq = self.energy_tree[0].log_prob(action) + self.energy_tree[1].log_prob(action) # TODO: 07.10 FIX jscAndGoto!
+            self.log_p_dq = 0.1 * self.energy_tree[0].log_prob(action) + 10. * self.energy_tree[1].log_prob(action) # TODO: 07.10 FIX jscAndGoto!
 
             #log_p_dq = self.energy_tree.log_prob(action)  # Energy, torch.Size([1000]) # TODO: 06.28
 
@@ -195,7 +195,7 @@ class EnergyTree(nn.Module):
 
         if i_temperatures is None:
             #self.i_temperatures = torch.ones(len(branches)) #TODO: Change parameters
-            self.i_temperatures = torch.tensor((1.0, 0.5))
+            self.i_temperatures = torch.tensor((1.0, 1.0))
             #self.i_temperatures = torch.tensor((0.2, 1.0))  # TaskGoto, PathPlan
         #self.i_temperatures = nn.Parameter(i_temperatures)
         self.branches = nn.ModuleList(branches)

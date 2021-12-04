@@ -85,13 +85,13 @@ def experiment():
 
     time_step = 1 / 240.
 
-    env = Tiago_LeftParallelHand_Base(time_step=time_step, Target_pose=[1.5, 1.2, 0.8])
+    env = Tiago_LeftParallelHand_Base(time_step=time_step, Target_pose=[1.7, 1.1, 0.8])
 
     policy = CEPPolicy(dt=time_step)
     ################
 
     n_trials = 100
-    horizon = 10000
+    horizon = 5000
     c = 0
     s = 0
     REWARD = 0
@@ -247,7 +247,7 @@ def experiment():
 
 
 if __name__ == '__main__':
-    p.connect(p.DIRECT, 1234,
+    p.connect(p.GUI_SERVER, 1234,
               options='--background_color_red=1. --background_color_green=1. --background_color_blue=1.')
     p.resetDebugVisualizerCamera(2.2, 55.6, -47.4, [0.04, 0.06, 0.31])
     experiment()

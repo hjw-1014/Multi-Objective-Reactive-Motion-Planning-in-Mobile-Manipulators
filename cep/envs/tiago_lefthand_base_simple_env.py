@@ -22,7 +22,7 @@ class Tiago_LeftParallelHand_Base(): # TODO: 08.06
 
     ######################## Tiago with one parallel gripper hand ########################
 
-    def __init__(self, reward_type=0, time_step=1./240., Target_pose=[1.5, 1.2, 0.8]):
+    def __init__(self, reward_type=0, time_step=1./240., Target_pose=[1.7, 1.1, 0.8]):
         p.connect(p.DIRECT)
         self.EE_link = "arm_7_link"
         self.EE_ID = 43
@@ -45,7 +45,7 @@ class Tiago_LeftParallelHand_Base(): # TODO: 08.06
 
         self.robot = p.loadURDF(self.robot_file, flags=p.URDF_USE_SELF_COLLISION_EXCLUDE_PARENT)
 
-        self.ballId = p.loadURDF('sphere_1cm.urdf', [1.7, 1.1, 0.8], p.getQuaternionFromEuler([0., 0., 0.]))
+        self.ballId = p.loadURDF('sphere_small.urdf', [1.7, 1.1, 0.8], p.getQuaternionFromEuler([0., 0., 0.]))
         joint_num = p.getNumJoints(self.robot)
         #print("joint_num ", joint_num)
 
@@ -122,13 +122,30 @@ class Tiago_LeftParallelHand_Base(): # TODO: 08.06
             #print('======= Set joint motor contorl ========')
             if self.DYNAMICS_ON:  # Use setJointMotorControl or resetJointState to control q
                 #print('1step')
+                if i == 2:
+                    # if q_i <= np.pi / 6:
+                    #     q_2 = q_i
+                    # else:
+                    #     q_2 = np.pi/6
+                    q_2 = 0.
+                    p.setJointMotorControl2(self.robot, self.JOINT_ID[i], p.POSITION_CONTROL, targetPosition=q_2,
+                                            targetVelocity=a_v[i],
+                                            force=p.getJointInfo(self.robot, self.JOINT_ID[i])[10])
                 p.setJointMotorControl2(self.robot, self.JOINT_ID[i], p.POSITION_CONTROL, targetPosition=q_i,
                                         targetVelocity=a_v[i],
                                         force=p.getJointInfo(self.robot, self.JOINT_ID[i])[10])
             else:
                 #print('q_i', q_i)
                 #print('2step')
-                p.resetJointState(self.robot, self.JOINT_ID[i], q_i)
+                if i == 2:
+                    # if q_i <= np.pi / 24:
+                    #     q_2 = q_i
+                    # else:
+                    #     q_2 = np.pi / 24
+                    q_2 = 0.
+                    p.resetJointState(self.robot, self.JOINT_ID[i], q_2)
+                else:
+                    p.resetJointState(self.robot, self.JOINT_ID[i], q_i)
 
         self.q = np.array(
             [[p.getJointState(self.robot, 0)[0], p.getJointState(self.robot, 1)[0], p.getJointState(self.robot, 2)[0],
