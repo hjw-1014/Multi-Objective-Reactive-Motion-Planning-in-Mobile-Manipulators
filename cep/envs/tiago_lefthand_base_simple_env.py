@@ -47,7 +47,8 @@ class Tiago_LeftParallelHand_Base(): # TODO: 08.06
 
         self.robot = p.loadURDF(self.robot_file, flags=p.URDF_USE_SELF_COLLISION_EXCLUDE_PARENT)
 
-        self.ballId = p.loadURDF('sphere_small.urdf', [1.7, 1.1, 0.8], p.getQuaternionFromEuler([0., 0., 0.]))
+        #self.ballId = p.loadURDF('sphere_small.urdf', [1.7, 1.1, 0.8], p.getQuaternionFromEuler([0., 0., 0.]))
+        self.ballId = p.loadURDF('sphere_small.urdf', [1.2, 1., 0.], p.getQuaternionFromEuler([0., 0., 0.]))
         joint_num = p.getNumJoints(self.robot)
         #print("joint_num ", joint_num)
 

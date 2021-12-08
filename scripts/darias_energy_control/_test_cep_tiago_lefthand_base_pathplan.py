@@ -101,14 +101,14 @@ def experiment():
     ################
 
     n_trials = 10
-    horizon = 2500
+    horizon = 3000
     c = 0
     s = 0
     REWARD = 0
     END_POSITION = None
     for itr in range(n_trials):
         state = env.reset()
-        p.addUserDebugLine([0., 0., -0.189], [1.5, 0., -0.189], [1., 0., 0.])
+        #p.addUserDebugLine([0., 0., -0.189], [1.5, 0., -0.189], [1., 0., 0.])
 
         robot_x_list = []
         robot_y_list = []
@@ -132,25 +132,25 @@ def experiment():
             end = time.time()
             time.sleep(np.clip(time_step - (end - init), 0, time_step))
 
-            if i == (horizon-1):
-                REWARD = base_dist
-                END_POSITION = env.check_endPosition()
-                print('Position state: ', state[0])
-                print('Distance:',  REWARD)
-                print('End position: ', END_POSITION)
-                print('Desired position', env.Target_pos)
-
-                ##################################
-                # TODO: Matplot animation version | 09.16
-                # print("len(robot_x_list): ", len(robot_x_list))
-                # print("robot_x_list: ", robot_x_list)
-                # print("robot_y_list: ", robot_y_list)
-
-                plotting = Plotting(robot_x_list=robot_x_list, robot_y_list=robot_y_list, dist_list=dist_list,horizon=i)
-                #plotting.plot_fig_wholebody()
-                plotting.plot_path(robot_x_list=robot_x_list, robot_y_list=robot_y_list)
-                plotting.plot_animation()
-                break
+            # if i == (horizon-1):
+            #     REWARD = base_dist
+            #     END_POSITION = env.check_endPosition()
+            #     print('Position state: ', state[0])
+            #     print('Distance:',  REWARD)
+            #     print('End position: ', END_POSITION)
+            #     print('Desired position', env.Target_pos)
+            #
+            #     ##################################
+            #     # TODO: Matplot animation version | 09.16
+            #     # print("len(robot_x_list): ", len(robot_x_list))
+            #     # print("robot_x_list: ", robot_x_list)
+            #     # print("robot_y_list: ", robot_y_list)
+            #
+            #     plotting = Plotting(robot_x_list=robot_x_list, robot_y_list=robot_y_list, dist_list=dist_list,horizon=i)
+            #     #plotting.plot_fig_wholebody()
+            #     plotting.plot_path(robot_x_list=robot_x_list, robot_y_list=robot_y_list)
+            #     plotting.plot_animation()
+            #     break
         ##################################
 
         #plot_joints(q_list, horizon)
@@ -158,7 +158,7 @@ def experiment():
 
 
 if __name__ == '__main__':
-    p.connect(p.DIRECT, 1234,
+    p.connect(p.GUI_SERVER, 1234,
               options='--background_color_red=1. --background_color_green=1. --background_color_blue=1.')
     p.resetDebugVisualizerCamera(2.2, 55.6, -47.4, [0.04, 0.06, 0.31])
     experiment()
