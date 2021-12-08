@@ -130,7 +130,7 @@ class Plotting:
         robot_y_list = self.robot_y_list
 
         for _ in range(10):
-            for i in range(0, self.horizon, int(self.horizon/100)):
+            for i in range(0, self.horizon, int(self.horizon/75)):
 
                 plt.cla()
 
@@ -161,9 +161,9 @@ class Plotting:
                 ax.text(1.2, 1.0, s='goal', fontsize=8.)
                 ax.add_patch(goal_circle)
 
-                box_circle = plt.Circle((0.5, 0.5), 0.15, color='r', fill=True)
-                ax.text(0.5, 0.5, s='Box', fontsize=8.)
-                ax.add_patch(box_circle)
+                # box_circle = plt.Circle((0.5, 0.5), 0.15, color='r', fill=True)
+                # ax.text(0.5, 0.5, s='Box', fontsize=8.)
+                # ax.add_patch(box_circle)
                 ax.add_patch(Rectangle((0.35, 0.35), 0.3, 0.3, facecolor="black", alpha=0.5))
 
                 plt.pause(1e-2)
@@ -252,9 +252,9 @@ class Plotting:
         ax.add_patch(Rectangle((left, bottom), width, height,
                                facecolor="black", alpha=0.5))
 
-        box_circle = plt.Circle((0.5, 0.5), 0.15, color='r', fill=True)
-        ax.text(0.5, 0.5, s='Box', fontsize=8.)
-        ax.add_patch(box_circle)
+        # box_circle = plt.Circle((0.5, 0.5), 0.15, color='r', fill=True)
+        # ax.text(0.5, 0.5, s='Box', fontsize=8.)
+        # ax.add_patch(box_circle)
 
         # t = time.strftime("%Y-%m-%d-%H_%M_%S", time.localtime())
         # myfig = plt.gcf()

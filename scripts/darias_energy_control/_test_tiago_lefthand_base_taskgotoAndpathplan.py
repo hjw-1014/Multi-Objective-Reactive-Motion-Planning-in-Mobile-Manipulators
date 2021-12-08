@@ -142,31 +142,31 @@ def experiment():
             end = time.time()
             time.sleep(np.clip(time_step - (end - init), 0, time_step))
 
-            # if i == (horizon-1) or ee_dist <= 0.02:
-            #     # REWARD = base_dist
-            #     # END_POSITION = env.check_endPosition()
-            #     # ee_dist = env._compute_reward()
-            #     # ee_x_list.append(END_POSITION[0])
-            #     # print("END_POSITION[0]: ", END_POSITION[0])
-            #     # ee_y_list.append(END_POSITION[1])
-            #     # ee_z_list.append(END_POSITION[2])
-            #     # ee_dist_list.append(ee_dist)
-            #
-            #     print('Position state: ', state[0])
-            #     print('Distance:',  REWARD)
-            #     print('End position: ', END_POSITION)
-            #     print('Desired position', env.Target_pos)
-            #
-            #     ##################################
-            #     # TODO: Matplot animation version | 09.16
-            #     # print("len(robot_x_list): ", len(robot_x_list))
-            #     # print("robot_x_list: ", robot_x_list)
-            #     # print("robot_y_list: ", robot_y_list)
-            #
-            #     #plotting = Plotting(robot_x_list=ee_x_list, robot_y_list=ee_y_list, robot_z_list = ee_z_list, dist_list = ee_dist_list, horizon=i)
-            #     #plotting.plot_fig_wholebody(des_x=1.7, des_y=1.1, des_z=0.8)
-            #     #plotting.plot_path(robot_x_list=robot_x_list, robot_y_list=robot_y_list)
-            #     #plotting.plot_animation()
+            if i == (horizon-1) or ee_dist <= 0.02:
+                # REWARD = base_dist
+                # END_POSITION = env.check_endPosition()
+                # ee_dist = env._compute_reward()
+                # ee_x_list.append(END_POSITION[0])
+                # print("END_POSITION[0]: ", END_POSITION[0])
+                # ee_y_list.append(END_POSITION[1])
+                # ee_z_list.append(END_POSITION[2])
+                # ee_dist_list.append(ee_dist)
+
+                print('Position state: ', state[0])
+                print('Distance:',  REWARD)
+                print('End position: ', END_POSITION)
+                print('Desired position', env.Target_pos)
+
+                ##################################
+                # TODO: Matplot animation version | 09.16
+                # print("len(robot_x_list): ", len(robot_x_list))
+                # print("robot_x_list: ", robot_x_list)
+                # print("robot_y_list: ", robot_y_list)
+
+                #plotting = Plotting(robot_x_list=ee_x_list, robot_y_list=ee_y_list, robot_z_list = ee_z_list, dist_list = ee_dist_list, horizon=i)
+                #plotting.plot_fig_wholebody(des_x=1.7, des_y=1.1, des_z=0.8)
+                #plotting.plot_path(robot_x_list=robot_x_list, robot_y_list=robot_y_list)
+                #plotting.plot_animation()
             #     break
         ##################################
         X_List.append(np.asarray(ee_x_list).reshape(1, -1))
@@ -247,7 +247,7 @@ def experiment():
 
 
 if __name__ == '__main__':
-    p.connect(p.GUI_SERVER, 1234,
+    p.connect(p.DIRECT, 1234,
               options='--background_color_red=1. --background_color_green=1. --background_color_blue=1.')
     p.resetDebugVisualizerCamera(2.2, 55.6, -47.4, [0.04, 0.06, 0.31])
     experiment()
