@@ -3,7 +3,7 @@ import numpy as np
 from cep.utils import eul2rot
 
 from cep.kinematics import TiagoRobot_lefthand_Base
-from cep.controllers import Multi_EBMControl, EBMControl, EnergyTree, EBMControl_x, EnergyTree_x
+from cep.controllers import Multi_EBMControl, EBMControl, EnergyTree#, EBMControl_x, EnergyTree_x
 
 
 from cep import maps

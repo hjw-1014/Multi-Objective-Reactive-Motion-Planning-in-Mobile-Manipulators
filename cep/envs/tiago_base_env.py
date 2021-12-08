@@ -44,7 +44,7 @@ class TiagoOnlyBase(): # TODO: 10.02
 
         self.robot = p.loadURDF(self.robot_file, flags=p.URDF_USE_SELF_COLLISION_EXCLUDE_PARENT)
 
-        self.ballId = p.loadURDF('sphere_1cm.urdf', [1.5, 1.2, 0.8], p.getQuaternionFromEuler([0., 0., 0.]))
+        self.ballId = p.loadURDF('sphere_small.urdf', [1.5, 1.2, 0.8], p.getQuaternionFromEuler([0., 0., 0.]))
         joint_num = p.getNumJoints(self.robot)
         #print("joint_num ", joint_num)
 
