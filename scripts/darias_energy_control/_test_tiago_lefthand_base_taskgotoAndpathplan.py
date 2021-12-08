@@ -247,7 +247,7 @@ def experiment():
 
 
 if __name__ == '__main__':
-    p.connect(p.DIRECT, 1234,
+    p.connect(p.GUI_SERVER, 1234,
               options='--background_color_red=1. --background_color_green=1. --background_color_blue=1.')
     p.resetDebugVisualizerCamera(2.2, 55.6, -47.4, [0.04, 0.06, 0.31])
     experiment()
