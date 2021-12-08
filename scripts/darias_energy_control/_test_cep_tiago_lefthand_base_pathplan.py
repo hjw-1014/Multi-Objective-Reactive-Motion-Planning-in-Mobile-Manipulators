@@ -101,7 +101,7 @@ def experiment():
     ################
 
     n_trials = 10
-    horizon = 6000
+    horizon = 2500
     c = 0
     s = 0
     REWARD = 0
@@ -147,7 +147,7 @@ def experiment():
                 # print("robot_y_list: ", robot_y_list)
 
                 plotting = Plotting(robot_x_list=robot_x_list, robot_y_list=robot_y_list, dist_list=dist_list,horizon=i)
-                plotting.plot_fig()
+                #plotting.plot_fig_wholebody()
                 plotting.plot_path(robot_x_list=robot_x_list, robot_y_list=robot_y_list)
                 plotting.plot_animation()
                 break
@@ -158,7 +158,7 @@ def experiment():
 
 
 if __name__ == '__main__':
-    p.connect(p.GUI_SERVER, 1234,
+    p.connect(p.DIRECT, 1234,
               options='--background_color_red=1. --background_color_green=1. --background_color_blue=1.')
     p.resetDebugVisualizerCamera(2.2, 55.6, -47.4, [0.04, 0.06, 0.31])
     experiment()

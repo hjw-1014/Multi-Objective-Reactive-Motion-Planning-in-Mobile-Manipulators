@@ -90,8 +90,8 @@ def experiment():
     policy = CEPPolicy(dt=time_step)
     ################
 
-    n_trials = 10
-    horizon = 5000
+    n_trials = 1
+    horizon = 4000
     c = 0
     s = 0
     REWARD = 0
