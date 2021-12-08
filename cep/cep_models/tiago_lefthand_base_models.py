@@ -95,7 +95,7 @@ def cep_model_lefthandBase_taskgotoAndPathplan():  ## TODO: Added on 08.12, 08.1
     ##Get all the FK maps##
     tiago_kin = TiagoRobot_lefthand_Base()
     fk_map = maps.FK_ALL_lefthand_base(tiago_kin)
-    pick_map = maps.SelectionMap(idx=9)
+    pick_map = maps.SelectionMap(idx=8)
     ## End Effector Branch ##
     b = torch.Tensor([1.7, 1.1, 0.8])
     R = eul2rot(torch.Tensor([0., 0., 0.]))
@@ -119,7 +119,7 @@ def cep_model_lefthandBase_taskgotoAndPathplan():  ## TODO: Added on 08.12, 08.1
     base_map = maps.PathplanMap(idx=2)  # Map R^10 to R^2
     identity_map = maps.SimpleBase(dim=2)  # Keep x and y as the same
     ## Leaf and Tree ##
-    base_goto_leaf = energies.PathPlanLeaf_lefthand_and_base(var=torch.eye(2).float() * 1)
+    base_goto_leaf = energies.PathPlanLeaf_lefthand_and_base(var=torch.eye(2).float() * 0.1)
     base_energy_tree = EnergyTree(branches=[base_goto_leaf], map=identity_map).to(device)
 
     #########################
@@ -132,11 +132,11 @@ def cep_model_lefthandBase_taskgotoAndPathplan():  ## TODO: Added on 08.12, 08.1
     #ee_obj_avoid_leaf = energies.ObjAvoidLeaf()  # TODO: add branches here LATER!!!
 
     # TODO: Whole network
-    policy = Multi_EBMControl(energy_tree=energy_trees, device=device, optimization_steps=5, dt=0.1, n_particles=5000)
+    policy = Multi_EBMControl(energy_tree=energy_trees, device=device, optimization_steps=5, dt=0.01, n_particles=5000)
 
     return policy
 
-def cep_tiago_lefthand_base_pathplan():  # TODO: 08.15, 08.17, 08.18
+def cep_tiago_lefthand_base_pathplan():  # TODO: 08.15, 08.17, 08.18 | 12.06
 
     # TODO: PathPlanLeaf
     base_map = maps.PathplanMap(idx=2)  # Map R^10 to R^2

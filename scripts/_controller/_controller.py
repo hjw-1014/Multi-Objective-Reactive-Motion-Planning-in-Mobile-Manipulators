@@ -93,6 +93,10 @@ def cep_cascade_control_rrt_tree(current_position, current_velocity, graph_rrt_s
 
     # Calculate ddx | PD control
     for j in range(2):
+        # print(j)
+        # print(closest_point)
+        # print(current_position)
+        # print(current_velocity)
         ddx[j] = kp * (closest_point[j] - current_position[j]) + kv * (0 - current_velocity[j])
     sum_ddx = math.hypot(ddx[0], ddx[1])
     for jj in range(2):

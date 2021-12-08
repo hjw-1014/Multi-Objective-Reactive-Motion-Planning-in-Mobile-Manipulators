@@ -16,7 +16,7 @@ robot_y = 0.
 
 class MatTiagoEnv:
 
-    def __init__(self, delta=1./50., acc_control=False):
+    def __init__(self, delta=1./50., acc_control=False, enable_apf=False):
 
         self.obstacle = None
         self.START_POINT = np.array([-0.1, -0.1])
@@ -33,18 +33,20 @@ class MatTiagoEnv:
         self.THRESHOLD = 0.02
 
         self.acc_ctl = acc_control
+        self.apf = enable_apf
 
     def reset(self):
 
         self.cur_pos = self.START_POINT
         self.cur_vel = self.vel_init
 
+        if not self.apf:
         # TODO: State is position and velocity
-        init_state = np.concatenate([self.cur_pos, self.cur_vel]).reshape(-1, 1)
+            init_state = np.concatenate([self.cur_pos, self.cur_vel]).reshape(-1, 1)
 
-
+        elif self.apf:
         # TODO: State is position
-        #init_state = self.cur_pos
+            init_state = self.cur_pos
 
         return init_state
 

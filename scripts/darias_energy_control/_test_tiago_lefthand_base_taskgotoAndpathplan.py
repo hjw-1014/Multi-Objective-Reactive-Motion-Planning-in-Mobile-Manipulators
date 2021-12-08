@@ -9,7 +9,7 @@ import torch
 from mat_animation import Plotting
 
 joint_limit_buffers = 0.02
-joint_limits = np.array([2.5, 2.5, 3.1416, 2.75, 1.57, 3.53, 2.35, 2.09, 1.57, 2.09]) - joint_limit_buffers
+joint_limits = np.array([2.5, 2.5, 2.75, 1.57, 3.53, 2.35, 2.09, 1.57, 2.09]) - joint_limit_buffers
 
 device = torch.device('cpu')
 
@@ -55,15 +55,15 @@ def plot_xyzd(des_x=1.7, des_y=1.1, des_z=0.8,
     plt.show()
 
 class CEPPolicy():
-    def __init__(self, dt=1 / 10., dtype='float64'):
+    def __init__(self, dt=1 / 100., dtype='float64'):
         self.dt = dt
         self.dtype = dtype
 
         self.controller = cep_model_lefthandBase_taskgotoAndPathplan()
 
     def policy(self, state):
-        joint_poses = state[0, 0:10]
-        joint_vels = state[0, 10:]
+        joint_poses = state[0, 0:9]
+        joint_vels = state[0, 9:]
 
         action = self.controller.policy(state)
 
@@ -90,7 +90,7 @@ def experiment():
     policy = CEPPolicy(dt=time_step)
     ################
 
-    n_trials = 100
+    n_trials = 10
     horizon = 5000
     c = 0
     s = 0

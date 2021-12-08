@@ -9,12 +9,12 @@ import torch
 from mat_animation import Plotting
 
 joint_limit_buffers = 0.02
-joint_limits = np.array([2.5, 2.5, 3.1416, 2.75, 1.57, 3.53, 2.35, 2.09, 1.57, 2.09]) - joint_limit_buffers
+joint_limits = np.array([2.5, 2.5, 2.75, 1.57, 3.53, 2.35, 2.09, 1.57, 2.09]) - joint_limit_buffers
 
 device = torch.device('cpu')
 
 class CEPPolicy:
-    def __init__(self, dt=1/240., dtype='float64'):
+    def __init__(self, dt=1/100., dtype='float64'):
         self.dt = dt
         self.dtype = dtype
 
@@ -22,7 +22,7 @@ class CEPPolicy:
 
     def policy(self, state):
         joint_poses = state[0, :2]
-        joint_vels = state[0, 10:12]
+        joint_vels = state[0, 9:11]
 
         action = self.controller.policy(state)
 
@@ -93,14 +93,14 @@ def experiment():
     results_dir: path to the folder in which we are saving the results
     '''
 
-    time_step = 1 / 240.
+    time_step = 1 / 100.
 
     env = Tiago_LeftParallelHand_Base(time_step=time_step, Target_pose=[1.5, 1.2, 0.8])
 
     policy = CEPPolicy(dt=time_step)
     ################
 
-    n_trials = 1
+    n_trials = 10
     horizon = 6000
     c = 0
     s = 0

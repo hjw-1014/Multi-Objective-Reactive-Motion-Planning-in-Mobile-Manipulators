@@ -15,8 +15,8 @@ class FK_ALL_lefthand_base(Map):
         self.J = None
 
     def map_state(self, x):  # x: torch.Size([1, 20])
-        q = x[:, :10]  # torch.Size([1, 10])
-        qd = x[:, 10:]  # torch.Size([1, 10])
+        q = x[:, :9]  # torch.Size([1, 10])
+        qd = x[:, 9:]  # torch.Size([1, 10])
         q_np = torch2numpy(q[0, :])   # (10, )
         qd_np = torch2numpy(qd[0, :])  # (10, )
 

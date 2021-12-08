@@ -52,7 +52,7 @@ def experiment(CEP_Policy):
     cur_policy = CEP_Policy
     ################
 
-    n_trials = 100
+    n_trials = 2
     horizon = 6000
     c = 0
     s = 0

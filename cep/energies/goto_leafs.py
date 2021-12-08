@@ -237,10 +237,12 @@ class PathPlanLeaf_lefthand_and_base(EnergyLeaf):
         '''
         We compute the conditioning variables of our model to have a faster optimization
         '''
+        #print("state: ", state)
         xy = state[0]  # torch.Size([2]), x and y
         xy_t = torch2numpy(xy).tolist()
         v = state[1]  # torch.Size([2]), dx, dy
         v_t = torch2numpy(v).tolist()
+        #print("v_t: ", v_t)
 
         # TODO: NEED to set a multivariable gaussian distribution of dx. | added on 08.13, 08.17
         ###########################################
