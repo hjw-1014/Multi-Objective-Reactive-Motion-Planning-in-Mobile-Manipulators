@@ -119,7 +119,7 @@ def cep_model_lefthandBase_taskgotoAndPathplan():  ## TODO: Added on 08.12, 08.1
     base_map = maps.PathplanMap(idx=2)  # Map R^10 to R^2
     identity_map = maps.SimpleBase(dim=2)  # Keep x and y as the same
     ## Leaf and Tree ##
-    base_goto_leaf = energies.PathPlanLeaf_lefthand_and_base(var=torch.eye(2).float() * 0.1)
+    base_goto_leaf = energies.PathPlanLeaf_lefthand_and_base(var=torch.eye(2).float() * .1)
     base_energy_tree = EnergyTree(branches=[base_goto_leaf], map=identity_map).to(device)
 
     #########################
@@ -132,7 +132,7 @@ def cep_model_lefthandBase_taskgotoAndPathplan():  ## TODO: Added on 08.12, 08.1
     #ee_obj_avoid_leaf = energies.ObjAvoidLeaf()  # TODO: add branches here LATER!!!
 
     # TODO: Whole network
-    policy = Multi_EBMControl(energy_tree=energy_trees, device=device, optimization_steps=5, dt=0.01, n_particles=5000)
+    policy = Multi_EBMControl(energy_tree=energy_trees, device=device, optimization_steps=10, dt=0.01, n_particles=10000)
 
     return policy
 

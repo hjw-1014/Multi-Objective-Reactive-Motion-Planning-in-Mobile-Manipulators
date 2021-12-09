@@ -83,15 +83,15 @@ def experiment():
     results_dir: path to the folder in which we are saving the results
     '''
 
-    time_step = 1 / 240.
+    time_step = 1 / 100.
 
     env = Tiago_LeftParallelHand_Base(time_step=time_step, Target_pose=[1.7, 1.1, 0.8])
 
     policy = CEPPolicy(dt=time_step)
     ################
 
-    n_trials = 1
-    horizon = 4000
+    n_trials = 10
+    horizon = 3000
     c = 0
     s = 0
     REWARD = 0
@@ -104,7 +104,7 @@ def experiment():
 
     for itr in range(n_trials):
         state = env.reset()
-        p.addUserDebugLine([0., 0., -0.189], [1.5, 0., -0.189], [1., 0., 0.])
+        #p.addUserDebugLine([0., 0., -0.189], [1.5, 0., -0.189], [1., 0., 0.])
 
         robot_x_list = []
         robot_y_list = []
