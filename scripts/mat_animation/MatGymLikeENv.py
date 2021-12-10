@@ -433,7 +433,7 @@ class PlottingComplex:
                 ax.text(self.des_x, self.des_y, s='goal', fontsize=9.)
                 ax.add_patch(goal_circle)
 
-                self.OBS_CIRCLE_1 = np.array([0.2, 0.3])
+                self.OBS_CIRCLE_1 = np.array([0.3, 0.25])
                 self.OBS_CIRCLE_2 = np.array([0.6, 0.7])
                 self.OBS_CIRCLE_3 = np.array([0.1, 0.9])
                 self.OBS_RECTANGLE_1 = np.array([1.0, 0.2])

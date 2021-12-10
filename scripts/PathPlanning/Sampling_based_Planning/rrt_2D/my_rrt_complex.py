@@ -11,7 +11,7 @@ from icecream import ic
 import time
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)) + "/comp_energy_policy-main/scripts/PathPlanning/Sampling_based_Planning/")
-from Sampling_based_Planning.rrt_2D import my_plotting, my_utils, my_env
+from Sampling_based_Planning.rrt_2D import my_plotting_complex, my_utils_complex, my_env_complex
 
 
 class Node:
@@ -30,9 +30,9 @@ class Rrt:
         self.iter_max = iter_max
         self.vertex = [self.s_start]  # start root
 
-        self.env = my_env.MyEnv()  # TODO: change environment
-        self.plotting = my_plotting.Plotting(s_start, s_goal)
-        self.utils = my_utils.Utils()
+        self.env = my_env_complex.MyEnv()  # TODO: change environment
+        self.plotting = my_plotting_complex.Plotting(s_start, s_goal)
+        self.utils = my_utils_complex.Utils()
 
         self.x_range = self.env.x_range
         self.y_range = self.env.y_range
@@ -109,12 +109,12 @@ class Rrt:
 
 
 def main():
-    x_start = (120, 100)  # Starting node
-    x_goal = (0, 0)  # Goal node
+    x_start = (120, 120)  # Starting node
+    x_goal = (-10, -10)  # Goal node
 
     start_time = time.time()
 
-    rrt = Rrt(x_start, x_goal, 5, 1e-5, 100000)
+    rrt = Rrt(x_start, x_goal, 3, 1e-7, 100000)
     path, graph, nodes_son_father_list, cost2go_map = rrt.planning()
     # print(cost2go_map)
     # print(len(cost2go_map))

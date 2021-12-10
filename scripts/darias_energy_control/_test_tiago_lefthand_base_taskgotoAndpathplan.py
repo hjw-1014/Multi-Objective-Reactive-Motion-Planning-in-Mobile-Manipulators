@@ -90,8 +90,8 @@ def experiment():
     policy = CEPPolicy(dt=time_step)
     ################
 
-    n_trials = 10
-    horizon = 3000
+    n_trials = 100
+    horizon = 10000
     c = 0
     s = 0
     REWARD = 0
@@ -103,6 +103,7 @@ def experiment():
     Dist_List = []
 
     for itr in range(n_trials):
+        print("### Iteration: ", itr)
         state = env.reset()
         #p.addUserDebugLine([0., 0., -0.189], [1.5, 0., -0.189], [1., 0., 0.])
 
@@ -116,7 +117,7 @@ def experiment():
 
         for i in range(horizon):
             init = time.time()
-            print('###Iteration: ', i)
+            #print('###Iteration: ', i)
             #### Get Control Action (Position Control)####
             a = policy.policy(state)
             state, base_dist, done, success, q_vals = env.step(a)
@@ -247,7 +248,7 @@ def experiment():
 
 
 if __name__ == '__main__':
-    p.connect(p.GUI_SERVER, 1234,
+    p.connect(p.DIRECT, 1234,
               options='--background_color_red=1. --background_color_green=1. --background_color_blue=1.')
     p.resetDebugVisualizerCamera(2.2, 55.6, -47.4, [0.04, 0.06, 0.31])
     experiment()
