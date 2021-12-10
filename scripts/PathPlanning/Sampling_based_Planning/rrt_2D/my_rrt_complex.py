@@ -55,12 +55,12 @@ class Rrt:
 
                     # TODO: Extract all the nodes 08.03
                     t = time.strftime("%Y-%m-%d-%H_%M_%S", time.localtime())
-                    #save_path = self.utils.create_dir(t)
+                    save_path = self.utils.create_dir(t)
                     nodes_list = self.utils.vertex_2_xy_list(self.vertex)
                     path = self.extract_path(node_new)
-                    # self.utils.save_vertex_in_npy(self.vertex, t, save_path)
-                    # self.utils.save_graph_in_npy(nodes_list, t, save_path)
-                    # self.utils.save_path_in_npy(path, t, save_path)
+                    self.utils.save_vertex_in_npy(self.vertex, t, save_path)
+                    self.utils.save_graph_in_npy(nodes_list, t, save_path)
+                    self.utils.save_path_in_npy(path, t, save_path)
                     cost2go_map = self.utils.calculate_cost_to_go(self.vertex)
                     # self.utils.save_cost2go_in_npy(cost2go_map, t, save_path)
                     return path, self.vertex, nodes_list, cost2go_map
@@ -114,7 +114,7 @@ def main():
 
     start_time = time.time()
 
-    rrt = Rrt(x_start, x_goal, 3, 1e-7, 100000)
+    rrt = Rrt(x_start, x_goal, 5, 1e-5, 100000)
     path, graph, nodes_son_father_list, cost2go_map = rrt.planning()
     # print(cost2go_map)
     # print(len(cost2go_map))
