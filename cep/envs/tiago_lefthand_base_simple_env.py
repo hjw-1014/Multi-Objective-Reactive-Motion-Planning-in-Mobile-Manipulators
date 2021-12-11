@@ -88,7 +88,7 @@ class Tiago_LeftParallelHand_Base(): # TODO: 08.06
         self.action_space = spaces.Box(-10, 10, shape=(10,), dtype='float32')
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(18,), dtype='float32')  # TODO: Shape???
 
-        self.max_obj_dist_init = 0.01
+        self.max_obj_dist_init = 0.03
 
         self.reward_type = reward_type
 
@@ -96,8 +96,8 @@ class Tiago_LeftParallelHand_Base(): # TODO: 08.06
         self.DYNAMICS_ON = False
 
         ## Threshold ##
-        self.break_threshold = 0.05
-        self.success_threshold = 0.02
+        self.break_threshold = 0.03
+        self.success_threshold = 0.03
 
     @property
     def dt(self):

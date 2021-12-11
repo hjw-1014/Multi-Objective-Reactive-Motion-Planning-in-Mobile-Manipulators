@@ -8,7 +8,7 @@ from cep.cep_models import cep_model_lefthandBase_taskgotoAndPathplan
 import torch
 from mat_animation import Plotting
 
-joint_limit_buffers = 0.02
+joint_limit_buffers = 0.03
 joint_limits = np.array([2.5, 2.5, 2.75, 1.57, 3.53, 2.35, 2.09, 1.57, 2.09]) - joint_limit_buffers
 
 device = torch.device('cpu')
@@ -143,7 +143,7 @@ def experiment():
             end = time.time()
             time.sleep(np.clip(time_step - (end - init), 0, time_step))
 
-            if i == (horizon-1) or ee_dist <= 0.02:
+            if i == (horizon-1) or ee_dist <= 0.03:
                 # REWARD = base_dist
                 # END_POSITION = env.check_endPosition()
                 # ee_dist = env._compute_reward()
