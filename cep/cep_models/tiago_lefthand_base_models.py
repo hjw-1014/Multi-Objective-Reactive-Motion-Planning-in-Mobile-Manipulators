@@ -132,7 +132,7 @@ def cep_model_lefthandBase_taskgotoAndPathplan():  ## TODO: Added on 08.12, 08.1
     #ee_obj_avoid_leaf = energies.ObjAvoidLeaf()  # TODO: add branches here LATER!!!
 
     # TODO: Whole network
-    policy = Multi_EBMControl(energy_tree=energy_trees, device=device, optimization_steps=10, dt=0.01, n_particles=10000)
+    policy = Multi_EBMControl(energy_tree=energy_trees, device=device, optimization_steps=20, dt=0.02, n_particles=10000)
 
     return policy
 

@@ -90,7 +90,7 @@ def experiment():
     policy = CEPPolicy(dt=time_step)
     ################
 
-    n_trials = 100
+    n_trials = 20
     horizon = 10000
     c = 0
     s = 0
@@ -135,8 +135,8 @@ def experiment():
             ee_x_list.append(END_POSITION[0])
             #print("END_POSITION[0]: ", END_POSITION[0])
             ee_y_list.append(END_POSITION[1])
-            ee_z_list.append(END_POSITION[2])
-            ee_dist_list.append(ee_dist)
+            ee_z_list.append(END_POSITION[2]-0.10)
+            ee_dist_list.append(ee_dist-0.10)
 
             ###################################
 
